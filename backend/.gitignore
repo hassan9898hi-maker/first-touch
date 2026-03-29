@@ -1,0 +1,14 @@
+node_modules/
+.env
+.env.local
+.env.production
+*.db
+*.db-shm
+*.db-wal
+dev.db
+dev.db-journal
+firsttouch.db
+logs/
+uploads/
+dist/
+server.js.legacy.bak

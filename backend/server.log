@@ -1,0 +1,18 @@
+2026-02-26 09:37:17 [[32minfo[39m]: Email service initialized {"service":"first-touch","provider":"Outlook"}
+2026-02-26 09:37:17 [[32minfo[39m]: 🐋 FIRST TOUCH Backend running on port 5000
+2026-02-26 09:37:17 [[32minfo[39m]:    Environment: development
+2026-02-26 09:37:17 [[32minfo[39m]:    API: http://localhost:5000/api
+2026-02-26 09:37:39 [[32minfo[39m]: Phone OTP verified — user logged in {"service":"first-touch","userId":1}
+2026-02-26 09:37:45 [[31merror[39m]: Email failed {"service":"first-touch","to":"owner@firsttouch.bh","subject":"🐋 مرحباً في FIRST TOUCH","error":"Invalid login: 535 5.7.3 Authentication unsuccessful [DX1P273CA0029.AREP273.PROD.OUTLOOK.COM 2026-02-26T06:37:41.272Z 08DE74945BDF49C5]"}
+2026-02-26 09:41:03 [[32minfo[39m]: User logged in {"service":"first-touch","userId":1,"role":"owner"}
+2026-02-26 10:27:09 [[32minfo[39m]: User logged in {"service":"first-touch","userId":1,"role":"owner"}
+2026-02-26 10:31:04 [[32minfo[39m]: User logged in {"service":"first-touch","userId":2,"role":"contractor"}
+2026-02-26 12:17:15 [[32minfo[39m]: User logged in {"service":"first-touch","userId":1,"role":"owner"}
+2026-02-26 12:19:22 [[34mdebug[39m]: Validation failed {"service":"first-touch","errors":[{"field":"ownerConditions","message":"Expected string, received null"}],"path":"/"}
+2026-02-26 12:36:53 [[32minfo[39m]: User logged in {"service":"first-touch","userId":1,"role":"owner"}
+2026-02-26 14:53:21 [[32minfo[39m]: User logged in {"service":"first-touch","userId":1,"role":"owner"}
+2026-02-26 14:55:07 [[32minfo[39m]: User logged in {"service":"first-touch","userId":2,"role":"contractor"}
+2026-02-26 14:57:06 [[32minfo[39m]: User logged in {"service":"first-touch","userId":3,"role":"inspector"}
+2026-02-26 14:58:15 [[32minfo[39m]: User logged in {"service":"first-touch","userId":3,"role":"inspector"}
+2026-02-26 15:01:59 [[32minfo[39m]: User logged in {"service":"first-touch","userId":1,"role":"owner"}
+2026-02-26 15:02:21 [[34mdebug[39m]: Validation failed {"service":"first-touch","errors":[{"field":"titleAr","message":"اسم المشروع مطلوب — 3 أحرف على الأقل"},{"field":"ownerConditions","message":"Expected string, received null"}],"path":"/"}

@@ -1,0 +1,564 @@
+// ═══════════════════════════════════════════════
+// FIRST TOUCH — Prisma Schema
+// Switch datasource to postgresql for production
+// ═══════════════════════════════════════════════
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════ USERS ═══════
+model User {
+  id            Int       @id @default(autoincrement())
+  nameAr        String    @map("name_ar")
+  nameEn        String?   @map("name_en")
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  role          String
+  roles         String?
+  companyNameAr String?   @map("company_name_ar")
+  specialty     String?
+  phone         String?
+  crNumber      String?   @map("cr_number")
+  bioAr         String?   @map("bio_ar")
+  profileImage  String?   @map("profile_image")
+  rating        Float     @default(0)
+  totalProjects Int       @default(0) @map("total_projects")
+  isActive      Boolean   @default(true) @map("is_active")
+  isAdmin       Boolean   @default(false) @map("is_admin")
+  emailVerified Boolean   @default(false) @map("email_verified")
+  verifyToken   String?   @map("verify_token")
+  verifyExpiry  DateTime? @map("verify_expiry")
+  resetToken    String?   @map("reset_token")
+  resetExpiry   DateTime? @map("reset_expiry")
+  otpCode       String?   @map("otp_code")
+  otpExpiry     DateTime? @map("otp_expiry")
+  phoneVerified Boolean   @default(false) @map("phone_verified")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  ownedProjects       Project[]              @relation("OwnerProjects")
+  contractedProjects  Project[]              @relation("ContractorProjects")
+  inspectedProjects   Project[]              @relation("InspectorProjects")
+  wallet              Wallet?
+  notifications       Notification[]
+  quotations          Quotation[]
+  inspectorApps       InspectorApplication[]
+  financingApps       FinancingApplication[]
+  contractorEarnings  ContractorEarning[]
+  refreshTokens       RefreshToken[]
+  ratingsGiven        ProjectRating[]        @relation("RaterRelation")
+  ratingsReceived     ProjectRating[]        @relation("RatedRelation")
+  comments            ItemComment[]
+
+  @@map("users")
+}
+
+// ═══════ REFRESH TOKENS ═══════
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int      @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+// ═══════ PROJECTS ═══════
+model Project {
+  id            Int       @id @default(autoincrement())
+  titleAr       String    @map("title_ar")
+  titleEn       String?   @map("title_en")
+  type          String    @default("villa")
+  areaSqm       Float?    @map("area_sqm")
+  floors        Int       @default(1)
+  locationAr    String?   @map("location_ar")
+  totalBudget   Float     @default(0) @map("total_budget")
+  descriptionAr String?   @map("description_ar")
+  hasDesigns      Boolean   @default(false) @map("has_designs")
+  needsDesign     Boolean   @default(false) @map("needs_design")
+  currentStage    String?   @default("design") @map("current_stage")
+  ownerConditions String?   @map("owner_conditions")
+  status          String    @default("new")
+  ownerId       Int       @map("owner_id")
+  contractorId  Int?      @map("contractor_id")
+  inspectorId   Int?      @map("inspector_id")
+  completedAt   DateTime? @map("completed_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  owner          User                   @relation("OwnerProjects", fields: [ownerId], references: [id])
+  contractor     User?                  @relation("ContractorProjects", fields: [contractorId], references: [id])
+  inspector      User?                  @relation("InspectorProjects", fields: [inspectorId], references: [id])
+  stages         Stage[]
+  images         ProjectImage[]
+  quotations     Quotation[]
+  inspectorApps  InspectorApplication[]
+  financingApps  FinancingApplication[]
+  earnings       ContractorEarning[]
+  ratings        ProjectRating[]
+
+  @@map("projects")
+}
+
+// ═══════ STAGES ═══════
+model Stage {
+  id        Int    @id @default(autoincrement())
+  projectId Int    @map("project_id")
+  nameAr    String @map("name_ar")
+  nameEn    String? @map("name_en")
+  orderNum  Int    @default(0) @map("order_num")
+  budget    Float  @default(0)
+  status    String @default("locked")
+
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  subStages SubStage[]
+
+  @@map("stages")
+}
+
+// ═══════ SUB STAGES ═══════
+model SubStage {
+  id       Int    @id @default(autoincrement())
+  stageId  Int    @map("stage_id")
+  nameAr   String @map("name_ar")
+  nameEn   String? @map("name_en")
+  orderNum Int    @default(0) @map("order_num")
+
+  stage    Stage           @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  items    ChecklistItem[]
+
+  @@map("sub_stages")
+}
+
+// ═══════ CHECKLIST ITEMS ═══════
+model ChecklistItem {
+  id                Int       @id @default(autoincrement())
+  subStageId        Int       @map("sub_stage_id")
+  textAr            String    @map("text_ar")
+  textEn            String?   @map("text_en")
+  orderNum          Int       @default(0) @map("order_num")
+  cost              Float     @default(0)
+  contractorDone    Boolean   @default(false) @map("contractor_done")
+  contractorNotes   String?   @map("contractor_notes")
+  contractorDate    DateTime? @map("contractor_date")
+  inspectorDone     Boolean   @default(false) @map("inspector_done")
+  inspectorApproved Boolean   @default(false) @map("inspector_approved")
+  inspectorNotes    String?   @map("inspector_notes")
+  inspectorDate     DateTime? @map("inspector_date")
+  ownerDone         Boolean   @default(false) @map("owner_done")
+  ownerApproved     Boolean   @default(false) @map("owner_approved")
+  ownerDate         DateTime? @map("owner_date")
+
+  subStage SubStage      @relation(fields: [subStageId], references: [id], onDelete: Cascade)
+  files    ItemFile[]
+  earnings ContractorEarning[]
+  comments ItemComment[]
+
+  @@map("checklist_items")
+}
+
+// ═══════ ITEM FILES ═══════
+model ItemFile {
+  id         Int      @id @default(autoincrement())
+  itemId     Int      @map("item_id")
+  fileName   String   @map("file_name")
+  filePath   String?  @map("file_path")
+  fileType   String   @map("file_type")
+  fileSize   Int?     @map("file_size")
+  role       String
+  uploadedAt DateTime @default(now()) @map("uploaded_at")
+
+  item ChecklistItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("item_files")
+}
+
+// ═══════ WALLETS ═══════
+model Wallet {
+  id        Int     @id @default(autoincrement())
+  userId    Int     @unique @map("user_id")
+  balance   Float   @default(0)
+  reserved  Float   @default(0)
+  totalPaid Float   @default(0) @map("total_paid")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@map("wallets")
+}
+
+// ═══════ TRANSACTIONS ═══════
+model Transaction {
+  id            Int      @id @default(autoincrement())
+  walletId      Int      @map("wallet_id")
+  amount        Float
+  type          String
+  description   String?
+  descriptionAr String?  @map("description_ar")
+  reference     String?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
+
+// ═══════ QUOTATIONS ═══════
+model Quotation {
+  id             Int      @id @default(autoincrement())
+  projectId      Int      @map("project_id")
+  contractorId   Int      @map("contractor_id")
+  price          Float
+  durationMonths Int      @map("duration_months")
+  warrantyMonths Int?     @map("warranty_months")
+  notes          String?
+  breakdown      String?
+  status         String   @default("pending")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  contractor User    @relation(fields: [contractorId], references: [id])
+
+  @@map("quotations")
+}
+
+// ═══════ INSPECTOR APPLICATIONS ═══════
+model InspectorApplication {
+  id          Int      @id @default(autoincrement())
+  projectId   Int      @map("project_id")
+  inspectorId Int      @map("inspector_id")
+  fee         Float    @default(0)
+  notes       String?
+  status      String   @default("pending")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  inspector User    @relation(fields: [inspectorId], references: [id])
+
+  @@map("inspector_applications")
+}
+
+// ═══════ NOTIFICATIONS ═══════
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  type      String   @default("info")
+  titleAr   String   @map("title_ar")
+  messageAr String?  @map("message_ar")
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// ═══════ PROJECT IMAGES ═══════
+model ProjectImage {
+  id        Int      @id @default(autoincrement())
+  projectId Int      @map("project_id")
+  imageUrl  String   @map("image_url")
+  captionAr String?  @map("caption_ar")
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_images")
+}
+
+// ═══════ FINANCING APPLICATIONS ═══════
+model FinancingApplication {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @map("user_id")
+  projectId      Int?     @map("project_id")
+  amount         Float
+  bank           String
+  durationMonths Int      @map("duration_months")
+  notes          String?
+  status         String   @default("pending")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user    User     @relation(fields: [userId], references: [id])
+  project Project? @relation(fields: [projectId], references: [id])
+
+  @@map("financing_applications")
+}
+
+// ═══════ CONTRACTOR EARNINGS ═══════
+model ContractorEarning {
+  id           Int      @id @default(autoincrement())
+  contractorId Int      @map("contractor_id")
+  projectId    Int      @map("project_id")
+  itemId       Int?     @map("item_id")
+  amount       Float
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  contractor User           @relation(fields: [contractorId], references: [id])
+  project    Project        @relation(fields: [projectId], references: [id])
+  item       ChecklistItem? @relation(fields: [itemId], references: [id])
+
+  @@map("contractor_earnings")
+}
+
+// ═══════ PROJECT RATINGS ═══════
+model ProjectRating {
+  id         Int      @id @default(autoincrement())
+  projectId  Int      @map("project_id")
+  raterId    Int      @map("rater_id")
+  ratedId    Int      @map("rated_id")
+  ratedRole  String   @map("rated_role")
+  rating     Int
+  reviewAr   String?  @map("review_ar")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  rater   User    @relation("RaterRelation", fields: [raterId], references: [id])
+  rated   User    @relation("RatedRelation", fields: [ratedId], references: [id])
+
+  @@unique([projectId, raterId, ratedRole])
+  @@map("project_ratings")
+}
+
+// ═══════ ITEM COMMENTS ═══════
+model ItemComment {
+  id        Int      @id @default(autoincrement())
+  itemId    Int      @map("item_id")
+  userId    Int      @map("user_id")
+  text      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  item ChecklistItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  user User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("item_comments")
+}
+
+// ═══════ BANK FINANCING REQUESTS ═══════
+model BankRequest {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @map("user_id")
+  projectId     Int?     @map("project_id")
+  bankName      String   @map("bank_name")
+  amount        Float
+  durationYears Int      @default(15) @map("duration_years")
+  purpose       String?
+  documents     String?  // JSON array of document paths
+  status        String   @default("pending") // pending, reviewing, approved, rejected
+  adminNotes    String?  @map("admin_notes")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("bank_requests")
+}
+
+// ═══════════════════════════════════════════════════════════
+// REAL ESTATE DEVELOPER — COMPOUND MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+
+// ═══════ COMPOUNDS (المجمعات السكنية/التجارية) ═══════
+model Compound {
+  id              Int       @id @default(autoincrement())
+  compoundNumber  String    @unique @map("compound_number")
+  nameAr          String    @map("name_ar")
+  nameEn          String?   @map("name_en")
+  developerId     Int       @map("developer_id")
+  type            String    @default("residential") // residential, commercial, mixed
+  area            String?   // المنطقة (مثال: ديار المحرق)
+  city            String?
+  country         String?   @default("البحرين")
+  totalArea       Float?    @map("total_area")
+  totalBudget     Float     @default(0) @map("total_budget")
+  totalUnits      Int       @default(0) @map("total_units")
+  contractorId    Int?      @map("contractor_id")
+  inspectorId     Int?      @map("inspector_id")
+  paymentType     String    @default("per_unit") @map("payment_type") // bulk, per_unit, milestone
+  status          String    @default("setup") // setup, team_assigned, in_progress, completed, cancelled
+  startDate       DateTime? @map("start_date")
+  expectedEndDate DateTime? @map("expected_end_date")
+  completedAt     DateTime? @map("completed_at")
+  description     String?
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  units           CompoundUnit[]
+  supervisors     CompoundSupervisor[]
+  materials       MaterialTracking[]
+  qualityIssues   QualityIssue[]
+  payments        CompoundPayment[]
+
+  @@map("compounds")
+}
+
+// ═══════ COMPOUND UNITS (الوحدات / الفلل) ═══════
+model CompoundUnit {
+  id            Int       @id @default(autoincrement())
+  compoundId    Int       @map("compound_id")
+  unitNumber    String    @map("unit_number")
+  type          String    @default("villa") // villa, apartment, shop, office
+  modelType     String?   @map("model_type") // Type-A, Type-B, etc.
+  block         String?   // بلوك A, B, C
+  floor         Int?
+  area          Float?
+  budget        Float     @default(0)
+  spent         Float     @default(0)
+  progress      Float     @default(0) // 0-100
+  status        String    @default("pending") // pending, in_progress, completed, delayed, on_hold
+  plannedStart  DateTime? @map("planned_start")
+  plannedEnd    DateTime? @map("planned_end")
+  actualStart   DateTime? @map("actual_start")
+  actualEnd     DateTime? @map("actual_end")
+  notes         String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  compound      Compound          @relation(fields: [compoundId], references: [id], onDelete: Cascade)
+  stages        UnitStage[]
+  materials     MaterialTracking[]
+  qualityIssues QualityIssue[]
+
+  @@unique([compoundId, unitNumber])
+  @@map("compound_units")
+}
+
+// ═══════ UNIT STAGES (مراحل بناء الوحدة) ═══════
+model UnitStage {
+  id        Int     @id @default(autoincrement())
+  unitId    Int     @map("unit_id")
+  nameAr    String  @map("name_ar")
+  nameEn    String? @map("name_en")
+  orderNum  Int     @default(0) @map("order_num")
+  budget    Float   @default(0)
+  spent     Float   @default(0)
+  progress  Float   @default(0) // 0-100
+  status    String  @default("pending") // pending, in_progress, completed
+
+  unit  CompoundUnit       @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  items UnitChecklistItem[]
+
+  @@map("unit_stages")
+}
+
+// ═══════ UNIT CHECKLIST ITEMS (بنود مهام الوحدة) ═══════
+model UnitChecklistItem {
+  id                Int       @id @default(autoincrement())
+  stageId           Int       @map("stage_id")
+  textAr            String    @map("text_ar")
+  textEn            String?   @map("text_en")
+  orderNum          Int       @default(0) @map("order_num")
+  cost              Float     @default(0)
+  contractorDone    Boolean   @default(false) @map("contractor_done")
+  contractorNotes   String?   @map("contractor_notes")
+  contractorDate    DateTime? @map("contractor_date")
+  inspectorApproved Boolean   @default(false) @map("inspector_approved")
+  inspectorNotes    String?   @map("inspector_notes")
+  inspectorDate     DateTime? @map("inspector_date")
+  developerApproved Boolean   @default(false) @map("developer_approved")
+  developerNotes    String?   @map("developer_notes")
+  developerDate     DateTime? @map("developer_date")
+  status            String    @default("pending") // pending, contractor_done, inspector_approved, developer_approved, completed, rejected
+
+  stage UnitStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+
+  @@map("unit_checklist_items")
+}
+
+// ═══════ COMPOUND SUPERVISORS (مشرفو المجمع) ═══════
+model CompoundSupervisor {
+  id            Int      @id @default(autoincrement())
+  compoundId    Int      @map("compound_id")
+  userId        Int      @map("user_id")
+  role          String   @default("site_supervisor") // site_supervisor, quality_supervisor, financial_supervisor
+  assignedUnits String?  @map("assigned_units") // JSON array of unit IDs
+  permissions   String?  // JSON: { canUpdateQuantities, canReportQuality, canUploadFiles }
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  compound Compound @relation(fields: [compoundId], references: [id], onDelete: Cascade)
+
+  @@unique([compoundId, userId])
+  @@map("compound_supervisors")
+}
+
+// ═══════ MATERIAL TRACKING (تتبع الكميات والمواد) ═══════
+model MaterialTracking {
+  id              Int      @id @default(autoincrement())
+  compoundId      Int      @map("compound_id")
+  unitId          Int?     @map("unit_id")
+  materialNameAr  String   @map("material_name_ar")
+  materialNameEn  String?  @map("material_name_en")
+  unit            String   // ton, m3, piece, bag, meter, kg
+  plannedQty      Float    @map("planned_qty")
+  usedQty         Float    @default(0) @map("used_qty")
+  costPerUnit     Float    @default(0) @map("cost_per_unit")
+  stage           String?  // which construction stage
+  notes           String?
+  updatedBy       Int?     @map("updated_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  compound     Compound      @relation(fields: [compoundId], references: [id], onDelete: Cascade)
+  compoundUnit CompoundUnit? @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@map("material_tracking")
+}
+
+// ═══════ QUALITY ISSUES (ملاحظات الجودة) ═══════
+model QualityIssue {
+  id            Int       @id @default(autoincrement())
+  compoundId    Int       @map("compound_id")
+  unitId        Int?      @map("unit_id")
+  title         String
+  description   String?
+  stage         String?   // which construction stage
+  priority      String    @default("medium") // low, medium, high, critical
+  status        String    @default("open") // open, in_progress, resolved, closed
+  images        String?   // JSON array of image paths
+  reportedBy    Int       @map("reported_by")
+  assignedTo    Int?      @map("assigned_to")
+  inspectorNotes String?  @map("inspector_notes")
+  resolution    String?
+  resolvedAt    DateTime? @map("resolved_at")
+  dueDate       DateTime? @map("due_date")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  compound     Compound      @relation(fields: [compoundId], references: [id], onDelete: Cascade)
+  compoundUnit CompoundUnit? @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@map("quality_issues")
+}
+
+// ═══════ COMPOUND PAYMENTS (دفعات المجمع) ═══════
+model CompoundPayment {
+  id          Int       @id @default(autoincrement())
+  compoundId  Int       @map("compound_id")
+  stageNameAr String?   @map("stage_name_ar")
+  stageNameEn String?   @map("stage_name_en")
+  amount      Float
+  percentage  Float?    // نسبة من الميزانية
+  type        String    @default("bulk") // bulk, per_unit, milestone
+  status      String    @default("pending") // pending, approved, paid, cancelled
+  notes       String?
+  approvedBy  Int?      @map("approved_by")
+  paidAt      DateTime? @map("paid_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  compound Compound @relation(fields: [compoundId], references: [id], onDelete: Cascade)
+
+  @@map("compound_payments")
+}

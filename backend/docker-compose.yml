@@ -1,0 +1,55 @@
+# ═══════════════════════════════════════════════
+# FIRST TOUCH — Docker Compose (Dev & Production)
+# ═══════════════════════════════════════════════
+
+version: "3.8"
+
+services:
+  # ═══════ PostgreSQL Database ═══════
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: firsttouch
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-firsttouch_pass_2024}
+      POSTGRES_DB: firsttouch
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U firsttouch"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ═══════ Backend API ═══════
+  api:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${PORT:-5000}:5000"
+    environment:
+      DATABASE_URL: "postgresql://firsttouch:${POSTGRES_PASSWORD:-firsttouch_pass_2024}@db:5432/firsttouch?schema=public"
+      NODE_ENV: production
+      PORT: 5000
+      JWT_SECRET: "${JWT_SECRET}"
+      JWT_REFRESH_SECRET: "${JWT_REFRESH_SECRET}"
+      JWT_EXPIRES_IN: "1h"
+      JWT_REFRESH_EXPIRES_IN: "7d"
+      FRONTEND_URL: "${FRONTEND_URL}"
+      CLOUDINARY_CLOUD_NAME: "${CLOUDINARY_CLOUD_NAME}"
+      CLOUDINARY_API_KEY: "${CLOUDINARY_API_KEY}"
+      CLOUDINARY_API_SECRET: "${CLOUDINARY_API_SECRET}"
+      SMTP_USER: "${SMTP_USER}"
+      SMTP_PASS: "${SMTP_PASS}"
+      RATE_LIMIT_MAX: 100
+    volumes:
+      - logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  logs:

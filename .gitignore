@@ -1,0 +1,13 @@
+node_modules/
+.env
+.env.local
+.env.production
+*.db
+*.db-shm
+*.db-wal
+logs/
+uploads/
+dist/
+.claude/
+*.legacy.bak
+nul

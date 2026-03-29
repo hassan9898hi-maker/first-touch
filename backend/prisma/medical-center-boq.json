@@ -1,0 +1,6569 @@
+{
+  "zones": [
+    {
+      "no": 1,
+      "name": "Reception & Waiting",
+      "area": 338,
+      "perimeter": 189,
+      "doors": 4,
+      "notes": ""
+    },
+    {
+      "no": 2,
+      "name": "Store",
+      "area": 7,
+      "perimeter": 11,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 3,
+      "name": "Admin",
+      "area": 8,
+      "perimeter": 13,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 4,
+      "name": "Conference",
+      "area": 8,
+      "perimeter": 13,
+      "doors": 2,
+      "notes": ""
+    },
+    {
+      "no": 5,
+      "name": "I.T",
+      "area": 5,
+      "perimeter": 10,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 6,
+      "name": "Triage",
+      "area": 8,
+      "perimeter": 11,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 7,
+      "name": "Minor Procedure",
+      "area": 13,
+      "perimeter": 14,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 8,
+      "name": "General Practice",
+      "area": 12,
+      "perimeter": 16,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 9,
+      "name": "Internal Medicine",
+      "area": 13,
+      "perimeter": 17,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 10,
+      "name": "Orthopedic",
+      "area": 13,
+      "perimeter": 14,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 11,
+      "name": "Gynecology",
+      "area": 12,
+      "perimeter": 14,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 12,
+      "name": "Pediatric",
+      "area": 12,
+      "perimeter": 14,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 13,
+      "name": "Pulmonology",
+      "area": 12,
+      "perimeter": 14,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 14,
+      "name": "Male Observation Room",
+      "area": 24,
+      "perimeter": 22,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 15,
+      "name": "Male Toilet",
+      "area": 3,
+      "perimeter": 7,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 16,
+      "name": "Female Toilet",
+      "area": 3,
+      "perimeter": 7,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 17,
+      "name": "Female Observation Room",
+      "area": 25,
+      "perimeter": 24,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 18,
+      "name": "Medical Waste",
+      "area": 5,
+      "perimeter": 10,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 19,
+      "name": "M Staff Toilet",
+      "area": 3,
+      "perimeter": 6,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 20,
+      "name": "F Staff Toilet",
+      "area": 3,
+      "perimeter": 6,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 21,
+      "name": "Staff Lounge",
+      "area": 12,
+      "perimeter": 15,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 22,
+      "name": "Staff Lounge (Small)",
+      "area": 5,
+      "perimeter": 10,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 23,
+      "name": "Sterile Procedure Room",
+      "area": 26,
+      "perimeter": 21,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 24,
+      "name": "Pump Room",
+      "area": 3,
+      "perimeter": 7,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 25,
+      "name": "Decontamination",
+      "area": 4,
+      "perimeter": 8,
+      "doors": 0,
+      "notes": ""
+    },
+    {
+      "no": 26,
+      "name": "Sterilization",
+      "area": 6,
+      "perimeter": 10,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 27,
+      "name": "Laboratory",
+      "area": 26,
+      "perimeter": 25,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 28,
+      "name": "Blood Collection",
+      "area": 8,
+      "perimeter": 12,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 29,
+      "name": "Changing Room",
+      "area": 5,
+      "perimeter": 10,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 30,
+      "name": "X-Ray Exam Room",
+      "area": 24,
+      "perimeter": 28,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 31,
+      "name": "Control Room",
+      "area": 5,
+      "perimeter": 10,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 32,
+      "name": "Ultra Sound",
+      "area": 12,
+      "perimeter": 14,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 33,
+      "name": "Female Toilet",
+      "area": 6,
+      "perimeter": 11,
+      "doors": 2,
+      "notes": ""
+    },
+    {
+      "no": 34,
+      "name": "Male Toilet",
+      "area": 5,
+      "perimeter": 12,
+      "doors": 2,
+      "notes": ""
+    },
+    {
+      "no": 35,
+      "name": "Sleep Study-1",
+      "area": 6,
+      "perimeter": 10,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 36,
+      "name": "Sleep Study-2",
+      "area": 6,
+      "perimeter": 10,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 37,
+      "name": "IV Therapy",
+      "area": 22,
+      "perimeter": 20,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 38,
+      "name": "Waiting Lounge",
+      "area": 30,
+      "perimeter": 30,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 39,
+      "name": "Dermatology",
+      "area": 12,
+      "perimeter": 15,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 40,
+      "name": "Derma Procedure-1",
+      "area": 13,
+      "perimeter": 15,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 41,
+      "name": "Derma Procedure-2",
+      "area": 13,
+      "perimeter": 15,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 42,
+      "name": "Store",
+      "area": 7,
+      "perimeter": 12,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 43,
+      "name": "Pharmacy",
+      "area": 15,
+      "perimeter": 16,
+      "doors": 1,
+      "notes": ""
+    },
+    {
+      "no": 44,
+      "name": "Female Toilet (Large)",
+      "area": 17,
+      "perimeter": 30,
+      "doors": 4,
+      "notes": ""
+    },
+    {
+      "no": 45,
+      "name": "Male Toilet (Large)",
+      "area": 17,
+      "perimeter": 30,
+      "doors": 4,
+      "notes": ""
+    }
+  ],
+  "itemsByZone": {
+    "1": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 338
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 189
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 338
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 585.9
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 60
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 10
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 20
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 60
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 10
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 20
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 60
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 10
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 20
+      }
+    ],
+    "2": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 7
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 11
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 7
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 34.1
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      }
+    ],
+    "3": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 8
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 13
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 8
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 40.3
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 2
+      }
+    ],
+    "4": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 8
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 13
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 8
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 40.3
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 2-gang)",
+        "descAr": "نقطة مفتاح (ون وي تو جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 2-gang)",
+        "descAr": "سحب أسلاك مفتاح (تو جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 2-gang)",
+        "descAr": "مفتاح ون وي تو جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 3
+      }
+    ],
+    "5": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 10
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 31
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 1
+      }
+    ],
+    "6": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 8
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 11
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 8
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 34.1
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      }
+    ],
+    "7": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 13
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 14
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 13
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 43.4
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      }
+    ],
+    "8": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 16
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 49.6
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 1
+      }
+    ],
+    "9": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 13
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 17
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 13
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 52.7
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 1
+      }
+    ],
+    "10": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 13
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 14
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 13
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 43.4
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 1
+      }
+    ],
+    "11": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 14
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 43.4
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 1
+      }
+    ],
+    "12": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 14
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 43.4
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 1
+      }
+    ],
+    "13": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 14
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 43.4
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 1
+      }
+    ],
+    "14": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 24
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 22
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 24
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 68.2
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 2
+      }
+    ],
+    "15": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 3
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 3
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain wall tiling (to full finished height)",
+        "descAr": "بلاط بورسلان جدران",
+        "unit": "m²",
+        "qty": 21.7
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Floor waterproofing (toilet)",
+        "descAr": "عزل أرضية حمام",
+        "unit": "m²",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan point",
+        "descAr": "نقطة شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح شفاط (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan wiring",
+        "descAr": "سحب أسلاك شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan switch wiring",
+        "descAr": "سحب أسلاك مفتاح شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan",
+        "descAr": "شفاط هواء",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan switch (1-way 1-gang)",
+        "descAr": "مفتاح شفاط (ون وي ون جنج)",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "WC",
+        "descAr": "مرحاض",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hand bidet (shattaf)",
+        "descAr": "شطاف ماء",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Floor drain",
+        "descAr": "صفاية أرضية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 3
+      }
+    ],
+    "16": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 3
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 3
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain wall tiling (to full finished height)",
+        "descAr": "بلاط بورسلان جدران",
+        "unit": "m²",
+        "qty": 21.7
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Floor waterproofing (toilet)",
+        "descAr": "عزل أرضية حمام",
+        "unit": "m²",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan point",
+        "descAr": "نقطة شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح شفاط (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan wiring",
+        "descAr": "سحب أسلاك شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan switch wiring",
+        "descAr": "سحب أسلاك مفتاح شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan",
+        "descAr": "شفاط هواء",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan switch (1-way 1-gang)",
+        "descAr": "مفتاح شفاط (ون وي ون جنج)",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "WC",
+        "descAr": "مرحاض",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hand bidet (shattaf)",
+        "descAr": "شطاف ماء",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Floor drain",
+        "descAr": "صفاية أرضية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 3
+      }
+    ],
+    "17": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 25
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 24
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 25
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 74.4
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 2
+      }
+    ],
+    "18": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 10
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 31
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 2
+      }
+    ],
+    "19": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 3
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 3
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain wall tiling (to full finished height)",
+        "descAr": "بلاط بورسلان جدران",
+        "unit": "m²",
+        "qty": 18.6
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Floor waterproofing (toilet)",
+        "descAr": "عزل أرضية حمام",
+        "unit": "m²",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan point",
+        "descAr": "نقطة شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح شفاط (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan wiring",
+        "descAr": "سحب أسلاك شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan switch wiring",
+        "descAr": "سحب أسلاك مفتاح شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan",
+        "descAr": "شفاط هواء",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan switch (1-way 1-gang)",
+        "descAr": "مفتاح شفاط (ون وي ون جنج)",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "WC",
+        "descAr": "مرحاض",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hand bidet (shattaf)",
+        "descAr": "شطاف ماء",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Floor drain",
+        "descAr": "صفاية أرضية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 3
+      }
+    ],
+    "20": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 3
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 3
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain wall tiling (to full finished height)",
+        "descAr": "بلاط بورسلان جدران",
+        "unit": "m²",
+        "qty": 18.6
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Floor waterproofing (toilet)",
+        "descAr": "عزل أرضية حمام",
+        "unit": "m²",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan point",
+        "descAr": "نقطة شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح شفاط (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan wiring",
+        "descAr": "سحب أسلاك شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan switch wiring",
+        "descAr": "سحب أسلاك مفتاح شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan",
+        "descAr": "شفاط هواء",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan switch (1-way 1-gang)",
+        "descAr": "مفتاح شفاط (ون وي ون جنج)",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "WC",
+        "descAr": "مرحاض",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hand bidet (shattaf)",
+        "descAr": "شطاف ماء",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Floor drain",
+        "descAr": "صفاية أرضية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 3
+      }
+    ],
+    "21": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 15
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 46.5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      }
+    ],
+    "22": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 10
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 31
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      }
+    ],
+    "23": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 26
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 21
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 26
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 65.1
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 3
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Special note",
+        "descAr": "ملاحظة خاصة",
+        "unit": "",
+        "qty": ""
+      }
+    ],
+    "24": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 3
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 7
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 3
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 21.7
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Glass window (size TBC)",
+        "descAr": "نافذة زجاج (المقاس لاحقًا)",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      }
+    ],
+    "25": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 4
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 8
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 4
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 24.8
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      }
+    ],
+    "26": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 6
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 10
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 6
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 31
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      }
+    ],
+    "27": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 26
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 25
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 26
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 77.5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 8
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 2-gang)",
+        "descAr": "نقطة مفتاح (ون وي تو جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 8
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 2-gang)",
+        "descAr": "سحب أسلاك مفتاح (تو جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 8
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 2-gang)",
+        "descAr": "مفتاح ون وي تو جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 4
+      }
+    ],
+    "28": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 8
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 8
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 37.2
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      }
+    ],
+    "29": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 10
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 31
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      }
+    ],
+    "30": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 24
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 28
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 24
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 86.8
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 8
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 2-gang)",
+        "descAr": "نقطة مفتاح (ون وي تو جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 8
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 2-gang)",
+        "descAr": "سحب أسلاك مفتاح (تو جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 8
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 2-gang)",
+        "descAr": "مفتاح ون وي تو جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 4
+      }
+    ],
+    "31": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 10
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 31
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 4
+      }
+    ],
+    "32": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 14
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 43.4
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 1
+      }
+    ],
+    "33": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 6
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 6
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain wall tiling (to full finished height)",
+        "descAr": "بلاط بورسلان جدران",
+        "unit": "m²",
+        "qty": 34.1
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Floor waterproofing (toilet)",
+        "descAr": "عزل أرضية حمام",
+        "unit": "m²",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan point",
+        "descAr": "نقطة شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح شفاط (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan wiring",
+        "descAr": "سحب أسلاك شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan switch wiring",
+        "descAr": "سحب أسلاك مفتاح شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan",
+        "descAr": "شفاط هواء",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan switch (1-way 1-gang)",
+        "descAr": "مفتاح شفاط (ون وي ون جنج)",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "WC",
+        "descAr": "مرحاض",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hand bidet (shattaf)",
+        "descAr": "شطاف ماء",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Floor drain",
+        "descAr": "صفاية أرضية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 3
+      }
+    ],
+    "34": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain wall tiling (to full finished height)",
+        "descAr": "بلاط بورسلان جدران",
+        "unit": "m²",
+        "qty": 37.2
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Floor waterproofing (toilet)",
+        "descAr": "عزل أرضية حمام",
+        "unit": "m²",
+        "qty": 5
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan point",
+        "descAr": "نقطة شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح شفاط (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan wiring",
+        "descAr": "سحب أسلاك شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan switch wiring",
+        "descAr": "سحب أسلاك مفتاح شفاط",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan",
+        "descAr": "شفاط هواء",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan switch (1-way 1-gang)",
+        "descAr": "مفتاح شفاط (ون وي ون جنج)",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "WC",
+        "descAr": "مرحاض",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hand bidet (shattaf)",
+        "descAr": "شطاف ماء",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Floor drain",
+        "descAr": "صفاية أرضية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 3
+      }
+    ],
+    "35": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 6
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 10
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 6
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 31
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      }
+    ],
+    "36": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 6
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 10
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 6
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 31
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      }
+    ],
+    "37": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 22
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 20
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 22
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 62
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 8
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 2-gang)",
+        "descAr": "نقطة مفتاح (ون وي تو جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 8
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 2-gang)",
+        "descAr": "سحب أسلاك مفتاح (تو جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 8
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 2-gang)",
+        "descAr": "مفتاح ون وي تو جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 4
+      }
+    ],
+    "38": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 30
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 30
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 30
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 93
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 8
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 2-gang)",
+        "descAr": "نقطة مفتاح (ون وي تو جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 8
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 2-gang)",
+        "descAr": "سحب أسلاك مفتاح (تو جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 8
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 2-gang)",
+        "descAr": "مفتاح ون وي تو جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 2
+      }
+    ],
+    "39": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 15
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 46.5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 3
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 1
+      }
+    ],
+    "40": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 13
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 15
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 13
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 46.5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 2
+      }
+    ],
+    "41": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 13
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 15
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 13
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 46.5
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 2
+      }
+    ],
+    "42": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 7
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 12
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 7
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 37.2
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 2
+      }
+    ],
+    "43": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 15
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain skirting",
+        "descAr": "وزرة بورسلان",
+        "unit": "lm",
+        "qty": 16
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 15
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Wall painting (Jotun) to finished height",
+        "descAr": "دهان جدران جوتن",
+        "unit": "m²",
+        "qty": 49.6
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Glass window (size TBC)",
+        "descAr": "نافذة زجاج (المقاس لاحقًا)",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Double socket point",
+        "descAr": "نقطة فيش دبل",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Data point (RJ45)",
+        "descAr": "نقطة داتا",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Power wiring (double socket)",
+        "descAr": "سحب أسلاك فيش دبل",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Data cabling (Cat6)",
+        "descAr": "سحب كيبل داتا",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Double power socket",
+        "descAr": "فيش كهرباء دبل",
+        "unit": "No.",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Data outlet (RJ45)",
+        "descAr": "مخرج داتا",
+        "unit": "No.",
+        "qty": 4
+      }
+    ],
+    "44": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 17
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 17
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain wall tiling (to full finished height)",
+        "descAr": "بلاط بورسلان جدران",
+        "unit": "m²",
+        "qty": 93
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Floor waterproofing (toilet)",
+        "descAr": "عزل أرضية حمام",
+        "unit": "m²",
+        "qty": 17
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan point",
+        "descAr": "نقطة شفاط",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح شفاط (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan wiring",
+        "descAr": "سحب أسلاك شفاط",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan switch wiring",
+        "descAr": "سحب أسلاك مفتاح شفاط",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan",
+        "descAr": "شفاط هواء",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan switch (1-way 1-gang)",
+        "descAr": "مفتاح شفاط (ون وي ون جنج)",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 5
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 5
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "WC",
+        "descAr": "مرحاض",
+        "unit": "No.",
+        "qty": 3
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hand bidet (shattaf)",
+        "descAr": "شطاف ماء",
+        "unit": "No.",
+        "qty": 3
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Floor drain",
+        "descAr": "صفاية أرضية",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 11
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 5
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 10
+      }
+    ],
+    "45": [
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain floor tiling",
+        "descAr": "بلاط بورسلان أرضيات",
+        "unit": "m²",
+        "qty": 17
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Gypsum board false ceiling (600mm drop)",
+        "descAr": "سقف مستعار جبس بورد نازل 60 سم",
+        "unit": "m²",
+        "qty": 17
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Porcelain wall tiling (to full finished height)",
+        "descAr": "بلاط بورسلان جدران",
+        "unit": "m²",
+        "qty": 93
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Internal door",
+        "descAr": "باب داخلي",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Architectural",
+        "descEn": "Floor waterproofing (toilet)",
+        "descAr": "عزل أرضية حمام",
+        "unit": "m²",
+        "qty": 17
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Lighting point (downlight)",
+        "descAr": "نقطة إنارة داون لايت",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan point",
+        "descAr": "نقطة شفاط",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - First Fix",
+        "descEn": "Exhaust fan switch point (1-way 1-gang)",
+        "descAr": "نقطة مفتاح شفاط (ون وي ون جنج)",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Lighting wiring",
+        "descAr": "سحب أسلاك إنارة",
+        "unit": "Point",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Switch wiring (1-way 1-gang)",
+        "descAr": "سحب أسلاك مفتاح (ون جنج)",
+        "unit": "Point",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan wiring",
+        "descAr": "سحب أسلاك شفاط",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Second Fix",
+        "descEn": "Exhaust fan switch wiring",
+        "descAr": "سحب أسلاك مفتاح شفاط",
+        "unit": "Point",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "LED downlight fitting",
+        "descAr": "توريد وتركيب داون لايت",
+        "unit": "No.",
+        "qty": 6
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Switch (1-way 1-gang)",
+        "descAr": "مفتاح ون وي ون جنج",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan",
+        "descAr": "شفاط هواء",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Electrical - Final Fix",
+        "descEn": "Exhaust fan switch (1-way 1-gang)",
+        "descAr": "مفتاح شفاط (ون وي ون جنج)",
+        "unit": "No.",
+        "qty": 4
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Wall-mounted wash basin",
+        "descAr": "مغسلة جدارية",
+        "unit": "No.",
+        "qty": 5
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Mixer (hot & cold)",
+        "descAr": "خلاط حار وبارد",
+        "unit": "No.",
+        "qty": 5
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "WC",
+        "descAr": "مرحاض",
+        "unit": "No.",
+        "qty": 3
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hand bidet (shattaf)",
+        "descAr": "شطاف ماء",
+        "unit": "No.",
+        "qty": 3
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Floor drain",
+        "descAr": "صفاية أرضية",
+        "unit": "No.",
+        "qty": 2
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Cold water supply point",
+        "descAr": "نقطة تغذية بارد",
+        "unit": "Point",
+        "qty": 11
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Hot water supply point",
+        "descAr": "نقطة تغذية حار",
+        "unit": "Point",
+        "qty": 5
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Drainage point",
+        "descAr": "نقطة صرف",
+        "unit": "Point",
+        "qty": 10
+      }
+    ],
+    "SHARED": [
+      {
+        "category": "HVAC",
+        "descEn": "Ducted Split AC – 5 TR",
+        "descAr": "مكيف سبليت دكت 5 طن",
+        "unit": "No.",
+        "qty": 9
+      },
+      {
+        "category": "HVAC",
+        "descEn": "Ducted Split AC – 3 TR",
+        "descAr": "مكيف سبليت دكت 3 طن",
+        "unit": "No.",
+        "qty": 1
+      },
+      {
+        "category": "HVAC",
+        "descEn": "Thermostat wiring",
+        "descAr": "تمديدات ثرموستات",
+        "unit": "Set",
+        "qty": 10
+      },
+      {
+        "category": "HVAC",
+        "descEn": "Power wiring for AC",
+        "descAr": "تمديدات كهرباء للمكيف",
+        "unit": "Set",
+        "qty": 10
+      },
+      {
+        "category": "HVAC",
+        "descEn": "Copper piping set",
+        "descAr": "بايبات نحاس",
+        "unit": "Set",
+        "qty": 10
+      },
+      {
+        "category": "HVAC",
+        "descEn": "Condensate drain",
+        "descAr": "تصريف مياه تكثيف",
+        "unit": "Point",
+        "qty": 10
+      },
+      {
+        "category": "HVAC",
+        "descEn": "Air grilles (spec TBC)",
+        "descAr": "جريلات تهوية (المواصفة لاحقًا)",
+        "unit": "No.",
+        "qty": 100
+      },
+      {
+        "category": "HVAC",
+        "descEn": "Ceiling access panels",
+        "descAr": "فتحات صيانة بالسقف الجبسي",
+        "unit": "No.",
+        "qty": 30
+      },
+      {
+        "category": "Electrical",
+        "descEn": "Distribution Board (DB)",
+        "descAr": "لوحة كهرباء",
+        "unit": "No.",
+        "qty": 7
+      },
+      {
+        "category": "Plumbing",
+        "descEn": "Water heater",
+        "descAr": "سخان ماء",
+        "unit": "No.",
+        "qty": 6
+      },
+      {
+        "category": "Masonry",
+        "descEn": "Blockwork walls (full height 3.70m)",
+        "descAr": "بناء جدران طابوق (ارتفاع 3.70م)",
+        "unit": "m²",
+        "qty": 1950
+      },
+      {
+        "category": "Plaster",
+        "descEn": "Internal plaster both sides (3.70m)",
+        "descAr": "بلاستر داخلي وجهين (ارتفاع 3.70م)",
+        "unit": "m²",
+        "qty": 3900
+      },
+      {
+        "category": "Concrete",
+        "descEn": "RC slab construction",
+        "descAr": "إنشاء سقف خرساني مسلح",
+        "unit": "m²",
+        "qty": 55
+      },
+      {
+        "category": "Waterproofing",
+        "descEn": "Roof waterproofing membrane",
+        "descAr": "عزل مائي للسطح",
+        "unit": "m²",
+        "qty": 55
+      },
+      {
+        "category": "Concrete",
+        "descEn": "Lightweight foam screed",
+        "descAr": "صبة رغوية خفيفة",
+        "unit": "m²",
+        "qty": 55
+      },
+      {
+        "category": "Demolition",
+        "descEn": "Demolition & removal of existing walls/tiles/finishes",
+        "descAr": "هدم وإزالة الجدران والبلاط والتشطيبات القائمة",
+        "unit": "L.S",
+        "qty": 1
+      },
+      {
+        "category": "Fire Alarm",
+        "descEn": "Fire alarm system per zone (Coverage Ø3m)",
+        "descAr": "نظام إنذار حريق لكل منطقة (تغطية قطر 3م)",
+        "unit": "Zone",
+        "qty": 45
+      },
+      {
+        "category": "Fire Fighting",
+        "descEn": "Fire fighting system per zone (Coverage Ø3m)",
+        "descAr": "نظام مكافحة حريق لكل منطقة (تغطية قطر 3م)",
+        "unit": "Zone",
+        "qty": 45
+      }
+    ]
+  }
+}

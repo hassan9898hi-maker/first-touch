@@ -1,0 +1,6 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body, #root { width: 100%; min-height: 100vh; }
+body { font-family: 'Tajawal', sans-serif; -webkit-font-smoothing: antialiased; }
+input, select, textarea, button { font-family: 'Tajawal', sans-serif; outline: none; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
