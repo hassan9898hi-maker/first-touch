@@ -28,7 +28,12 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 // ═══════ SOCKET.IO ═══════
 const io = new Server(server, {
   cors: {
-    origin: FRONTEND_URL,
+    origin: [
+      FRONTEND_URL,
+      "http://localhost:5173",
+      "https://first-touch-frontend.onrender.com",
+      "https://firsttouch-frontend.onrender.com"
+    ].filter(Boolean),
     methods: ["GET", "POST"]
   }
 });
@@ -59,9 +64,13 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: isProduction
-    ? FRONTEND_URL
-    : [FRONTEND_URL, "http://localhost:5173", "http://localhost:3000"],
+  origin: [
+    FRONTEND_URL,
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://first-touch-frontend.onrender.com",
+    "https://firsttouch-frontend.onrender.com"
+  ].filter(Boolean),
   credentials: true
 }));
 

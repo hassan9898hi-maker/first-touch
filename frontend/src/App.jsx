@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, memo, useMemo } from "react";
 
 var BASE = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
   ? "http://localhost:5000/api"
-  : window.location.origin + "/api";
+  : "https://first-touch2.onrender.com/api";
 function call(path, method, body, tkn) {
   var h = { "Content-Type": "application/json" };
   if (tkn) h["Authorization"] = "Bearer " + tkn;
