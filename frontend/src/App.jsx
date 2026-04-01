@@ -411,6 +411,225 @@ var NewProjectForm = memo(function NewProjectForm({ onSubmit, onClose }) {
   </div>;
 });
 
+// ═══════ AI SMART PROJECT UPLOAD — analyzes files with AI ═══════
+var AIProjectUpload = memo(function AIProjectUpload({ onCreated, onClose, token }) {
+  var [step, setStep] = useState(0); // 0=upload, 1=analyzing, 2=review, 3=creating
+  var [file, setFile] = useState(null);
+  var [fileName, setFileName] = useState("");
+  var [desc, setDesc] = useState("");
+  var [goals, setGoals] = useState("");
+  var [analysis, setAnalysis] = useState(null);
+  var [matched, setMatched] = useState([]);
+  var [error, setError] = useState("");
+  var [expandedStage, setExpandedStage] = useState(null);
+  var fileRef = useRef();
+
+  function handleFile(e) {
+    var f = e.target.files[0];
+    if (f) {
+      setFile(f);
+      setFileName(f.name);
+    }
+  }
+
+  function doAnalyze() {
+    if (!desc.trim()) { setError("يرجى كتابة وصف المشروع"); return; }
+    if (!file && !desc.trim()) { setError("يرجى رفع ملف أو كتابة وصف"); return; }
+    setError("");
+    setStep(1);
+
+    var formData = new FormData();
+    if (file) formData.append("file", file);
+    formData.append("description", desc);
+    formData.append("goals", goals);
+
+    fetch(BASE + "/projects/ai-analyze", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + token },
+      body: formData
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d.success) {
+        setAnalysis(d.analysis);
+        setMatched(d.matchedContractors || []);
+        setStep(2);
+      } else {
+        setError(d.error || "فشل التحليل");
+        setStep(0);
+      }
+    }).catch(function () {
+      setError("خطأ في الاتصال بالخادم");
+      setStep(0);
+    });
+  }
+
+  function doCreate() {
+    setStep(3);
+    call("/projects/ai-create", "POST", { analysis: analysis }, token).then(function (d) {
+      if (d.success) {
+        onCreated(d.project_id);
+      } else {
+        setError(d.error || "فشل إنشاء المشروع");
+        setStep(2);
+      }
+    });
+  }
+
+  // ── Step 0: Upload & Describe ──
+  if (step === 0) return <div>
+    <div style={{ background: "linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)", borderRadius: 14, padding: "16px 18px", marginBottom: 16, color: "#fff" }}>
+      <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 17, fontWeight: 900, marginBottom: 4 }}>🤖 رفع مشروع ذكي</div>
+      <div style={{ fontSize: 11, opacity: 0.8 }}>ارفع ملف المشروع واكتب وصفك — الذكاء الاصطناعي سيحلل ويقسّم المراحل تلقائياً</div>
+    </div>
+
+    {error && <div style={{ background: "rgba(231,76,60,.1)", border: "1px solid rgba(231,76,60,.3)", color: C.red, padding: "8px 12px", borderRadius: 8, marginBottom: 10, fontSize: 11, fontWeight: 700 }}>{error}</div>}
+
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: C.t2, marginBottom: 6 }}>📁 ملف المشروع (PDF أو Word)</div>
+      <div onClick={function () { fileRef.current.click(); }} style={{ border: "2px dashed " + (file ? C.purple : C.brd), borderRadius: 12, padding: 20, textAlign: "center", cursor: "pointer", background: file ? "rgba(124,58,237,.04)" : "#FAFBFD", transition: "all .2s" }}>
+        {file ? <div>
+          <div style={{ fontSize: 28, marginBottom: 4 }}>📄</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: C.purple }}>{fileName}</div>
+          <div style={{ fontSize: 9, color: C.t3, marginTop: 2 }}>اضغط لتغيير الملف</div>
+        </div> : <div>
+          <div style={{ fontSize: 32, marginBottom: 4 }}>📁</div>
+          <div style={{ fontSize: 12, color: C.t2, fontWeight: 600 }}>اضغط لاختيار ملف المشروع</div>
+          <div style={{ fontSize: 10, color: C.t3, marginTop: 2 }}>PDF, DOCX — جدول كميات، مواصفات، عرض سعر</div>
+        </div>}
+      </div>
+      <input ref={fileRef} type="file" accept=".pdf,.docx,.doc" onChange={handleFile} style={{ display: "none" }} />
+    </div>
+
+    <div style={{ marginBottom: 12 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: C.t2, marginBottom: 4 }}>📝 وصف المشروع *</div>
+      <textarea value={desc} onChange={function (e) { setDesc(e.target.value); }} placeholder={"اشرح المشروع بالتفصيل...\nمثال: مركز طبي في الزنج يشمل أعمال بناء وتشطيب وكهرباء وتكييف"} rows={4} style={{ width: "100%", padding: "10px 12px", border: "1.5px solid " + C.brd, borderRadius: 10, fontSize: 12, fontFamily: "Cairo, sans-serif", resize: "vertical", boxSizing: "border-box", direction: "rtl" }} />
+    </div>
+
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: C.t2, marginBottom: 4 }}>🎯 الهدف من المشروع</div>
+      <textarea value={goals} onChange={function (e) { setGoals(e.target.value); }} placeholder={"ما هو الهدف؟ ما الذي تبحث عنه؟\nمثال: أريد مقاول متخصص في المنشآت الطبية بأسعار تنافسية وضمان سنة"} rows={3} style={{ width: "100%", padding: "10px 12px", border: "1.5px solid " + C.brd, borderRadius: 10, fontSize: 12, fontFamily: "Cairo, sans-serif", resize: "vertical", boxSizing: "border-box", direction: "rtl" }} />
+    </div>
+
+    <div style={{ background: "rgba(124,58,237,.06)", border: "1px solid rgba(124,58,237,.2)", borderRadius: 10, padding: 12, marginBottom: 14, fontSize: 10, color: C.purple }}>
+      🤖 الذكاء الاصطناعي سيقوم بـ: تسمية المشروع • تحليل الملف • تقسيم المراحل • تقدير التكاليف • ترشيح المقاولين المناسبين
+    </div>
+
+    <Btn f onClick={doAnalyze} style={{ background: "linear-gradient(135deg, #7C3AED, #5B21B6)" }}>🤖 تحليل بالذكاء الاصطناعي</Btn>
+  </div>;
+
+  // ── Step 1: Analyzing ──
+  if (step === 1) return <div style={{ textAlign: "center", padding: "40px 20px" }}>
+    <div style={{ fontSize: 48, marginBottom: 16, animation: "pulse 1.5s infinite" }}>🤖</div>
+    <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 16, fontWeight: 800, color: C.purple, marginBottom: 8 }}>جاري التحليل بالذكاء الاصطناعي...</div>
+    <div style={{ fontSize: 11, color: C.t3, marginBottom: 20 }}>يتم تحليل الملف واستخراج المراحل وتقدير التكاليف</div>
+    <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+      {["📄 قراءة الملف", "🔍 تحليل البنود", "📊 تقسيم المراحل", "👷 ترشيح المقاولين"].map(function (s, i) {
+        return <div key={i} style={{ fontSize: 9, padding: "4px 8px", background: "rgba(124,58,237,.08)", borderRadius: 6, color: C.purple, animation: "pulse 1.5s infinite " + (i * 0.3) + "s" }}>{s}</div>;
+      })}
+    </div>
+    <style>{"{@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }}"}</style>
+  </div>;
+
+  // ── Step 2: Review Analysis ──
+  if (step === 2 && analysis) return <div>
+    <div style={{ background: "linear-gradient(135deg, #087A44, #0EAD69)", borderRadius: 14, padding: "14px 18px", marginBottom: 14, color: "#fff" }}>
+      <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 15, fontWeight: 900, marginBottom: 2 }}>✅ تم تحليل المشروع بنجاح</div>
+      <div style={{ fontSize: 10, opacity: 0.8 }}>{analysis.summary}</div>
+    </div>
+
+    {error && <div style={{ background: "rgba(231,76,60,.1)", color: C.red, padding: "8px 12px", borderRadius: 8, marginBottom: 10, fontSize: 11 }}>{error}</div>}
+
+    {/* Project Info Card */}
+    <div style={{ border: "1.5px solid " + C.brd, borderRadius: 12, padding: 14, marginBottom: 12, background: "#FAFBFD" }}>
+      <div style={{ fontSize: 14, fontWeight: 800, color: C.t1, marginBottom: 8 }}>{analysis.projectName}</div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+        {analysis.location && <span style={{ fontSize: 10, background: "#EEF2F8", padding: "3px 8px", borderRadius: 8, color: C.t2 }}>📍 {analysis.location}</span>}
+        {analysis.areaSqm > 0 && <span style={{ fontSize: 10, background: "#EEF2F8", padding: "3px 8px", borderRadius: 8, color: C.t2 }}>📐 {analysis.areaSqm} م²</span>}
+        {analysis.floors > 0 && <span style={{ fontSize: 10, background: "#EEF2F8", padding: "3px 8px", borderRadius: 8, color: C.t2 }}>🏢 {analysis.floors} أدوار</span>}
+        <span style={{ fontSize: 10, background: "rgba(232,114,12,.1)", padding: "3px 8px", borderRadius: 8, color: C.amber, fontWeight: 700 }}>💰 {(analysis.estimatedBudget || 0).toLocaleString()} د.ب</span>
+      </div>
+      {analysis.description && <div style={{ fontSize: 11, color: C.t2, lineHeight: 1.7 }}>{analysis.description}</div>}
+    </div>
+
+    {/* Stages */}
+    <div style={{ marginBottom: 12 }}>
+      <div style={{ fontSize: 12, fontWeight: 800, color: C.t1, marginBottom: 8 }}>📊 المراحل ({(analysis.stages || []).length} مراحل)</div>
+      {(analysis.stages || []).map(function (stg, si) {
+        var isOpen = expandedStage === si;
+        var stgBudget = Math.round((analysis.estimatedBudget || 0) * (stg.budgetPercent || 0));
+        var totalItems = (stg.subStages || []).reduce(function (acc, ss) { return acc + (ss.items || []).length; }, 0);
+        return <div key={si} style={{ border: "1.5px solid " + (isOpen ? C.ocean : C.brd), borderRadius: 10, marginBottom: 8, overflow: "hidden", transition: "all .2s" }}>
+          <div onClick={function () { setExpandedStage(isOpen ? null : si); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", cursor: "pointer", background: isOpen ? "rgba(26,111,181,.05)" : "#fff" }}>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: isOpen ? C.ocean : "#EEF2F8", color: isOpen ? "#fff" : C.t2, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800 }}>{stg.order || si + 1}</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.t1 }}>{stg.nameAr}</div>
+              <div style={{ fontSize: 9, color: C.t3 }}>{stg.nameEn} • {totalItems} بنود • {stgBudget.toLocaleString()} د.ب</div>
+            </div>
+            <div style={{ fontSize: 10, color: C.ocean, fontWeight: 700 }}>{Math.round((stg.budgetPercent || 0) * 100)}%</div>
+            <div style={{ fontSize: 12, color: C.t3, transform: isOpen ? "rotate(180deg)" : "", transition: "transform .2s" }}>▼</div>
+          </div>
+          {isOpen && <div style={{ padding: "0 12px 10px", borderTop: "1px solid " + C.brd }}>
+            {(stg.subStages || []).map(function (ss, ssi) {
+              return <div key={ssi} style={{ marginTop: 8 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: C.ocean, marginBottom: 4 }}>{ss.nameAr}</div>
+                {(ss.items || []).map(function (item, ii) {
+                  return <div key={ii} style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 8px", background: ii % 2 === 0 ? "#F8FAFD" : "#fff", borderRadius: 4, marginBottom: 2 }}>
+                    <div style={{ flex: 1, fontSize: 10, color: C.t2 }}>{item.textAr}</div>
+                    {item.quantity > 0 && <span style={{ fontSize: 9, color: C.t3 }}>{item.quantity} {item.unit}</span>}
+                    {item.estimatedCost > 0 && <span style={{ fontSize: 9, fontWeight: 700, color: C.amber }}>{item.estimatedCost.toLocaleString()} د.ب</span>}
+                  </div>;
+                })}
+              </div>;
+            })}
+          </div>}
+        </div>;
+      })}
+    </div>
+
+    {/* Matched Contractors */}
+    {matched.length > 0 && <div style={{ marginBottom: 14 }}>
+      <div style={{ fontSize: 12, fontWeight: 800, color: C.t1, marginBottom: 8 }}>👷 المقاولون المرشحون ({matched.length})</div>
+      {matched.map(function (c) {
+        return <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", border: "1px solid " + C.brd, borderRadius: 10, marginBottom: 6, background: "#fff" }}>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #0D47A1, #1565C0)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 800 }}>{(c.nameAr || "م")[0]}</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: C.t1 }}>{c.nameAr}</div>
+            <div style={{ fontSize: 9, color: C.t3 }}>{c.companyNameAr || "مقاول مستقل"} • {c.totalProjects || 0} مشاريع</div>
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: c.matchScore >= 80 ? C.green : c.matchScore >= 60 ? C.amber : C.t3 }}>{c.matchScore}%</div>
+            <div style={{ fontSize: 8, color: C.t3 }}>توافق</div>
+          </div>
+        </div>;
+      })}
+    </div>}
+
+    {/* Contractor Requirements */}
+    {analysis.contractorRequirements && <div style={{ background: "rgba(124,58,237,.05)", border: "1px solid rgba(124,58,237,.2)", borderRadius: 10, padding: 12, marginBottom: 14 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: C.purple, marginBottom: 4 }}>🎯 متطلبات المقاول المثالي</div>
+      <div style={{ fontSize: 10, color: C.t2, lineHeight: 1.7 }}>{analysis.contractorRequirements.description}</div>
+      {analysis.contractorRequirements.specialties && <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 6 }}>
+        {analysis.contractorRequirements.specialties.map(function (s, i) {
+          return <span key={i} style={{ fontSize: 9, padding: "2px 8px", background: "rgba(124,58,237,.1)", borderRadius: 6, color: C.purple }}>{s}</span>;
+        })}
+      </div>}
+    </div>}
+
+    <div style={{ display: "flex", gap: 8 }}>
+      <Btn v="outline" onClick={function () { setStep(0); setAnalysis(null); }}>→ تعديل وإعادة التحليل</Btn>
+      <Btn f onClick={doCreate} style={{ background: "linear-gradient(135deg, #087A44, #0EAD69)" }}>🚀 إنشاء المشروع وإشعار المقاولين</Btn>
+    </div>
+  </div>;
+
+  // ── Step 3: Creating ──
+  if (step === 3) return <div style={{ textAlign: "center", padding: "40px 20px" }}>
+    <div style={{ fontSize: 48, marginBottom: 16 }}>🚀</div>
+    <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 16, fontWeight: 800, color: C.green, marginBottom: 8 }}>جاري إنشاء المشروع...</div>
+    <div style={{ fontSize: 11, color: C.t3 }}>يتم إنشاء المراحل وإشعار المقاولين</div>
+  </div>;
+
+  return null;
+});
+
 // ═══════ BOQ QUOTATION FORM — isolated to prevent re-render lag ═══════
 var BOQQuotationForm = memo(function BOQQuotationForm({ modal, onSubmit, onClose }) {
   var [items, setItems] = useState([{ stage: "", description: "", unit: "عدد", quantity: "1", unit_price: "", brand: "" }]);
@@ -2477,6 +2696,84 @@ export default function App() {
   // ═══════════════════════════════════════════════
   // ITEM RENDERER — Full workflow with files, comments, rejection reasons
   // ═══════════════════════════════════════════════
+  // ═══════ STAGE FILE MANAGER — upload/view files per stage ═══════
+  function StageFileManager({ stageId, files, role, token, onRefresh }) {
+    var fileRef = useRef();
+    var [uploading, setUploading] = useState(false);
+    var stageFiles = files || [];
+
+    function uploadFiles(e) {
+      var selected = Array.from(e.target.files);
+      if (selected.length === 0) return;
+      setUploading(true);
+      var formData = new FormData();
+      selected.forEach(function (f) { formData.append("files", f); });
+      fetch(BASE + "/projects/stages/" + stageId + "/files", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + token },
+        body: formData
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        setUploading(false);
+        if (d.success) { show("✅ " + d.message); onRefresh(); }
+        else show("❌ " + (d.error || "خطأ"));
+      }).catch(function () { setUploading(false); show("❌ خطأ في الرفع"); });
+    }
+
+    function deleteFile(fileId) {
+      if (!confirm("هل تريد حذف هذا الملف؟")) return;
+      call("/projects/stage-files/" + fileId, "DELETE", null, token).then(function (d) {
+        if (d.success) { show("✅ تم الحذف"); onRefresh(); }
+        else show("❌ " + (d.error || "خطأ"));
+      });
+    }
+
+    return <div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: C.ocean }}>📁 ملفات المرحلة ({stageFiles.length})</div>
+        <div onClick={function () { fileRef.current.click(); }} style={{ fontSize: 10, padding: "4px 10px", background: uploading ? C.brd : "rgba(26,111,181,.08)", border: "1.5px solid " + C.ocean, borderRadius: 8, cursor: uploading ? "default" : "pointer", color: C.ocean, fontWeight: 700 }}>
+          {uploading ? "⏳ جاري الرفع..." : "📤 رفع ملفات"}
+        </div>
+        <input ref={fileRef} type="file" multiple accept="image/*,video/*,.pdf,.doc,.docx,.dwg,.xlsx" onChange={uploadFiles} style={{ display: "none" }} />
+      </div>
+
+      {stageFiles.length > 0 && <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {stageFiles.map(function (f) {
+          var isImg = f.file_type === "image";
+          var isVid = f.file_type === "video";
+          var hasUrl = f.file_path && (f.file_path.startsWith("http") || f.file_path.startsWith("uploads/"));
+          var fullUrl = f.file_path && f.file_path.startsWith("http") ? f.file_path : (BASE.replace("/api", "/") + f.file_path);
+          var roleColor = f.role === "contractor" ? C.amber : f.role === "inspector" ? C.green : C.ocean;
+          var roleIcon = f.role === "contractor" ? "👷" : f.role === "inspector" ? "🔍" : "👤";
+
+          return <div key={f.id} style={{ width: 100, border: "1.5px solid " + C.brd, borderRadius: 10, overflow: "hidden", background: "#FAFBFD", position: "relative" }}>
+            {/* Delete button */}
+            {(f.uploaded_by === (user && user.id) || role === "owner") && <div onClick={function () { deleteFile(f.id); }} style={{ position: "absolute", top: 3, left: 3, width: 18, height: 18, borderRadius: "50%", background: "rgba(231,76,60,.85)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, cursor: "pointer", zIndex: 2 }}>✕</div>}
+
+            {/* File preview */}
+            <div onClick={function () { if (hasUrl) window.open(fullUrl, "_blank"); }} style={{ cursor: hasUrl ? "pointer" : "default", height: 68, display: "flex", alignItems: "center", justifyContent: "center", background: isImg && hasUrl ? "transparent" : "rgba(26,111,181,.03)" }}>
+              {isImg && hasUrl
+                ? <img src={fullUrl} alt={f.file_name} style={{ width: "100%", height: 68, objectFit: "cover" }} loading="lazy" />
+                : <span style={{ fontSize: 28 }}>{isVid ? "🎥" : "📄"}</span>}
+            </div>
+
+            {/* File info */}
+            <div style={{ padding: "4px 6px" }}>
+              <div style={{ fontSize: 8, color: C.t2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.file_name}</div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
+                <span style={{ fontSize: 8, color: roleColor }}>{roleIcon} {f.role === "contractor" ? "مقاول" : f.role === "inspector" ? "مفتش" : "مالك"}</span>
+                {f.file_size && <span style={{ fontSize: 7, color: C.t3 }}>{Math.round(f.file_size / 1024)}KB</span>}
+              </div>
+            </div>
+          </div>;
+        })}
+      </div>}
+
+      {stageFiles.length === 0 && <div style={{ fontSize: 10, color: C.t3, textAlign: "center", padding: "8px 0", background: "rgba(26,111,181,.02)", borderRadius: 8, border: "1px dashed " + C.brd }}>
+        لا توجد ملفات — اضغط "رفع ملفات" لإضافة مخططات أو صور أو مستندات
+      </div>}
+    </div>;
+  }
+
   function renderItem(item, stStatus) {
     var k = "i" + item.id;
     var isO = exp[k];
@@ -2682,6 +2979,11 @@ export default function App() {
         {/* Progress bar */}
         <div style={{ padding: "0 14px 10px" }}><PB v={pct} c={st === "completed" ? "green" : st === "locked" ? "outline" : "amber"} /></div>
 
+        {/* ── Stage Files Section ── */}
+        {sO && st !== "locked" && <div style={{ borderTop: "1px solid " + C.brd, padding: "10px 14px" }}>
+          <StageFileManager stageId={stage.id} files={stage.stage_files || []} role={role} token={tk} onRefresh={function(){ if(proj) fetchProj(proj.id); }} />
+        </div>}
+
         {/* Expanded sub-stages */}
         {sO && st !== "locked" && <div style={{ borderTop: "1px solid " + C.brd }}>
           {(stage.sub_stages || []).map(function (sub) {
@@ -2785,6 +3087,14 @@ export default function App() {
           <div style={{ fontSize: 11, color: C.t2, marginTop: 2 }}>{t.newProjectDesc}</div>
         </div>
         <span style={{ color: C.ocean, fontSize: 16 }}>←</span>
+      </div>
+      <div onClick={function(){ setModal("aiUpload"); }} style={{ display: "flex", alignItems: "center", gap: 14, background: "linear-gradient(135deg, rgba(124,58,237,.06), rgba(124,58,237,.12))", border: "2px solid rgba(124,58,237,.3)", borderRadius: 14, padding: "14px 16px", marginBottom: 10, cursor: "pointer" }}>
+        <div style={{ width: 52, height: 52, borderRadius: 14, background: "linear-gradient(135deg, #7C3AED, #5B21B6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>🤖</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: "#7C3AED" }}>رفع مشروع ذكي (AI)</div>
+          <div style={{ fontSize: 11, color: C.t2, marginTop: 2 }}>ارفع ملف المشروع والذكاء الاصطناعي يحلل ويقسّم المراحل</div>
+        </div>
+        <span style={{ color: "#7C3AED", fontSize: 16 }}>←</span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 14, background: "linear-gradient(135deg, rgba(212,160,23,.04), rgba(212,160,23,.08))", border: "2px solid rgba(212,160,23,.15)", borderRadius: 14, padding: "14px 16px", opacity: 0.55, cursor: "default", position: "relative" }}>
         <div style={{ width: 52, height: 52, borderRadius: 14, background: C.gold, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0, opacity: 0.5 }}>🏆</div>
@@ -3924,6 +4234,19 @@ export default function App() {
           <span style={{ fontFamily: "Cairo, sans-serif", fontSize: 16, fontWeight: 900, color: C.amber }}>{Number(proj.total_budget).toLocaleString()} <span style={{ fontSize: 10, opacity: 0.6 }}>د.ب</span></span>
         </div>}
 
+        {/* Download all project files button */}
+        <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,.1)", display: "flex", gap: 8 }}>
+          <button onClick={function() {
+            call("/projects/" + proj.id + "/all-files", "GET", null, tk).then(function(d) {
+              if (d.total_files === 0) { show("لا توجد ملفات في المشروع بعد"); return; }
+              setModal({ type: "projectFiles", data: d });
+            });
+          }} style={{ flex: 1, padding: "8px 12px", background: "rgba(66,165,245,.15)", border: "1px solid rgba(66,165,245,.35)", borderRadius: 10, color: C.sky, fontFamily: "Tajawal", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+            📂 جميع ملفات المشروع
+            <span style={{ fontSize: 9, background: "rgba(66,165,245,.2)", padding: "2px 6px", borderRadius: 6 }}>{stages.reduce(function(acc, st) { return acc + (st.stage_files || []).length + (st.sub_stages || []).reduce(function(a2, ss) { return a2 + (ss.items || []).reduce(function(a3, it) { return a3 + (it.files || []).length; }, 0); }, 0); }, 0)} ملف</span>
+          </button>
+        </div>
+
         {/* Contract button */}
         {contract && <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,.1)" }}>
           <button onClick={function() { setShowContractView(!showContractView); }} style={{ width: "100%", padding: "8px 14px", background: showContractView ? "rgba(212,160,23,.25)" : "rgba(212,160,23,.12)", border: "1px solid rgba(212,160,23,.35)", borderRadius: 10, color: C.gold, fontFamily: "Tajawal", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
@@ -4610,6 +4933,21 @@ export default function App() {
       <DepositForm onSubmit={function (data) { doDeposit(data.amount, data.bank); }} />
     </ModalWrap>;
   }
+  // ── AI Smart Upload Modal ──
+  else if (modal === "aiUpload") {
+    modalUI = <ModalWrap>
+      <AIProjectUpload
+        token={tk}
+        onClose={function () { setModal(null); }}
+        onCreated={function (pid) {
+          show("✅ تم إنشاء المشروع بالذكاء الاصطناعي — سيتم إشعار المقاولين فوراً");
+          setModal(null);
+          loadData();
+        }}
+      />
+    </ModalWrap>;
+  }
+
   // ── New Project Modal — isolated form component prevents re-render lag ──
   else if (modal === "newProject") {
     modalUI = <ModalWrap>
@@ -4902,6 +5240,61 @@ export default function App() {
   }
 
   // ── Company Profile Modal (from achievements gallery) ──
+  else if (modal && modal.type === "projectFiles") {
+    var pf = modal.data;
+    modalUI = <ModalWrap>
+      <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 16, fontWeight: 900, marginBottom: 4 }}>📂 جميع ملفات المشروع</div>
+      <div style={{ fontSize: 11, color: C.t3, marginBottom: 14 }}>{pf.project_name} — {pf.total_files} ملف</div>
+
+      {pf.stages.map(function (st) {
+        if (st.total_files === 0) return null;
+        return <div key={st.stage_id} style={{ marginBottom: 14 }}>
+          <div style={{ fontSize: 12, fontWeight: 800, color: C.ocean, marginBottom: 6, padding: "6px 10px", background: "rgba(26,111,181,.06)", borderRadius: 8 }}>
+            {st.stage_name} {st.stage_name_en && <span style={{ fontSize: 9, color: C.t3 }}>({st.stage_name_en})</span>} — {st.total_files} ملف
+          </div>
+
+          {/* Stage-level files */}
+          {st.stage_files.length > 0 && <div style={{ marginBottom: 8 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: C.t2, marginBottom: 4, paddingRight: 8 }}>📁 ملفات المرحلة</div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", paddingRight: 8 }}>
+              {st.stage_files.map(function (f) {
+                var fullUrl = f.file_path && f.file_path.startsWith("http") ? f.file_path : (BASE.replace("/api", "/") + f.file_path);
+                return <div key={f.id} onClick={function () { if (f.file_path) window.open(fullUrl, "_blank"); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", background: "#F4F7FB", borderRadius: 8, cursor: f.file_path ? "pointer" : "default", border: "1px solid " + C.brd }}>
+                  <span style={{ fontSize: 14 }}>{f.file_type === "image" ? "🖼️" : f.file_type === "video" ? "🎥" : "📄"}</span>
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: C.t1, maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.file_name}</div>
+                    <div style={{ fontSize: 8, color: C.t3 }}>{f.role === "contractor" ? "👷 مقاول" : f.role === "inspector" ? "🔍 مفتش" : "👤 مالك"} • {(f.uploaded_at || "").substring(0, 10)}</div>
+                  </div>
+                </div>;
+              })}
+            </div>
+          </div>}
+
+          {/* Item-level files */}
+          {st.item_files.length > 0 && <div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: C.t2, marginBottom: 4, paddingRight: 8 }}>📎 ملفات البنود</div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", paddingRight: 8 }}>
+              {st.item_files.map(function (f) {
+                var fullUrl = f.file_path && f.file_path.startsWith("http") ? f.file_path : (BASE.replace("/api", "/") + f.file_path);
+                return <div key={f.id} onClick={function () { if (f.file_path) window.open(fullUrl, "_blank"); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", background: "#FFFBF5", borderRadius: 8, cursor: f.file_path ? "pointer" : "default", border: "1px solid rgba(232,114,12,.2)" }}>
+                  <span style={{ fontSize: 14 }}>{f.file_type === "image" ? "🖼️" : f.file_type === "video" ? "🎥" : "📄"}</span>
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 600, color: C.t1, maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.file_name}</div>
+                    <div style={{ fontSize: 8, color: C.t3 }}>{f.item_name} • {f.role === "contractor" ? "👷" : f.role === "inspector" ? "🔍" : "👤"} • {(f.uploaded_at || "").substring(0, 10)}</div>
+                  </div>
+                </div>;
+              })}
+            </div>
+          </div>}
+        </div>;
+      })}
+
+      {pf.total_files === 0 && <div style={{ textAlign: "center", padding: "30px 0", color: C.t3, fontSize: 12 }}>
+        لا توجد ملفات مرفوعة في هذا المشروع بعد
+      </div>}
+    </ModalWrap>;
+  }
+
   else if (modal && modal.type === "companyProfile") {
     var co = modal.company;
     var coAvgRating = co.ratings.length > 0

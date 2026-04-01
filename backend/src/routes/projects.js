@@ -5,7 +5,13 @@ const validate = require("../middleware/validate");
 const { createProjectSchema, quotationSchema, inspectorApplySchema, contractorSubmitSchema, inspectorReviewSchema, ownerDecisionSchema } = require("../utils/validators");
 const { notify, notifyRole } = require("../services/notification");
 const { sendPaymentNotification, sendContractEmail, sendNewProjectNotification, sendQuotationNotification } = require("../services/email");
+const { analyzeProject, matchContractors } = require("../services/ai");
+const upload = require("../middleware/upload");
+const { processUploadedFiles } = require("../middleware/upload");
 const logger = require("../utils/logger");
+const mammoth = require("mammoth");
+const fs = require("fs");
+const path = require("path");
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -169,6 +175,166 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
+// ═══════ AI: ANALYZE PROJECT FILE ═══════
+router.post("/ai-analyze", auth, requireRole("owner"), upload.single("file"), processUploadedFiles, async (req, res) => {
+  try {
+    const { description, goals } = req.body;
+    if (!description || !description.trim()) {
+      return res.status(400).json({ error: "يرجى كتابة وصف المشروع وأهدافه" });
+    }
+
+    let fileText = "";
+
+    if (req.file) {
+      const mime = req.file.mimetype;
+      // Extract text from file
+      if (mime === "application/pdf") {
+        // For PDF files — use pdf-parse
+        try {
+          const { PDFParse } = require("pdf-parse");
+          const pdfParser = new PDFParse();
+          const buf = req.file.buffer || fs.readFileSync(req.file.path);
+          const result = await pdfParser.parseBuffer(buf);
+          fileText = result.pages.map(p => p.lines.map(l => l.text || "").join(" ")).join("\n");
+        } catch (pdfErr) {
+          logger.warn("PDF parse failed, continuing without file text", { error: pdfErr.message });
+          fileText = "[ملف PDF — لم يتم استخراج النص]";
+        }
+      } else if (mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+        // For DOCX files — use mammoth
+        try {
+          const buf = req.file.buffer || fs.readFileSync(req.file.path);
+          const result = await mammoth.extractRawText({ buffer: buf });
+          fileText = result.value;
+        } catch (docErr) {
+          logger.warn("DOCX parse failed", { error: docErr.message });
+          fileText = "[ملف Word — لم يتم استخراج النص]";
+        }
+      } else {
+        fileText = "[ملف مرفق: " + req.file.originalname + "]";
+      }
+    }
+
+    // Call AI analysis
+    const analysis = await analyzeProject(fileText, description, goals);
+
+    // Match contractors
+    const matchedContractors = await matchContractors(prisma, analysis);
+
+    logger.info("AI project analysis completed", { userId: req.user.id, projectName: analysis.projectName });
+    res.json({
+      success: true,
+      analysis,
+      matchedContractors: matchedContractors.slice(0, 10)
+    });
+  } catch (e) {
+    logger.error("AI analysis error", { error: e.message, stack: e.stack });
+    res.status(500).json({ error: e.message || "خطأ في تحليل المشروع" });
+  }
+});
+
+// ═══════ AI: CREATE PROJECT FROM ANALYSIS ═══════
+router.post("/ai-create", auth, requireRole("owner"), async (req, res) => {
+  try {
+    const { analysis } = req.body;
+    if (!analysis || !analysis.projectName) {
+      return res.status(400).json({ error: "بيانات التحليل مفقودة" });
+    }
+
+    const a = analysis;
+    const budget = a.estimatedBudget || 0;
+
+    // Create the project
+    const project = await prisma.project.create({
+      data: {
+        titleAr: a.projectName,
+        type: a.projectType || "commercial",
+        areaSqm: a.areaSqm || 0,
+        floors: a.floors || 1,
+        locationAr: a.location || "",
+        totalBudget: budget,
+        status: "awaiting_pricing",
+        ownerId: req.user.id,
+        hasDesigns: true,
+        needsDesign: false,
+        descriptionAr: a.description,
+        ownerConditions: a.ownerConditions
+      }
+    });
+
+    // Create AI-generated stages
+    if (a.stages && a.stages.length > 0) {
+      for (const stg of a.stages) {
+        const stageBudget = Math.round(budget * (stg.budgetPercent || 0));
+        const stage = await prisma.stage.create({
+          data: {
+            projectId: project.id,
+            nameAr: stg.nameAr,
+            nameEn: stg.nameEn || "",
+            orderNum: stg.order || 0,
+            budget: stageBudget,
+            status: stg.order === 1 ? "active" : "locked"
+          }
+        });
+
+        // Create sub-stages and items
+        if (stg.subStages && stg.subStages.length > 0) {
+          for (let si = 0; si < stg.subStages.length; si++) {
+            const ss = stg.subStages[si];
+            const subStage = await prisma.subStage.create({
+              data: { stageId: stage.id, nameAr: ss.nameAr, orderNum: si + 1 }
+            });
+
+            if (ss.items && ss.items.length > 0) {
+              await prisma.checklistItem.createMany({
+                data: ss.items.map(function (item, idx) {
+                  return {
+                    subStageId: subStage.id,
+                    textAr: item.textAr,
+                    orderNum: idx + 1,
+                    cost: item.estimatedCost || 0
+                  };
+                })
+              });
+            }
+          }
+        }
+      }
+    }
+
+    // Notify contractors & inspectors
+    const owner = await prisma.user.findUnique({ where: { id: req.user.id }, select: { nameAr: true } });
+    const projectData = {
+      title: a.projectName, location: a.location, type: a.projectType,
+      area: a.areaSqm, budget: budget, ownerName: owner?.nameAr || "صاحب المشروع",
+      ownerConditions: a.ownerConditions, description: a.description
+    };
+
+    const contractors = await prisma.user.findMany({
+      where: { OR: [{ role: "contractor" }, { roles: { contains: "contractor" } }] },
+      select: { id: true, email: true, nameAr: true }
+    });
+    for (const c of contractors) {
+      notify(c.id, "info", "مشروع جديد متاح للتسعير", a.projectName + " — " + (a.location || "")).catch(() => {});
+      sendNewProjectNotification(c.email, c.nameAr, projectData).catch(() => {});
+    }
+
+    const inspectors = await prisma.user.findMany({
+      where: { OR: [{ role: "inspector" }, { roles: { contains: "inspector" } }] },
+      select: { id: true, email: true, nameAr: true }
+    });
+    for (const ins of inspectors) {
+      notify(ins.id, "info", "مشروع جديد يحتاج مفتش", a.projectName + " — " + (a.location || "")).catch(() => {});
+    }
+
+    logger.info("AI project created", { projectId: project.id, ownerId: req.user.id, stages: a.stages?.length || 0 });
+    res.status(201).json({ success: true, message: "تم إنشاء المشروع بنجاح بواسطة الذكاء الاصطناعي", project_id: project.id });
+  } catch (e) {
+    logger.error("AI create project error", { error: e.message });
+    res.status(500).json({ error: "خطأ في إنشاء المشروع" });
+  }
+});
+
 // ═══════ CREATE PROJECT (Owner) ═══════
 router.post("/", auth, requireRole("owner"), validate(createProjectSchema), async (req, res) => {
   try {
@@ -248,6 +414,7 @@ router.get("/:id", auth, async (req, res) => {
         stages: {
           orderBy: { orderNum: "asc" },
           include: {
+            files: { orderBy: { uploadedAt: "desc" } },
             subStages: {
               orderBy: { orderNum: "asc" },
               include: { items: { orderBy: { orderNum: "asc" }, include: { files: true, comments: { orderBy: { createdAt: "asc" }, include: { user: { select: { nameAr: true, role: true } } } } } } }
@@ -280,8 +447,14 @@ router.get("/:id", auth, async (req, res) => {
       text: c.text, created_at: c.createdAt,
       user_name: c.user?.nameAr, user_role: c.user?.role
     });
+    const normalizeStageFile = f => ({
+      id: f.id, stage_id: f.stageId,
+      file_name: f.fileName, file_path: f.filePath,
+      file_type: f.fileType, file_size: f.fileSize,
+      role: f.role, uploaded_by: f.uploadedBy, uploaded_at: f.uploadedAt
+    });
     const stagesData = project.stages.map(st => ({
-      ...st, sub_stages: st.subStages.map(ss => ({
+      ...st, stage_files: (st.files || []).map(normalizeStageFile), sub_stages: st.subStages.map(ss => ({
         sub_stage: ss,
         items: ss.items.map(it => ({
           ...it,
@@ -320,6 +493,135 @@ router.get("/:id", auth, async (req, res) => {
     });
   } catch (e) {
     logger.error("Get project error", { error: e.message, projectId: req.params.id });
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ═══════ UPLOAD FILES TO STAGE ═══════
+router.post("/stages/:stageId/files", auth, upload.array("files", 10), processUploadedFiles, async (req, res) => {
+  try {
+    const stageId = parseInt(req.params.stageId);
+    const stage = await prisma.stage.findUnique({ where: { id: stageId }, include: { project: true } });
+    if (!stage) return res.status(404).json({ error: "المرحلة غير موجودة" });
+
+    // Check access
+    const p = stage.project;
+    const uid = req.user.id;
+    if (p.ownerId !== uid && p.contractorId !== uid && p.inspectorId !== uid) {
+      return res.status(403).json({ error: "ليس لديك صلاحية رفع ملفات لهذه المرحلة" });
+    }
+
+    const files = req.files || [];
+    if (files.length === 0) return res.status(400).json({ error: "لم يتم اختيار ملفات" });
+
+    const records = [];
+    for (const file of files) {
+      const isImg = file.mimetype.startsWith("image/");
+      const isVid = file.mimetype.startsWith("video/");
+      const fType = isImg ? "image" : isVid ? "video" : "document";
+      const record = await prisma.stageFile.create({
+        data: {
+          stageId, fileName: file.originalname, filePath: file.fileUrl || file.path || null,
+          fileType: fType, fileSize: file.size || null,
+          uploadedBy: uid, role: req.user.role
+        }
+      });
+      records.push(record);
+    }
+
+    logger.info("Stage files uploaded", { stageId, count: records.length, userId: uid });
+    res.status(201).json({
+      success: true,
+      message: "تم رفع " + records.length + " ملف بنجاح",
+      files: records.map(f => ({
+        id: f.id, file_name: f.fileName, file_path: f.filePath,
+        file_type: f.fileType, file_size: f.fileSize, role: f.role, uploaded_at: f.uploadedAt
+      }))
+    });
+  } catch (e) {
+    logger.error("Stage file upload error", { error: e.message });
+    res.status(500).json({ error: "خطأ في رفع الملفات" });
+  }
+});
+
+// ═══════ DELETE STAGE FILE ═══════
+router.delete("/stage-files/:fileId", auth, async (req, res) => {
+  try {
+    const fileId = parseInt(req.params.fileId);
+    const file = await prisma.stageFile.findUnique({ where: { id: fileId }, include: { stage: { include: { project: true } } } });
+    if (!file) return res.status(404).json({ error: "الملف غير موجود" });
+
+    // Only uploader or project owner can delete
+    if (file.uploadedBy !== req.user.id && file.stage.project.ownerId !== req.user.id) {
+      return res.status(403).json({ error: "ليس لديك صلاحية حذف هذا الملف" });
+    }
+
+    await prisma.stageFile.delete({ where: { id: fileId } });
+    res.json({ success: true, message: "تم حذف الملف" });
+  } catch (e) {
+    logger.error("Delete stage file error", { error: e.message });
+    res.status(500).json({ error: "خطأ في حذف الملف" });
+  }
+});
+
+// ═══════ GET ALL PROJECT FILES (complete file for download) ═══════
+router.get("/:id/all-files", auth, async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.id);
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: {
+        stages: {
+          orderBy: { orderNum: "asc" },
+          include: {
+            files: { orderBy: { uploadedAt: "desc" } },
+            subStages: {
+              orderBy: { orderNum: "asc" },
+              include: { items: { orderBy: { orderNum: "asc" }, include: { files: true } } }
+            }
+          }
+        }
+      }
+    });
+    if (!project) return res.status(404).json({ error: "المشروع غير موجود" });
+
+    // Build a structured file tree
+    const fileTree = project.stages.map(st => {
+      const stageFiles = (st.files || []).map(f => ({
+        id: f.id, file_name: f.fileName, file_path: f.filePath,
+        file_type: f.fileType, file_size: f.fileSize, role: f.role, uploaded_at: f.uploadedAt, source: "stage"
+      }));
+
+      const itemFiles = [];
+      (st.subStages || []).forEach(ss => {
+        (ss.items || []).forEach(item => {
+          (item.files || []).forEach(f => {
+            itemFiles.push({
+              id: f.id, file_name: f.fileName, file_path: f.filePath,
+              file_type: f.fileType, file_size: f.fileSize, role: f.role, uploaded_at: f.uploadedAt,
+              source: "item", item_name: item.textAr, sub_stage_name: ss.nameAr
+            });
+          });
+        });
+      });
+
+      return {
+        stage_id: st.id, stage_name: st.nameAr, stage_name_en: st.nameEn,
+        stage_files: stageFiles, item_files: itemFiles,
+        total_files: stageFiles.length + itemFiles.length
+      };
+    });
+
+    const totalFiles = fileTree.reduce((acc, st) => acc + st.total_files, 0);
+
+    res.json({
+      project_id: projectId,
+      project_name: project.titleAr,
+      total_files: totalFiles,
+      stages: fileTree
+    });
+  } catch (e) {
+    logger.error("Get all project files error", { error: e.message });
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });

@@ -121,10 +121,28 @@ model Stage {
   budget    Float  @default(0)
   status    String @default("locked")
 
-  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project   Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   subStages SubStage[]
+  files     StageFile[]
 
   @@map("stages")
+}
+
+// ═══════ STAGE FILES ═══════
+model StageFile {
+  id         Int      @id @default(autoincrement())
+  stageId    Int      @map("stage_id")
+  fileName   String   @map("file_name")
+  filePath   String?  @map("file_path")
+  fileType   String   @map("file_type")
+  fileSize   Int?     @map("file_size")
+  uploadedBy Int      @map("uploaded_by")
+  role       String
+  uploadedAt DateTime @default(now()) @map("uploaded_at")
+
+  stage Stage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+
+  @@map("stage_files")
 }
 
 // ═══════ SUB STAGES ═══════
