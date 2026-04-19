@@ -957,44 +957,65 @@ router.post("/items/:id/owner-decision", auth, requireRole("owner"), validate(ow
     if (!item.inspectorDone || !item.inspectorApproved) return res.status(400).json({ error: "لم يتم اعتماد البند بعد" });
 
     const approved = req.validated.approved;
-    await prisma.checklistItem.update({
-      where: { id: item.id },
-      data: { ownerDone: true, ownerApproved: approved, ownerDate: new Date() }
-    });
-
     const project = item.subStage.stage.project;
     const stage = item.subStage.stage;
 
-    // Payment via escrow wallet — deduct from balance + release from reserved
+    // ═══ PRE-FLIGHT BALANCE CHECK ═══ (before any DB writes — atomic guarantee)
+    let wallet = null;
     if (approved && item.cost > 0) {
-      const wallet = await prisma.wallet.findUnique({ where: { userId: req.user.id } });
-      if (wallet && wallet.balance >= item.cost) {
-        const releaseReserved = Math.min(wallet.reserved, item.cost); // release up to cost from reserved
-        await prisma.$transaction(async (tx) => {
-          await tx.wallet.update({
-            where: { id: wallet.id },
-            data: {
-              balance: { decrement: item.cost },
-              reserved: { decrement: releaseReserved },
-              totalPaid: { increment: item.cost }
-            }
-          });
-          await tx.transaction.create({ data: { walletId: wallet.id, amount: -item.cost, type: "payment", descriptionAr: "صرف مستحقات: " + item.textAr, reference: "item-" + item.id } });
-          await tx.contractorEarning.create({ data: { contractorId: project.contractorId, projectId: project.id, itemId: item.id, amount: item.cost } });
+      wallet = await prisma.wallet.findUnique({ where: { userId: req.user.id } });
+      if (!wallet || wallet.balance < item.cost) {
+        logger.warn("Payment rejected: insufficient balance", { itemId: item.id, cost: item.cost, balance: wallet?.balance || 0 });
+        return res.status(402).json({
+          error: "رصيد المحفظة غير كافٍ — يرجى الإيداع قبل الاعتماد",
+          required: item.cost,
+          available: wallet?.balance || 0,
+          deficit: item.cost - (wallet?.balance || 0)
         });
-        notify(project.contractorId, "success", "تم صرف مستحقات بند", item.textAr + " — " + item.cost.toLocaleString() + " د.ب").catch(() => {});
-      } else {
-        // Insufficient balance — reject payment but still mark as approved
-        logger.warn("Insufficient wallet balance for item payment", { itemId: item.id, cost: item.cost, balance: wallet?.balance || 0 });
       }
     }
 
-    // Reject → reset all
+    // ═══ ATOMIC TRANSACTION ═══ (item update + wallet debit + earning in one commit)
+    await prisma.$transaction(async (tx) => {
+      // 1. Update the checklist item (approve or reset on reject)
+      if (approved) {
+        await tx.checklistItem.update({
+          where: { id: item.id },
+          data: { ownerDone: true, ownerApproved: true, ownerDate: new Date() }
+        });
+      } else {
+        // Reject → reset all flags
+        await tx.checklistItem.update({
+          where: { id: item.id },
+          data: {
+            contractorDone: false, contractorNotes: null, contractorDate: null,
+            inspectorDone: false, inspectorApproved: false, inspectorNotes: null, inspectorDate: null,
+            ownerDone: false, ownerApproved: false, ownerDate: new Date()
+          }
+        });
+      }
+
+      // 2. Payment (only on approval with cost)
+      if (approved && item.cost > 0 && wallet) {
+        const releaseReserved = Math.min(wallet.reserved, item.cost);
+        await tx.wallet.update({
+          where: { id: wallet.id },
+          data: {
+            balance: { decrement: item.cost },
+            reserved: { decrement: releaseReserved },
+            totalPaid: { increment: item.cost }
+          }
+        });
+        await tx.transaction.create({ data: { walletId: wallet.id, amount: -item.cost, type: "payment", descriptionAr: "صرف مستحقات: " + item.textAr, reference: "item-" + item.id } });
+        await tx.contractorEarning.create({ data: { contractorId: project.contractorId, projectId: project.id, itemId: item.id, amount: item.cost } });
+      }
+    });
+
+    // ═══ POST-TRANSACTION NOTIFICATIONS ═══ (fire-and-forget)
+    if (approved && item.cost > 0) {
+      notify(project.contractorId, "success", "تم صرف مستحقات بند", item.textAr + " — " + item.cost.toLocaleString() + " د.ب").catch(() => {});
+    }
     if (!approved) {
-      await prisma.checklistItem.update({
-        where: { id: item.id },
-        data: { contractorDone: false, contractorNotes: null, contractorDate: null, inspectorDone: false, inspectorApproved: false, inspectorNotes: null, inspectorDate: null, ownerDone: false, ownerApproved: false, ownerDate: null }
-      });
       notify(project.contractorId, "warning", "بند مرفوض من المالك", item.textAr + " — يحتاج إعادة تنفيذ").catch(() => {});
     }
 

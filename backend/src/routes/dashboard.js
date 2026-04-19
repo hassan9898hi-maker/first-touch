@@ -70,7 +70,14 @@ async function getStageProgress(projectId) {
 router.get("/", auth, async (req, res) => {
   try {
     const uid = req.user.id;
-    const role = req.user.role;
+    // Preview mode: allow role override via ?previewRole= for internal testing.
+    // Data is still scoped to the requester's user ID, so there's no data leak —
+    // the user just sees what dashboard fields/layout look like for another role
+    // using their own relationships (usually empty if they have no such role).
+    const validRoles = ["owner", "contractor", "inspector", "developer"];
+    const previewRole = req.query.previewRole;
+    const role = (previewRole && validRoles.indexOf(previewRole) !== -1) ? previewRole : req.user.role;
+    const isPreview = role !== req.user.role;
 
     if (role === "owner") {
       const [pendingItems, activeProjects, completedProjects, totalProjects, wallet, pendingQuotations, financing] = await Promise.all([
@@ -108,6 +115,7 @@ router.get("/", auth, async (req, res) => {
       }
 
       res.json({
+        role, preview: isPreview,
         pending_approvals: pendingItems,
         active_projects: activeProjects,
         completed_projects: completedProjects,
@@ -168,6 +176,7 @@ router.get("/", auth, async (req, res) => {
       const completedProjects = await prisma.project.count({ where: { contractorId: uid, status: "completed" } });
 
       res.json({
+        role, preview: isPreview,
         pending_deliveries: pending,
         active_projects: activeProjects,
         awaiting_pricing: awaitingPricing,
@@ -221,6 +230,7 @@ router.get("/", auth, async (req, res) => {
       const totalSpent = allUnitsSpent.reduce((s, u) => s + (u.spent || 0), 0);
 
       res.json({
+        role, preview: isPreview,
         total_compounds: compounds,
         total_units: totalUnits,
         completed_units: completedUnits,
@@ -278,6 +288,7 @@ router.get("/", auth, async (req, res) => {
       }
 
       res.json({
+        role, preview: isPreview,
         pending_inspections: pending,
         active_projects: activeProjects,
         awaiting_signature: awaitingSig,

@@ -2435,9 +2435,12 @@ export default function App() {
     var t = token || tk;
     var r = userRole || role;
     if (!t) return;
+    // Preview mode: if the requested role differs from the real JWT role, pass
+    // previewRole so the backend returns that role's dashboard structure.
+    var previewQ = (user && r !== user.role) ? "?previewRole=" + r : "";
     // Parallel requests - better-sqlite3 with WAL mode handles concurrency
     var promises = [
-      call("/dashboard", "GET", null, t).then(function (d) { if (!d.error) setDash(d); }),
+      call("/dashboard" + previewQ, "GET", null, t).then(function (d) { if (!d.error) setDash(d); }),
       call("/projects", "GET", null, t).then(function (d) { if (d.projects) setProjects(d.projects); }),
       call("/notifications", "GET", null, t).then(function (d) { if (d.notifications) setNotifs(d.notifications); }),
       call("/achievements", "GET", null, t).then(function (d) { if (d.achievements) setAchievements(d.achievements); })
