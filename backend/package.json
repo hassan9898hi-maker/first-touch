@@ -15,8 +15,8 @@
     "db:generate": "npx prisma generate",
     "db:studio": "npx prisma studio",
     "db:reset": "npx prisma db push --force-reset && node prisma/seed.js",
-    "build": "DATABASE_URL=${DATABASE_URL:-postgresql://dummy:dummy@localhost/dummy} npx prisma generate",
-    "postinstall": "DATABASE_URL=${DATABASE_URL:-postgresql://dummy:dummy@localhost/dummy} npx prisma generate"
+    "build": "node scripts/prisma-generate.js",
+    "postinstall": "node scripts/prisma-generate.js"
   },
   "engines": {
     "node": ">=18.0.0"

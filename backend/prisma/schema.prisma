@@ -21,7 +21,9 @@ model User {
   passwordHash  String    @map("password_hash")
   role          String
   roles         String?
+  accountType   String    @default("individual") @map("account_type")
   companyNameAr String?   @map("company_name_ar")
+  companyLogo   String?   @map("company_logo")
   specialty     String?
   phone         String?
   crNumber      String?   @map("cr_number")

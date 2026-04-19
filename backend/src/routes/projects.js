@@ -155,7 +155,8 @@ router.get("/", auth, async (req, res) => {
       where, orderBy: { createdAt: "desc" },
       include: {
         contractor: { select: { nameAr: true, companyNameAr: true } },
-        inspector: { select: { nameAr: true } }
+        inspector: { select: { nameAr: true } },
+        _count: { select: { quotations: true, inspectorApps: true } }
       }
     });
 
@@ -163,8 +164,18 @@ router.get("/", auth, async (req, res) => {
       const pct = await getCompletion(p.id);
       return {
         ...p, completion_percentage: pct,
+        // snake_case aliases for frontend compatibility
+        title_ar: p.titleAr, title_en: p.titleEn,
+        area_sqm: p.areaSqm, total_budget: p.totalBudget,
+        location_ar: p.locationAr, location_en: p.locationEn,
+        description_ar: p.descriptionAr, description_en: p.descriptionEn,
+        owner_id: p.ownerId, contractor_id: p.contractorId, inspector_id: p.inspectorId,
+        has_designs: p.hasDesigns, needs_design: p.needsDesign,
+        current_stage: p.currentStage, owner_conditions: p.ownerConditions,
         contractor_name: p.contractor?.nameAr, contractor_company: p.contractor?.companyNameAr,
-        inspector_name: p.inspector?.nameAr
+        inspector_name: p.inspector?.nameAr,
+        quotation_count: p._count?.quotations || 0,
+        inspector_count: p._count?.inspectorApps || 0
       };
     }));
 
@@ -176,56 +187,91 @@ router.get("/", auth, async (req, res) => {
 });
 
 // ═══════ AI: ANALYZE PROJECT FILE ═══════
+// Requires a REAL uploaded file (PDF or Word) containing a BOQ or
+// project description. Text is extracted from the file and passed
+// to the analyzer — no fake/dummy data is ever fabricated.
 router.post("/ai-analyze", auth, requireRole("owner"), upload.single("file"), processUploadedFiles, async (req, res) => {
   try {
     const { description, goals } = req.body;
-    if (!description || !description.trim()) {
-      return res.status(400).json({ error: "يرجى كتابة وصف المشروع وأهدافه" });
+
+    // 1. File is MANDATORY — projects are created from real files only
+    if (!req.file) {
+      return res.status(400).json({
+        error: "يجب رفع ملف المشروع (PDF أو Word) — لا يمكن إنشاء المشروع بدون ملف حقيقي"
+      });
     }
 
-    let fileText = "";
+    const mime = req.file.mimetype;
+    const allowedMimes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/msword"
+    ];
+    if (!allowedMimes.includes(mime)) {
+      return res.status(400).json({
+        error: "نوع الملف غير مدعوم — يُقبل فقط PDF أو Word (.pdf / .docx)"
+      });
+    }
 
-    if (req.file) {
-      const mime = req.file.mimetype;
-      // Extract text from file
-      if (mime === "application/pdf") {
-        // For PDF files — use pdf-parse
-        try {
-          const { PDFParse } = require("pdf-parse");
-          const pdfParser = new PDFParse();
-          const buf = req.file.buffer || fs.readFileSync(req.file.path);
-          const result = await pdfParser.parseBuffer(buf);
-          fileText = result.pages.map(p => p.lines.map(l => l.text || "").join(" ")).join("\n");
-        } catch (pdfErr) {
-          logger.warn("PDF parse failed, continuing without file text", { error: pdfErr.message });
-          fileText = "[ملف PDF — لم يتم استخراج النص]";
-        }
-      } else if (mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-        // For DOCX files — use mammoth
-        try {
-          const buf = req.file.buffer || fs.readFileSync(req.file.path);
-          const result = await mammoth.extractRawText({ buffer: buf });
-          fileText = result.value;
-        } catch (docErr) {
-          logger.warn("DOCX parse failed", { error: docErr.message });
-          fileText = "[ملف Word — لم يتم استخراج النص]";
-        }
-      } else {
-        fileText = "[ملف مرفق: " + req.file.originalname + "]";
+    // 2. Extract real text from the file (no fallback to fake text)
+    let fileText = "";
+    if (mime === "application/pdf") {
+      try {
+        const { PDFParse } = require("pdf-parse");
+        const pdfParser = new PDFParse();
+        const buf = req.file.buffer || fs.readFileSync(req.file.path);
+        const result = await pdfParser.parseBuffer(buf);
+        fileText = result.pages.map(p => p.lines.map(l => l.text || "").join(" ")).join("\n");
+      } catch (pdfErr) {
+        logger.warn("PDF parse failed", { error: pdfErr.message });
+        return res.status(400).json({
+          error: "تعذّر قراءة ملف PDF — قد يكون الملف محمياً أو صورة ممسوحة ضوئياً. يرجى رفع ملف PDF نصي أو ملف Word."
+        });
+      }
+    } else {
+      // DOCX / DOC
+      try {
+        const buf = req.file.buffer || fs.readFileSync(req.file.path);
+        const result = await mammoth.extractRawText({ buffer: buf });
+        fileText = result.value;
+      } catch (docErr) {
+        logger.warn("DOCX parse failed", { error: docErr.message });
+        return res.status(400).json({
+          error: "تعذّر قراءة ملف Word — تأكد أن الملف غير تالف وبصيغة .docx"
+        });
       }
     }
 
-    // Call AI analysis
-    const analysis = await analyzeProject(fileText, description, goals);
+    // 3. Extracted text must contain meaningful content
+    const cleanText = (fileText || "").replace(/\s+/g, " ").trim();
+    if (cleanText.length < 50) {
+      return res.status(400).json({
+        error: "الملف المرفوع لا يحتوي على نص كافٍ للتحليل. تأكد أن الملف يتضمّن وصفاً للمشروع وجدول الكميات."
+      });
+    }
 
-    // Match contractors
+    // 4. Call analyzer — it will throw if the text has no real BOQ data
+    let analysis;
+    try {
+      analysis = await analyzeProject(fileText, description || "", goals || "");
+    } catch (analyzeErr) {
+      logger.warn("AI analysis rejected file", { error: analyzeErr.message });
+      return res.status(400).json({ error: analyzeErr.message });
+    }
+
+    // 5. Match contractors based on real extracted requirements
     const matchedContractors = await matchContractors(prisma, analysis);
 
-    logger.info("AI project analysis completed", { userId: req.user.id, projectName: analysis.projectName });
+    logger.info("AI project analysis completed", {
+      userId: req.user.id, projectName: analysis.projectName,
+      stagesCount: analysis.stages?.length || 0,
+      budget: analysis.estimatedBudget
+    });
     res.json({
       success: true,
       analysis,
-      matchedContractors: matchedContractors.slice(0, 10)
+      matchedContractors: matchedContractors.slice(0, 10),
+      extractedFrom: req.file.originalname
     });
   } catch (e) {
     logger.error("AI analysis error", { error: e.message, stack: e.stack });
@@ -423,7 +469,7 @@ router.get("/:id", auth, async (req, res) => {
         },
         quotations: {
           orderBy: { createdAt: "desc" },
-          include: { contractor: { select: { nameAr: true, companyNameAr: true, rating: true } } }
+          include: { contractor: { select: { nameAr: true, companyNameAr: true, crNumber: true, phone: true, rating: true } } }
         },
         inspectorApps: {
           orderBy: { createdAt: "desc" },
@@ -475,7 +521,10 @@ router.get("/:id", auth, async (req, res) => {
       }))
     }));
     const quots = project.quotations.map(q => ({
-      ...q, contractor_name: q.contractor?.nameAr, company_name_ar: q.contractor?.companyNameAr, rating: q.contractor?.rating
+      ...q, total_price: q.price, contractor_name: q.contractor?.nameAr,
+      company_name_ar: q.contractor?.companyNameAr, cr_number: q.contractor?.crNumber,
+      rating: q.contractor?.rating,
+      duration_months: q.durationMonths, warranty_months: q.warrantyMonths
     }));
     const iApps = project.inspectorApps.map(ia => ({
       ...ia, name_ar: ia.inspector?.nameAr, specialty: ia.inspector?.specialty, rating: ia.inspector?.rating
@@ -484,6 +533,10 @@ router.get("/:id", auth, async (req, res) => {
     res.json({
       project: {
         ...project, completion_percentage: pct,
+        title_ar: project.titleAr, title_en: project.titleEn,
+        description_ar: project.descriptionAr, location_ar: project.locationAr,
+        area_sqm: project.areaSqm, total_budget: project.totalBudget,
+        owner_id: project.ownerId, contractor_id: project.contractorId, inspector_id: project.inspectorId,
         contractor_name: project.contractor?.nameAr, contractor_company: project.contractor?.companyNameAr, contractor_rating: project.contractor?.rating,
         inspector_name: project.inspector?.nameAr, inspector_specialty: project.inspector?.specialty, inspector_rating: project.inspector?.rating
       },
@@ -698,10 +751,46 @@ router.post("/quotations/:id/accept", auth, requireRole("owner"), async (req, re
     });
     if (!q || q.project.ownerId !== req.user.id) return res.status(404).json({ error: "العرض غير موجود" });
 
+    // ═══ WALLET BALANCE GATE — owner must have sufficient funds ═══
+    const wallet = await prisma.wallet.findUnique({ where: { userId: req.user.id } });
+    if (!wallet) {
+      return res.status(400).json({
+        error: "لم يتم العثور على محفظتك — يرجى التواصل مع الإدارة",
+        errorCode: "NO_WALLET"
+      });
+    }
+    const availableBalance = wallet.balance - wallet.reserved;
+    if (availableBalance < q.price) {
+      return res.status(400).json({
+        error: "رصيد المحفظة غير كافٍ لقبول هذا العرض. " +
+               "المطلوب: " + q.price.toLocaleString() + " د.ب — " +
+               "المتاح: " + availableBalance.toLocaleString() + " د.ب. " +
+               "يرجى إيداع المبلغ أولاً ثم قبول العرض.",
+        errorCode: "INSUFFICIENT_BALANCE",
+        required: q.price,
+        available: availableBalance
+      });
+    }
+
     await prisma.$transaction(async (tx) => {
       await tx.quotation.update({ where: { id: q.id }, data: { status: "accepted" } });
       await tx.quotation.updateMany({ where: { projectId: q.projectId, id: { not: q.id } }, data: { status: "rejected" } });
       await tx.project.update({ where: { id: q.projectId }, data: { contractorId: q.contractorId, status: "active", totalBudget: q.price } });
+      // Reserve the quotation amount in the wallet
+      await tx.wallet.update({
+        where: { userId: req.user.id },
+        data: { reserved: { increment: q.price } }
+      });
+      // Log the reservation transaction
+      await tx.transaction.create({
+        data: {
+          walletId: wallet.id,
+          amount: q.price,
+          type: "reserve",
+          descriptionAr: "حجز مبلغ عرض المقاول — " + (q.contractor?.companyNameAr || q.contractor?.nameAr || "المقاول"),
+          reference: "quotation-" + q.id
+        }
+      });
     });
 
     const stageCount = await prisma.stage.count({ where: { projectId: q.projectId } });
@@ -876,16 +965,27 @@ router.post("/items/:id/owner-decision", auth, requireRole("owner"), validate(ow
     const project = item.subStage.stage.project;
     const stage = item.subStage.stage;
 
-    // Payment via escrow wallet
+    // Payment via escrow wallet — deduct from balance + release from reserved
     if (approved && item.cost > 0) {
       const wallet = await prisma.wallet.findUnique({ where: { userId: req.user.id } });
       if (wallet && wallet.balance >= item.cost) {
+        const releaseReserved = Math.min(wallet.reserved, item.cost); // release up to cost from reserved
         await prisma.$transaction(async (tx) => {
-          await tx.wallet.update({ where: { id: wallet.id }, data: { balance: { decrement: item.cost }, totalPaid: { increment: item.cost } } });
-          await tx.transaction.create({ data: { walletId: wallet.id, amount: -item.cost, type: "payment", description: "Payment: " + item.textAr, descriptionAr: "دفع: " + item.textAr } });
+          await tx.wallet.update({
+            where: { id: wallet.id },
+            data: {
+              balance: { decrement: item.cost },
+              reserved: { decrement: releaseReserved },
+              totalPaid: { increment: item.cost }
+            }
+          });
+          await tx.transaction.create({ data: { walletId: wallet.id, amount: -item.cost, type: "payment", descriptionAr: "صرف مستحقات: " + item.textAr, reference: "item-" + item.id } });
           await tx.contractorEarning.create({ data: { contractorId: project.contractorId, projectId: project.id, itemId: item.id, amount: item.cost } });
         });
         notify(project.contractorId, "success", "تم صرف مستحقات بند", item.textAr + " — " + item.cost.toLocaleString() + " د.ب").catch(() => {});
+      } else {
+        // Insufficient balance — reject payment but still mark as approved
+        logger.warn("Insufficient wallet balance for item payment", { itemId: item.id, cost: item.cost, balance: wallet?.balance || 0 });
       }
     }
 
