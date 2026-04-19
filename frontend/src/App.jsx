@@ -796,20 +796,20 @@ var BOQQuotationForm = memo(function BOQQuotationForm({ modal, onSubmit, onClose
             items.push({ stage: stage, description: description, unit: unit, quantity: quantity, unit_price: unit_price, brand: brand, total: tVal });
             total += tVal;
           }
-          if (items.length === 0) { setParseErr("لم يتم العثور على بنود — تأكد من وجود الأعمدة: الوصف، الوحدة، الكمية، سعر الوحدة"); setParsing(false); return; }
+          if (items.length === 0) { setParseErr("لم نتعرف على بنود في الملف. تأكد أن الصف الأول يحتوي على رؤوس الأعمدة: الوصف، الوحدة، الكمية، سعر الوحدة"); setParsing(false); return; }
           setParsed({ items: items, total: total, sheetName: firstName });
           setParsing(false);
         } catch (e) {
           console.error("xlsx parse", e);
-          setParseErr("تعذر قراءة الملف — تأكد من أنه ملف Excel سليم");
+          setParseErr("تعذّرت قراءة الملف. قد يكون تالفاً أو محمياً بكلمة مرور — احفظه مرة أخرى كـ .xlsx وحاول");
           setParsing(false);
         }
       };
-      reader.onerror = function () { setParseErr("فشل قراءة الملف"); setParsing(false); };
+      reader.onerror = function () { setParseErr("فشل قراءة الملف. أعد المحاولة"); setParsing(false); };
       reader.readAsArrayBuffer(f);
     }).catch(function (e) {
       console.error("xlsx import", e);
-      setParseErr("تعذر تحميل مكتبة قراءة الإكسل"); setParsing(false);
+      setParseErr("انقطع الاتصال أثناء تحميل أداة القراءة. أعد المحاولة"); setParsing(false);
     });
   }
 
@@ -817,14 +817,14 @@ var BOQQuotationForm = memo(function BOQQuotationForm({ modal, onSubmit, onClose
     var f = e.target.files && e.target.files[0];
     if (!f) return;
     var okExt = /\.(xlsx|xls)$/i.test(f.name);
-    if (!okExt) { setParseErr("الرجاء اختيار ملف Excel بصيغة .xlsx"); return; }
+    if (!okExt) { setParseErr("الصيغة غير مدعومة. الرجاء رفع ملف Excel (.xlsx أو .xls)"); return; }
     setFile(f);
     parseBrowserSide(f);
   }
 
   function submit() {
     if (!file) { setParseErr("الرجاء رفع ملف BOQ أولاً"); return; }
-    if (!parsed || parsed.items.length === 0) { setParseErr("لا توجد بنود صالحة في الملف"); return; }
+    if (!parsed || parsed.items.length === 0) { setParseErr("جميع الصفوف فارغة أو بدون وصف. أضف وصف البند ثم ارفع الملف مرة أخرى"); return; }
     onSubmit({
       file: file,
       items: parsed.items,
@@ -839,8 +839,8 @@ var BOQQuotationForm = memo(function BOQQuotationForm({ modal, onSubmit, onClose
     <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 16, fontWeight: 800, marginBottom: 4 }}>💰 عرض سعر BOQ</div>
     <div style={{ fontSize: 11, color: C.t3, marginBottom: 14 }}>{modal.title}</div>
     <div style={{ background: "rgba(232,114,12,.05)", padding: 10, borderRadius: 8, marginBottom: 12, fontSize: 11, color: C.amber, lineHeight: 1.6 }}>
-      📊 ارفع ملف Excel يحتوي على جدول الكميات (BOQ) — سيتعرف التطبيق على البنود تلقائياً.<br/>
-      <span style={{ fontSize: 10, color: C.t3 }}>الأعمدة المتوقعة: المرحلة، الوصف، الوحدة، الكمية، سعر الوحدة، الماركة/المواصفات</span>
+      📊 ارفع ملف Excel لجدول الكميات — سنقرأه تلقائياً ونعرض البنود قبل الإرسال.<br/>
+      <span style={{ fontSize: 10, color: C.t3 }}>الأعمدة المطلوبة: الوصف، الوحدة، الكمية، سعر الوحدة. اختيارية: المرحلة، الماركة</span>
     </div>
 
     <label style={{ display: "block", border: "2px dashed " + (file ? C.green : "rgba(96,165,250,.4)"), borderRadius: 12, padding: 20, textAlign: "center", cursor: "pointer", background: file ? "rgba(16,185,129,.05)" : "rgba(15,23,42,.4)", marginBottom: 12 }}>
@@ -849,13 +849,13 @@ var BOQQuotationForm = memo(function BOQQuotationForm({ modal, onSubmit, onClose
         <div>
           <div style={{ fontSize: 24, marginBottom: 6 }}>📗</div>
           <div style={{ fontSize: 13, fontWeight: 700, color: C.t1 }}>{file.name}</div>
-          <div style={{ fontSize: 10, color: C.t3, marginTop: 4 }}>{(file.size / 1024).toFixed(1)} KB — اضغط لتغيير الملف</div>
+          <div style={{ fontSize: 10, color: C.t3, marginTop: 4 }}>{(file.size / 1024).toFixed(1)} KB  •  استبدال الملف</div>
         </div>
       ) : (
         <div>
           <div style={{ fontSize: 28, marginBottom: 6 }}>📤</div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.t1 }}>اضغط لاختيار ملف Excel</div>
-          <div style={{ fontSize: 10, color: C.t3, marginTop: 4 }}>.xlsx — حتى 10MB</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.t1 }}>اختر ملف Excel</div>
+          <div style={{ fontSize: 10, color: C.t3, marginTop: 4 }}>.xlsx حتى 10MB</div>
         </div>
       )}
     </label>
@@ -866,7 +866,7 @@ var BOQQuotationForm = memo(function BOQQuotationForm({ modal, onSubmit, onClose
     {parsed && parsed.items.length > 0 && (
       <div style={{ border: "1.5px solid " + C.brd, borderRadius: 10, marginBottom: 12, overflow: "hidden" }}>
         <div style={{ background: "rgba(16,185,129,.08)", padding: "8px 12px", fontSize: 11, fontWeight: 800, color: C.green, borderBottom: "1px solid rgba(16,185,129,.2)" }}>
-          ✅ تم التعرف على {parsed.items.length} بند — ورقة: {parsed.sheetName}
+          ✅ قرأنا {parsed.items.length} {parsed.items.length >= 11 ? "بنداً" : "بند"} من الورقة "{parsed.sheetName}"  •  المجموع {parsed.total.toLocaleString()} د.ب
         </div>
         <div style={{ maxHeight: 220, overflowY: "auto" }}>
           {parsed.items.slice(0, 50).map(function (it, i) {
@@ -898,7 +898,7 @@ var BOQQuotationForm = memo(function BOQQuotationForm({ modal, onSubmit, onClose
       <div style={{ flex: 1 }}><Inp label="الضمان (أشهر)" type="number" value={warranty} onChange={function (e) { setWarranty(e.target.value); }} /></div>
     </div>
     <Inp label="ملاحظات إضافية" type="textarea" value={notes} onChange={function (e) { setNotes(e.target.value); }} ph="تفاصيل العرض والضمانات..." />
-    <Btn v="amber" f onClick={submit}>📤 تقديم العرض {parsed ? "(" + parsed.total.toLocaleString() + " د.ب)" : ""}</Btn>
+    <Btn v="amber" f onClick={submit}>📤 إرسال العرض {parsed ? "— " + parsed.total.toLocaleString() + " د.ب" : ""}</Btn>
   </div>;
 });
 
@@ -4639,7 +4639,7 @@ export default function App() {
             {q.has_boq_file && <div onClick={function(){ downloadBoq(q.id, q.boq_file_name); }} style={{ marginTop: 8, padding: "8px 10px", background: "linear-gradient(135deg,rgba(16,185,129,.08),rgba(16,185,129,.04))", border: "1px solid rgba(16,185,129,.25)", borderRadius: 8, display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
               <span style={{ fontSize: 18 }}>📗</span>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: C.green }}>ملف BOQ مرفق — Excel</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: C.green }}>ملف BOQ — Excel</div>
                 <div style={{ fontSize: 9, color: C.t3 }}>{q.boq_file_name || "BOQ.xlsx"}{q.boq_file_size ? " • " + (q.boq_file_size / 1024).toFixed(1) + " KB" : ""}</div>
               </div>
               <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>📥 تحميل</span>
@@ -5429,7 +5429,7 @@ export default function App() {
                 {q.has_boq_file && <div onClick={function(){ downloadBoq(q.id, q.boq_file_name); }} style={{ marginBottom: 10, padding: "10px 12px", background: "linear-gradient(135deg,rgba(16,185,129,.08),rgba(16,185,129,.04))", border: "1px solid rgba(16,185,129,.25)", borderRadius: 10, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
                   <span style={{ fontSize: 22 }}>📗</span>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: C.green }}>ملف BOQ مرفق (Excel)</div>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: C.green }}>ملف BOQ — Excel</div>
                     <div style={{ fontSize: 9, color: C.t3 }}>{q.boq_file_name || "BOQ.xlsx"}{q.boq_file_size ? " • " + (q.boq_file_size / 1024).toFixed(1) + " KB" : ""}</div>
                   </div>
                   <span style={{ fontSize: 11, fontWeight: 800, color: C.green, background: "rgba(16,185,129,.12)", padding: "4px 10px", borderRadius: 8 }}>📥 تحميل</span>

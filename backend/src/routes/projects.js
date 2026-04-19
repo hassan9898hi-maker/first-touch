@@ -8,11 +8,50 @@ const { sendPaymentNotification, sendContractEmail, sendNewProjectNotification, 
 const { analyzeProject, matchContractors } = require("../services/ai");
 const upload = require("../middleware/upload");
 const { processUploadedFiles } = require("../middleware/upload");
+const { deleteFromCloudinary, isCloudinaryConfigured, signedPrivateUrl } = require("../services/cloudinary");
+const rateLimit = require("express-rate-limit");
 const logger = require("../utils/logger");
 const mammoth = require("mammoth");
 const XLSX = require("xlsx");
 const fs = require("fs");
 const path = require("path");
+
+// ═══════ Rate limit: BOQ Excel upload — prevent abuse / parse-storms ═══════
+// 10 uploads / minute / contractor (keyed on auth user, falls back to IP)
+const boqUploadLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { error: "محاولات كثيرة — يرجى الانتظار دقيقة قبل رفع ملف BOQ جديد" },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: function (req) { return req.user && req.user.id ? "user:" + req.user.id : req.ip; }
+});
+
+// ═══════ Helper: remove BOQ blob from disk or Cloudinary ═══════
+// Best-effort cleanup — never throws, always logs.
+async function deleteBoqBlob(q) {
+  if (!q) return;
+  // Cloudinary first (if we recorded the publicId) — BOQ uploads use type:"authenticated"
+  if (q.boqFilePublicId && isCloudinaryConfigured()) {
+    try {
+      await deleteFromCloudinary(q.boqFilePublicId, "raw", "authenticated");
+      logger.info("BOQ blob removed from Cloudinary", { quotationId: q.id, publicId: q.boqFilePublicId });
+    } catch (e) {
+      logger.warn("BOQ Cloudinary cleanup failed", { quotationId: q.id, error: e.message });
+    }
+  }
+  // Disk
+  if (q.boqFilePath) {
+    try {
+      if (fs.existsSync(q.boqFilePath)) {
+        fs.unlinkSync(q.boqFilePath);
+        logger.info("BOQ blob removed from disk", { quotationId: q.id, path: q.boqFilePath });
+      }
+    } catch (e) {
+      logger.warn("BOQ disk cleanup failed", { quotationId: q.id, error: e.message });
+    }
+  }
+}
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -796,7 +835,12 @@ function parseBoqExcel(buffer) {
 // multipart/form-data with:
 //   - boqFile: .xlsx (required)
 //   - durationMonths, warrantyMonths, notes (text fields)
-router.post("/:id/quotation-excel", auth, requireRole("contractor"), upload.single("boqFile"), processUploadedFiles, async (req, res) => {
+router.post("/:id/quotation-excel", auth, requireRole("contractor"), boqUploadLimiter, function (req, _res, next) {
+  // BOQ files are private: Cloudinary will upload as type:"authenticated" → no public URL
+  req.uploadFolder = "boq";
+  req.uploadPrivate = true;
+  next();
+}, upload.single("boqFile"), processUploadedFiles, async (req, res) => {
   try {
     const projectId = parseInt(req.params.id);
     if (!req.file) return res.status(400).json({ error: "يرجى رفع ملف Excel يحتوي على جدول الكميات (BOQ)" });
@@ -848,7 +892,8 @@ router.post("/:id/quotation-excel", auth, requireRole("contractor"), upload.sing
         boqFilePath: req.file.path || null,
         boqFileName: origName,
         boqFileSize: req.file.size || (buffer ? buffer.length : null),
-        boqFileUrl: req.file.cloudinaryUrl || req.file.fileUrl || null
+        boqFileUrl: req.file.cloudinaryUrl || req.file.fileUrl || null,
+        boqFilePublicId: req.file.cloudinaryPublicId || null
       }
     });
 
@@ -893,23 +938,36 @@ router.get("/quotations/:id/boq-file", auth, async (req, res) => {
     const isAdmin = req.user.role === "admin";
     if (!isOwner && !isSubmitter && !isAdmin) {
       logger.warn("BOQ file access denied", { quotationId: q.id, userId: req.user.id, role: req.user.role });
-      return res.status(403).json({ error: "غير مصرح — يمكن للمالك والمقاول المقدم فقط الاطلاع على ملف BOQ" });
+      return res.status(403).json({ error: "هذا الملف متاح فقط للمالك والمقاول المقدِّم للعرض" });
     }
 
     const filename = (q.boqFileName || ("BOQ-" + q.id + ".xlsx")).replace(/[\r\n"]/g, "");
 
-    // Cloudinary URL: stream via fetch-proxy to preserve ACL
-    if (q.boqFileUrl && /^https?:\/\//i.test(q.boqFileUrl)) {
-      try {
-        const r = await fetch(q.boqFileUrl);
-        if (!r.ok) throw new Error("upstream " + r.status);
-        const arr = Buffer.from(await r.arrayBuffer());
-        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        res.setHeader("Content-Disposition", 'attachment; filename="' + encodeURIComponent(filename) + '"');
-        return res.send(arr);
-      } catch (e) {
-        logger.error("BOQ cloud fetch failed", { error: e.message });
-        return res.status(502).json({ error: "تعذر جلب الملف من التخزين السحابي" });
+    // Cloudinary: private (type:"authenticated") → generate a short-lived signed URL
+    // from the stored publicId. Fallback to the raw boqFileUrl for legacy records.
+    if ((q.boqFilePublicId || (q.boqFileUrl && /^https?:\/\//i.test(q.boqFileUrl)))) {
+      let fetchUrl = null;
+      if (q.boqFilePublicId && isCloudinaryConfigured()) {
+        try {
+          fetchUrl = signedPrivateUrl(q.boqFilePublicId, { resourceType: "raw", expiresInSec: 120 });
+        } catch (e) {
+          logger.warn("BOQ signed URL generation failed; falling back to stored URL", { error: e.message });
+        }
+      }
+      if (!fetchUrl) fetchUrl = q.boqFileUrl;
+
+      if (fetchUrl && /^https?:\/\//i.test(fetchUrl)) {
+        try {
+          const r = await fetch(fetchUrl);
+          if (!r.ok) throw new Error("upstream " + r.status);
+          const arr = Buffer.from(await r.arrayBuffer());
+          res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+          res.setHeader("Content-Disposition", 'attachment; filename="' + encodeURIComponent(filename) + '"');
+          return res.send(arr);
+        } catch (e) {
+          logger.error("BOQ cloud fetch failed", { error: e.message });
+          return res.status(502).json({ error: "تعذر جلب الملف من التخزين السحابي" });
+        }
       }
     }
 
@@ -923,6 +981,41 @@ router.get("/quotations/:id/boq-file", auth, async (req, res) => {
     return res.status(404).json({ error: "ملف BOQ غير متوفر" });
   } catch (e) {
     logger.error("BOQ download error", { error: e.message });
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ═══════ WITHDRAW QUOTATION — contractor (submitter) or admin ═══════
+// Deletes the quotation row AND the attached BOQ blob (disk or Cloudinary).
+// Blocked once the quotation has been accepted — owner must cancel the project instead.
+router.delete("/quotations/:id", auth, async (req, res) => {
+  try {
+    const q = await prisma.quotation.findUnique({
+      where: { id: parseInt(req.params.id) },
+      include: { project: { select: { titleAr: true, ownerId: true } } }
+    });
+    if (!q) return res.status(404).json({ error: "عرض السعر غير موجود" });
+
+    const isSubmitter = q.contractorId === req.user.id;
+    const isAdmin = req.user.role === "admin";
+    if (!isSubmitter && !isAdmin) {
+      return res.status(403).json({ error: "لا يمكنك حذف هذا العرض" });
+    }
+    if (q.status === "accepted") {
+      return res.status(409).json({ error: "تعذّر السحب — تم قبول هذا العرض بالفعل" });
+    }
+
+    // Delete blob first (best-effort), then the row
+    await deleteBoqBlob(q);
+    await prisma.quotation.delete({ where: { id: q.id } });
+
+    // Let the owner know the offer was pulled (non-blocking)
+    notify(q.project.ownerId, "info", "تم سحب عرض سعر", "قام المقاول بسحب عرضه لمشروع " + q.project.titleAr).catch(function(){});
+
+    logger.info("Quotation withdrawn", { quotationId: q.id, by: req.user.id, role: req.user.role });
+    res.json({ success: true, message: "تم سحب العرض بنجاح" });
+  } catch (e) {
+    logger.error("Quotation withdraw error", { error: e.message });
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });
