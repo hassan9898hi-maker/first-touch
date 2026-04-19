@@ -246,6 +246,11 @@ model Quotation {
   breakdown      String?
   status         String   @default("pending")
   createdAt      DateTime @default(now()) @map("created_at")
+  // BOQ Excel file (uploaded by contractor, viewable only by owner + submitter)
+  boqFilePath    String?  @map("boq_file_path")
+  boqFileName    String?  @map("boq_file_name")
+  boqFileSize    Int?     @map("boq_file_size")
+  boqFileUrl     String?  @map("boq_file_url")
 
   project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   contractor User    @relation(fields: [contractorId], references: [id])

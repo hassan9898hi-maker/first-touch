@@ -10,6 +10,7 @@ const upload = require("../middleware/upload");
 const { processUploadedFiles } = require("../middleware/upload");
 const logger = require("../utils/logger");
 const mammoth = require("mammoth");
+const XLSX = require("xlsx");
 const fs = require("fs");
 const path = require("path");
 
@@ -456,7 +457,7 @@ router.get("/:id", auth, async (req, res) => {
       where: { id: parseInt(req.params.id) },
       include: {
         contractor: { select: { nameAr: true, companyNameAr: true, rating: true } },
-        inspector: { select: { nameAr: true, specialty: true, rating: true } },
+        inspector: { select: { nameAr: true, companyNameAr: true, specialty: true, rating: true } },
         stages: {
           orderBy: { orderNum: "asc" },
           include: {
@@ -473,7 +474,7 @@ router.get("/:id", auth, async (req, res) => {
         },
         inspectorApps: {
           orderBy: { createdAt: "desc" },
-          include: { inspector: { select: { nameAr: true, specialty: true, rating: true } } }
+          include: { inspector: { select: { nameAr: true, companyNameAr: true, specialty: true, rating: true } } }
         }
       }
     });
@@ -520,14 +521,29 @@ router.get("/:id", auth, async (req, res) => {
         }))
       }))
     }));
-    const quots = project.quotations.map(q => ({
-      ...q, total_price: q.price, contractor_name: q.contractor?.nameAr,
-      company_name_ar: q.contractor?.companyNameAr, cr_number: q.contractor?.crNumber,
-      rating: q.contractor?.rating,
-      duration_months: q.durationMonths, warranty_months: q.warrantyMonths
-    }));
+    const quots = project.quotations.map(q => {
+      // Strip internal file path; expose only a flag + filename + size
+      const { boqFilePath, boqFileUrl, ...safe } = q;
+      return {
+        ...safe,
+        total_price: q.price,
+        contractor_name: q.contractor?.nameAr,
+        company_name_ar: q.contractor?.companyNameAr,
+        cr_number: q.contractor?.crNumber,
+        rating: q.contractor?.rating,
+        duration_months: q.durationMonths,
+        warranty_months: q.warrantyMonths,
+        has_boq_file: !!(q.boqFilePath || q.boqFileUrl),
+        boq_file_name: q.boqFileName || null,
+        boq_file_size: q.boqFileSize || null
+      };
+    });
     const iApps = project.inspectorApps.map(ia => ({
-      ...ia, name_ar: ia.inspector?.nameAr, specialty: ia.inspector?.specialty, rating: ia.inspector?.rating
+      ...ia,
+      name_ar: ia.inspector?.nameAr,
+      company_name_ar: ia.inspector?.companyNameAr,
+      specialty: ia.inspector?.specialty,
+      rating: ia.inspector?.rating
     }));
 
     res.json({
@@ -735,6 +751,178 @@ router.post("/:id/quotation", auth, requireRole("contractor"), validate(quotatio
     res.status(201).json({ success: true, message: "تم تقديم عرض السعر" });
   } catch (e) {
     logger.error("Quotation error", { error: e.message });
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ═══════ Helper: parse BOQ Excel → normalized breakdown JSON ═══════
+function parseBoqExcel(buffer) {
+  const wb = XLSX.read(buffer, { type: "buffer" });
+  const firstSheet = wb.Sheets[wb.SheetNames[0]];
+  if (!firstSheet) return { items: [], total: 0, error: "ورقة العمل فارغة" };
+  const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: "", raw: false });
+  if (rows.length === 0) return { items: [], total: 0, error: "لا توجد صفوف في ملف الإكسل" };
+
+  // Column-name aliases (Arabic + English — match loose)
+  const pick = (row, aliases) => {
+    const keys = Object.keys(row);
+    for (const a of aliases) {
+      const found = keys.find(k => k.toString().trim().toLowerCase().includes(a.toLowerCase()));
+      if (found && row[found] !== "" && row[found] != null) return row[found];
+    }
+    return "";
+  };
+
+  const items = [];
+  let total = 0;
+  for (const row of rows) {
+    const description = String(pick(row, ["وصف", "البند", "description", "item"])).trim();
+    if (!description) continue; // skip empty rows
+    const stage = String(pick(row, ["مرحله", "مرحلة", "stage", "category", "قسم", "فئة"])).trim() || "أعمال عامة";
+    const unit = String(pick(row, ["وحده", "وحدة", "unit"])).trim() || "عدد";
+    const quantity = Number(pick(row, ["كميه", "كمية", "quantity", "qty"])) || 1;
+    const unit_price = Number(pick(row, ["سعر الوحده", "سعر الوحدة", "unit price", "price", "سعر"])) || 0;
+    const brand = String(pick(row, ["ماركه", "ماركة", "brand", "مواصفات", "spec"])).trim();
+    const rowTotalRaw = Number(pick(row, ["اجمالي", "إجمالي", "total", "الإجمالي", "الاجمالي"]));
+    const rowTotal = rowTotalRaw > 0 ? rowTotalRaw : (quantity * unit_price);
+    items.push({ stage, description, unit, quantity, unit_price, brand, total: rowTotal });
+    total += rowTotal;
+  }
+
+  return { items, total, sheetName: wb.SheetNames[0], rowCount: rows.length };
+}
+
+// ═══════ SUBMIT QUOTATION VIA EXCEL (Contractor) ═══════
+// multipart/form-data with:
+//   - boqFile: .xlsx (required)
+//   - durationMonths, warrantyMonths, notes (text fields)
+router.post("/:id/quotation-excel", auth, requireRole("contractor"), upload.single("boqFile"), processUploadedFiles, async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.id);
+    if (!req.file) return res.status(400).json({ error: "يرجى رفع ملف Excel يحتوي على جدول الكميات (BOQ)" });
+
+    const mime = req.file.mimetype || "";
+    const origName = req.file.originalname || "";
+    const isXlsx = mime.includes("spreadsheet") || mime.includes("excel") || /\.(xlsx|xls)$/i.test(origName);
+    if (!isXlsx) return res.status(400).json({ error: "صيغة الملف غير مدعومة — يرجى رفع ملف Excel (.xlsx)" });
+
+    const project = await prisma.project.findFirst({ where: { id: projectId, status: { in: ["awaiting_pricing", "new", "design_required"] } } });
+    if (!project) return res.status(404).json({ error: "المشروع غير متاح للتسعير" });
+
+    const existing = await prisma.quotation.findFirst({ where: { projectId, contractorId: req.user.id } });
+    if (existing) return res.status(409).json({ error: "لديك عرض سعر مقدم مسبقاً" });
+
+    // Read buffer (memory-storage or disk-storage both supported)
+    let buffer;
+    if (req.file.buffer) buffer = req.file.buffer;
+    else if (req.file.path) buffer = fs.readFileSync(req.file.path);
+    else return res.status(500).json({ error: "تعذر قراءة ملف الإكسل" });
+
+    let parsed;
+    try { parsed = parseBoqExcel(buffer); }
+    catch (e) {
+      logger.error("Excel parse error", { error: e.message });
+      return res.status(400).json({ error: "تعذر قراءة ملف الإكسل — تأكد من صيغة الجدول" });
+    }
+
+    if (!parsed.items || parsed.items.length === 0) {
+      return res.status(400).json({ error: "لم يتم العثور على بنود في الملف — تأكد من وجود أعمدة: الوصف، الوحدة، الكمية، سعر الوحدة" });
+    }
+
+    // Price: prefer form field, else parsed total
+    const formPrice = Number(req.body.price);
+    const price = formPrice > 0 ? formPrice : parsed.total;
+    const durationMonths = parseInt(req.body.durationMonths) || 6;
+    const warrantyMonths = req.body.warrantyMonths ? parseInt(req.body.warrantyMonths) : null;
+    const notes = req.body.notes || null;
+
+    const created = await prisma.quotation.create({
+      data: {
+        projectId,
+        contractorId: req.user.id,
+        price,
+        durationMonths,
+        warrantyMonths,
+        notes,
+        breakdown: JSON.stringify(parsed.items),
+        boqFilePath: req.file.path || null,
+        boqFileName: origName,
+        boqFileSize: req.file.size || (buffer ? buffer.length : null),
+        boqFileUrl: req.file.cloudinaryUrl || req.file.fileUrl || null
+      }
+    });
+
+    notify(project.ownerId, "info", "عرض سعر جديد (BOQ)", "تم استلام عرض سعر مرفق مع ملف BOQ لمشروع " + project.titleAr).catch(() => {});
+    const owner = await prisma.user.findUnique({ where: { id: project.ownerId }, select: { nameAr: true, email: true } });
+    const contractor = await prisma.user.findUnique({ where: { id: req.user.id }, select: { nameAr: true, companyNameAr: true } });
+    if (owner?.email) {
+      sendQuotationNotification(owner.email, owner.nameAr, contractor?.nameAr, contractor?.companyNameAr, project.titleAr, price, durationMonths).catch(() => {});
+    }
+
+    logger.info("Quotation via Excel submitted", { projectId, contractorId: req.user.id, quotationId: created.id, items: parsed.items.length, total: parsed.total });
+    res.status(201).json({
+      success: true,
+      message: "تم تقديم عرض السعر بنجاح",
+      quotation: {
+        id: created.id,
+        price,
+        itemCount: parsed.items.length,
+        parsedTotal: parsed.total,
+        fileName: origName
+      }
+    });
+  } catch (e) {
+    logger.error("Quotation via Excel error", { error: e.message, stack: e.stack });
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ═══════ DOWNLOAD BOQ EXCEL FILE — owner + submitter + admin only ═══════
+router.get("/quotations/:id/boq-file", auth, async (req, res) => {
+  try {
+    const q = await prisma.quotation.findUnique({
+      where: { id: parseInt(req.params.id) },
+      include: { project: { select: { ownerId: true, titleAr: true } } }
+    });
+    if (!q) return res.status(404).json({ error: "عرض السعر غير موجود" });
+    if (!q.boqFilePath && !q.boqFileUrl) return res.status(404).json({ error: "لا يوجد ملف BOQ مرفق" });
+
+    // ACL: owner of project, contractor who submitted, or admin
+    const isOwner = q.project.ownerId === req.user.id;
+    const isSubmitter = q.contractorId === req.user.id;
+    const isAdmin = req.user.role === "admin";
+    if (!isOwner && !isSubmitter && !isAdmin) {
+      logger.warn("BOQ file access denied", { quotationId: q.id, userId: req.user.id, role: req.user.role });
+      return res.status(403).json({ error: "غير مصرح — يمكن للمالك والمقاول المقدم فقط الاطلاع على ملف BOQ" });
+    }
+
+    const filename = (q.boqFileName || ("BOQ-" + q.id + ".xlsx")).replace(/[\r\n"]/g, "");
+
+    // Cloudinary URL: stream via fetch-proxy to preserve ACL
+    if (q.boqFileUrl && /^https?:\/\//i.test(q.boqFileUrl)) {
+      try {
+        const r = await fetch(q.boqFileUrl);
+        if (!r.ok) throw new Error("upstream " + r.status);
+        const arr = Buffer.from(await r.arrayBuffer());
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.setHeader("Content-Disposition", 'attachment; filename="' + encodeURIComponent(filename) + '"');
+        return res.send(arr);
+      } catch (e) {
+        logger.error("BOQ cloud fetch failed", { error: e.message });
+        return res.status(502).json({ error: "تعذر جلب الملف من التخزين السحابي" });
+      }
+    }
+
+    // Local disk
+    if (q.boqFilePath && fs.existsSync(q.boqFilePath)) {
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", 'attachment; filename="' + encodeURIComponent(filename) + '"');
+      return fs.createReadStream(q.boqFilePath).pipe(res);
+    }
+
+    return res.status(404).json({ error: "ملف BOQ غير متوفر" });
+  } catch (e) {
+    logger.error("BOQ download error", { error: e.message });
     res.status(500).json({ error: "خطأ في الخادم" });
   }
 });

@@ -744,76 +744,161 @@ var AIProjectUpload = memo(function AIProjectUpload({ onCreated, onClose, token 
   return null;
 });
 
-// ═══════ BOQ QUOTATION FORM — isolated to prevent re-render lag ═══════
+// ═══════ BOQ QUOTATION FORM — Excel upload ═══════
+// Contractor uploads an .xlsx BOQ file. Browser previews the parsed rows
+// (using SheetJS dynamically imported) before submission. Backend re-parses
+// the authoritative copy and stores the file with owner+submitter ACL.
 var BOQQuotationForm = memo(function BOQQuotationForm({ modal, onSubmit, onClose }) {
-  var [items, setItems] = useState([{ stage: "", description: "", unit: "عدد", quantity: "1", unit_price: "", brand: "" }]);
+  var [file, setFile] = useState(null);
+  var [parsed, setParsed] = useState(null); // { items, total, sheetName }
+  var [parseErr, setParseErr] = useState("");
+  var [parsing, setParsing] = useState(false);
   var [dur, setDur] = useState("6");
   var [warranty, setWarranty] = useState("12");
   var [notes, setNotes] = useState("");
 
-  var boqTotal = items.reduce(function (s, i) { return s + ((Number(i.quantity) || 0) * (Number(i.unit_price) || 0)); }, 0);
+  function pickFieldLoose(row, aliases) {
+    var keys = Object.keys(row);
+    for (var i = 0; i < aliases.length; i++) {
+      var a = aliases[i].toLowerCase();
+      for (var j = 0; j < keys.length; j++) {
+        var k = keys[j].toString().trim().toLowerCase();
+        if (k.indexOf(a) !== -1 && row[keys[j]] !== "" && row[keys[j]] != null) return row[keys[j]];
+      }
+    }
+    return "";
+  }
 
-  function updateItem(idx, field, value) {
-    setItems(function (prev) {
-      return prev.map(function (item, i) {
-        if (i === idx) { var n = Object.assign({}, item); n[field] = value; return n; }
-        return item;
-      });
+  function parseBrowserSide(f) {
+    setParsing(true); setParseErr(""); setParsed(null);
+    import("xlsx").then(function (XLSX) {
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        try {
+          var wb = XLSX.read(ev.target.result, { type: "array" });
+          var firstName = wb.SheetNames[0];
+          var sheet = wb.Sheets[firstName];
+          if (!sheet) { setParseErr("ورقة العمل فارغة"); setParsing(false); return; }
+          var rows = XLSX.utils.sheet_to_json(sheet, { defval: "", raw: false });
+          var items = [];
+          var total = 0;
+          for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var description = String(pickFieldLoose(row, ["وصف", "البند", "description", "item"]) || "").trim();
+            if (!description) continue;
+            var stage = String(pickFieldLoose(row, ["مرحله", "مرحلة", "stage", "category", "قسم", "فئة"]) || "").trim() || "أعمال عامة";
+            var unit = String(pickFieldLoose(row, ["وحده", "وحدة", "unit"]) || "").trim() || "عدد";
+            var quantity = Number(pickFieldLoose(row, ["كميه", "كمية", "quantity", "qty"])) || 1;
+            var unit_price = Number(pickFieldLoose(row, ["سعر الوحده", "سعر الوحدة", "unit price", "price", "سعر"])) || 0;
+            var brand = String(pickFieldLoose(row, ["ماركه", "ماركة", "brand", "مواصفات", "spec"]) || "").trim();
+            var tRaw = Number(pickFieldLoose(row, ["اجمالي", "إجمالي", "total", "الإجمالي", "الاجمالي"]));
+            var tVal = tRaw > 0 ? tRaw : (quantity * unit_price);
+            items.push({ stage: stage, description: description, unit: unit, quantity: quantity, unit_price: unit_price, brand: brand, total: tVal });
+            total += tVal;
+          }
+          if (items.length === 0) { setParseErr("لم يتم العثور على بنود — تأكد من وجود الأعمدة: الوصف، الوحدة، الكمية، سعر الوحدة"); setParsing(false); return; }
+          setParsed({ items: items, total: total, sheetName: firstName });
+          setParsing(false);
+        } catch (e) {
+          console.error("xlsx parse", e);
+          setParseErr("تعذر قراءة الملف — تأكد من أنه ملف Excel سليم");
+          setParsing(false);
+        }
+      };
+      reader.onerror = function () { setParseErr("فشل قراءة الملف"); setParsing(false); };
+      reader.readAsArrayBuffer(f);
+    }).catch(function (e) {
+      console.error("xlsx import", e);
+      setParseErr("تعذر تحميل مكتبة قراءة الإكسل"); setParsing(false);
     });
   }
-  function addItem() {
-    setItems(function (prev) { return prev.concat([{ stage: "", description: "", unit: "عدد", quantity: "1", unit_price: "", brand: "" }]); });
+
+  function onPick(e) {
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    var okExt = /\.(xlsx|xls)$/i.test(f.name);
+    if (!okExt) { setParseErr("الرجاء اختيار ملف Excel بصيغة .xlsx"); return; }
+    setFile(f);
+    parseBrowserSide(f);
   }
-  function removeItem(idx) {
-    setItems(function (prev) { return prev.filter(function (_, i) { return i !== idx; }); });
-  }
+
   function submit() {
-    var validItems = items.filter(function (i) { return i.description.trim(); }).map(function (i) {
-      var qty = Number(i.quantity) || 1;
-      var up = Number(i.unit_price) || 0;
-      return { stage: i.stage || "أعمال عامة", description: i.description, unit: i.unit || "عدد", quantity: qty, unit_price: up, brand: i.brand || "", total: qty * up };
+    if (!file) { setParseErr("الرجاء رفع ملف BOQ أولاً"); return; }
+    if (!parsed || parsed.items.length === 0) { setParseErr("لا توجد بنود صالحة في الملف"); return; }
+    onSubmit({
+      file: file,
+      items: parsed.items,
+      total: parsed.total,
+      dur: Number(dur) || 6,
+      warranty: Number(warranty) || 12,
+      notes: notes
     });
-    var total = validItems.reduce(function (s, i) { return s + i.total; }, 0);
-    onSubmit({ items: validItems, total: total, dur: Number(dur) || 6, warranty: Number(warranty) || 12, notes: notes });
   }
 
   return <div>
     <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 16, fontWeight: 800, marginBottom: 4 }}>💰 عرض سعر BOQ</div>
     <div style={{ fontSize: 11, color: C.t3, marginBottom: 14 }}>{modal.title}</div>
-    <div style={{ background: "rgba(232,114,12,.05)", padding: 10, borderRadius: 8, marginBottom: 12, fontSize: 10, color: C.amber }}>
-      📋 أضف بنود جدول الكميات: المرحلة، الوصف، الوحدة، الكمية، سعر الوحدة، والماركة المطلوبة
+    <div style={{ background: "rgba(232,114,12,.05)", padding: 10, borderRadius: 8, marginBottom: 12, fontSize: 11, color: C.amber, lineHeight: 1.6 }}>
+      📊 ارفع ملف Excel يحتوي على جدول الكميات (BOQ) — سيتعرف التطبيق على البنود تلقائياً.<br/>
+      <span style={{ fontSize: 10, color: C.t3 }}>الأعمدة المتوقعة: المرحلة، الوصف، الوحدة، الكمية، سعر الوحدة، الماركة/المواصفات</span>
     </div>
-    {items.map(function (item, idx) {
-      var itemTotal = (Number(item.quantity) || 0) * (Number(item.unit_price) || 0);
-      return <div key={idx} style={{ border: "1.5px solid " + C.brd, borderRadius: 10, padding: 12, marginBottom: 8, background: "#FAFBFD" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: C.amber }}>بند #{idx + 1}</span>
-          {items.length > 1 && <span onClick={function () { removeItem(idx); }} style={{ fontSize: 12, color: C.red, cursor: "pointer" }}>✕ حذف</span>}
+
+    <label style={{ display: "block", border: "2px dashed " + (file ? C.green : "rgba(96,165,250,.4)"), borderRadius: 12, padding: 20, textAlign: "center", cursor: "pointer", background: file ? "rgba(16,185,129,.05)" : "rgba(15,23,42,.4)", marginBottom: 12 }}>
+      <input type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={onPick} style={{ display: "none" }} />
+      {file ? (
+        <div>
+          <div style={{ fontSize: 24, marginBottom: 6 }}>📗</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.t1 }}>{file.name}</div>
+          <div style={{ fontSize: 10, color: C.t3, marginTop: 4 }}>{(file.size / 1024).toFixed(1)} KB — اضغط لتغيير الملف</div>
         </div>
-        <Inp label="المرحلة" value={item.stage} onChange={function (e) { updateItem(idx, "stage", e.target.value); }} ph="الأساسات، الهيكل، الكهرباء..." />
-        <Inp label="وصف البند" value={item.description} onChange={function (e) { updateItem(idx, "description", e.target.value); }} ph="حفر الأساسات، صب الخرسانة..." />
-        <div style={{ display: "flex", gap: 6 }}>
-          <div style={{ flex: 1 }}><Inp label="الوحدة" type="select" value={item.unit} onChange={function (e) { updateItem(idx, "unit", e.target.value); }} opts={[{v:"عدد",l:"عدد"},{v:"م²",l:"م²"},{v:"م³",l:"م³"},{v:"متر طولي",l:"متر طولي"},{v:"كجم",l:"كجم"},{v:"طن",l:"طن"},{v:"مقطوعية",l:"مقطوعية"}]} /></div>
-          <div style={{ flex: 1 }}><Inp label="الكمية" type="number" value={item.quantity} onChange={function (e) { updateItem(idx, "quantity", e.target.value); }} /></div>
+      ) : (
+        <div>
+          <div style={{ fontSize: 28, marginBottom: 6 }}>📤</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.t1 }}>اضغط لاختيار ملف Excel</div>
+          <div style={{ fontSize: 10, color: C.t3, marginTop: 4 }}>.xlsx — حتى 10MB</div>
         </div>
-        <div style={{ display: "flex", gap: 6 }}>
-          <div style={{ flex: 1 }}><Inp label="سعر الوحدة (د.ب)" type="number" value={item.unit_price} onChange={function (e) { updateItem(idx, "unit_price", e.target.value); }} ph="0" /></div>
-          <div style={{ flex: 1 }}><Inp label="الماركة / المواصفات" value={item.brand} onChange={function (e) { updateItem(idx, "brand", e.target.value); }} ph="TOTO, Samsung..." /></div>
+      )}
+    </label>
+
+    {parsing && <div style={{ textAlign: "center", padding: 12, fontSize: 12, color: C.t2 }}>⏳ جاري قراءة الملف…</div>}
+    {parseErr && <div style={{ background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.25)", padding: 10, borderRadius: 8, fontSize: 11, color: C.red, marginBottom: 10 }}>⚠️ {parseErr}</div>}
+
+    {parsed && parsed.items.length > 0 && (
+      <div style={{ border: "1.5px solid " + C.brd, borderRadius: 10, marginBottom: 12, overflow: "hidden" }}>
+        <div style={{ background: "rgba(16,185,129,.08)", padding: "8px 12px", fontSize: 11, fontWeight: 800, color: C.green, borderBottom: "1px solid rgba(16,185,129,.2)" }}>
+          ✅ تم التعرف على {parsed.items.length} بند — ورقة: {parsed.sheetName}
         </div>
-        {itemTotal > 0 && <div style={{ fontSize: 11, fontWeight: 700, color: C.amber, textAlign: "left" }}>الإجمالي: {itemTotal.toLocaleString()} د.ب</div>}
-      </div>;
-    })}
-    <Btn v="outline" f onClick={addItem}>➕ إضافة بند جديد</Btn>
-    <div style={{ background: C.navy, borderRadius: 10, padding: 14, marginTop: 12, marginBottom: 12, textAlign: "center" }}>
-      <div style={{ fontSize: 10, color: "rgba(255,255,255,.5)" }}>الإجمالي الكلي</div>
-      <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 24, fontWeight: 900, color: C.amber }}>{boqTotal.toLocaleString()} <span style={{ fontSize: 11, color: "rgba(255,255,255,.5)" }}>د.ب</span></div>
-    </div>
+        <div style={{ maxHeight: 220, overflowY: "auto" }}>
+          {parsed.items.slice(0, 50).map(function (it, i) {
+            return <div key={i} style={{ padding: "8px 12px", borderBottom: i < parsed.items.length - 1 ? "1px solid " + C.brd : "none", fontSize: 11, background: i % 2 === 0 ? "rgba(15,23,42,.3)" : "transparent" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                <span style={{ fontWeight: 700, color: C.t1 }}>{it.description}</span>
+                <span style={{ fontWeight: 700, color: C.amber, whiteSpace: "nowrap" }}>{(it.total || 0).toLocaleString()} د.ب</span>
+              </div>
+              <div style={{ fontSize: 9, color: C.t3, marginTop: 2 }}>
+                {it.stage} • {it.quantity} {it.unit} × {(it.unit_price || 0).toLocaleString()} د.ب
+                {it.brand ? " • " + it.brand : ""}
+              </div>
+            </div>;
+          })}
+          {parsed.items.length > 50 && <div style={{ padding: "6px 12px", fontSize: 10, color: C.t3, textAlign: "center" }}>+ {parsed.items.length - 50} بند إضافي…</div>}
+        </div>
+      </div>
+    )}
+
+    {parsed && (
+      <div style={{ background: C.navy, borderRadius: 10, padding: 14, marginBottom: 12, textAlign: "center" }}>
+        <div style={{ fontSize: 10, color: "rgba(255,255,255,.5)" }}>الإجمالي الكلي (محسوب من الملف)</div>
+        <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 24, fontWeight: 900, color: C.amber }}>{parsed.total.toLocaleString()} <span style={{ fontSize: 11, color: "rgba(255,255,255,.5)" }}>د.ب</span></div>
+      </div>
+    )}
+
     <div style={{ display: "flex", gap: 8 }}>
       <div style={{ flex: 1 }}><Inp label="المدة (أشهر)" type="number" value={dur} onChange={function (e) { setDur(e.target.value); }} /></div>
       <div style={{ flex: 1 }}><Inp label="الضمان (أشهر)" type="number" value={warranty} onChange={function (e) { setWarranty(e.target.value); }} /></div>
     </div>
     <Inp label="ملاحظات إضافية" type="textarea" value={notes} onChange={function (e) { setNotes(e.target.value); }} ph="تفاصيل العرض والضمانات..." />
-    <Btn v="amber" f onClick={submit}>📤 تقديم العرض ({boqTotal.toLocaleString()} د.ب)</Btn>
+    <Btn v="amber" f onClick={submit}>📤 تقديم العرض {parsed ? "(" + parsed.total.toLocaleString() + " د.ب)" : ""}</Btn>
   </div>;
 });
 
@@ -2565,6 +2650,32 @@ export default function App() {
       }
       else show("❌ " + (d.error || "خطأ"));
     });
+  }
+
+  // Download BOQ Excel file for a quotation — auth-protected, owner + submitter + admin only.
+  // Uses fetch → blob → anchor trick because <a href> can't carry the Bearer token.
+  function downloadBoq(qid, suggestedName) {
+    fetch(BASE + "/projects/quotations/" + qid + "/boq-file", {
+      method: "GET",
+      headers: { "Authorization": "Bearer " + tk }
+    }).then(function (r) {
+      if (!r.ok) {
+        if (r.status === 403) { show("❌ غير مصرح — لا يمكن الاطلاع على هذا الملف"); return null; }
+        if (r.status === 404) { show("❌ لا يوجد ملف BOQ مرفق لهذا العرض"); return null; }
+        show("❌ فشل تحميل الملف"); return null;
+      }
+      return r.blob();
+    }).then(function (blob) {
+      if (!blob) return;
+      var url = window.URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = suggestedName || ("BOQ-" + qid + ".xlsx");
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () { window.URL.revokeObjectURL(url); a.remove(); }, 100);
+      show("📥 تم تحميل ملف BOQ");
+    }).catch(function (e) { console.error("boq download", e); show("❌ خطأ في الاتصال"); });
   }
 
   function acceptInspector(appId) {
@@ -4524,6 +4635,15 @@ export default function App() {
               </div>
             </div>
             {q.notes && <div style={{ fontSize: 10, color: C.t2, marginTop: 6, padding: "6px 8px", background: "#F4F7FB", borderRadius: 6 }}>{q.notes}</div>}
+            {/* BOQ Excel file download — visible only when contractor attached one (server-enforced ACL) */}
+            {q.has_boq_file && <div onClick={function(){ downloadBoq(q.id, q.boq_file_name); }} style={{ marginTop: 8, padding: "8px 10px", background: "linear-gradient(135deg,rgba(16,185,129,.08),rgba(16,185,129,.04))", border: "1px solid rgba(16,185,129,.25)", borderRadius: 8, display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+              <span style={{ fontSize: 18 }}>📗</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: C.green }}>ملف BOQ مرفق — Excel</div>
+                <div style={{ fontSize: 9, color: C.t3 }}>{q.boq_file_name || "BOQ.xlsx"}{q.boq_file_size ? " • " + (q.boq_file_size / 1024).toFixed(1) + " KB" : ""}</div>
+              </div>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>📥 تحميل</span>
+            </div>}
             {/* BOQ Details */}
             {boq.length > 0 && <div style={{ marginTop: 8 }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: C.t2, marginBottom: 4 }}>{t.boqTable} — {boq.length} {t.boqItems}</div>
@@ -5119,26 +5239,31 @@ export default function App() {
   }
 
   // ── Manual "newProject" modal REMOVED — projects must be created via AI upload flow only ──
-  // ── BOQ Quotation Modal (contractor) — isolated component ──
+  // ── BOQ Quotation Modal (contractor) — Excel upload ──
   else if (modal && modal.type === "quotation") {
     modalUI = <ModalWrap>
       <BOQQuotationForm
         modal={modal}
         onClose={function () { setModal(null); }}
         onSubmit={function (data) {
-          if (data.items.length === 0 || data.total === 0) { show("❌ أضف بنود التسعير"); return; }
-          call("/projects/" + modal.pid + "/quotation", "POST", {
-            price: data.total,
-            durationMonths: data.dur,
-            warrantyMonths: data.warranty,
-            notes: data.notes,
-            boqItems: data.items
-          }, tk).then(function (d) {
-            if (d.success) {
-              show("✅ تم تقديم العرض — سيتم إشعار المالك فوراً");
-              setModal(null); loadData();
-            } else show("❌ " + (d.error || "خطأ"));
-          });
+          if (!data.file) { show("❌ الرجاء رفع ملف BOQ"); return; }
+          if (!data.items || data.items.length === 0 || data.total === 0) { show("❌ لم يتم التعرف على بنود في الملف"); return; }
+          var fd = new FormData();
+          fd.append("boqFile", data.file);
+          fd.append("price", String(data.total));
+          fd.append("durationMonths", String(data.dur));
+          fd.append("warrantyMonths", String(data.warranty));
+          fd.append("notes", data.notes || "");
+          var h = { "Authorization": "Bearer " + tk };
+          fetch(BASE + "/projects/" + modal.pid + "/quotation-excel", { method: "POST", headers: h, body: fd })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              if (d.success) {
+                show("✅ تم تقديم العرض — سيتم إشعار المالك فوراً");
+                setModal(null); loadData();
+              } else show("❌ " + (d.error || "خطأ في رفع الملف"));
+            })
+            .catch(function (e) { console.error("BOQ upload", e); show("❌ خطأ في الاتصال"); });
         }}
       />
     </ModalWrap>;
@@ -5299,6 +5424,16 @@ export default function App() {
                 </div>}
 
                 {q.notes && <div style={{ fontSize: 10, color: C.t2, padding: "7px 10px", background: "#F4F7FB", borderRadius: 8, marginBottom: 10, lineHeight: 1.5 }}>💬 {q.notes}</div>}
+
+                {/* BOQ Excel file — visible to owner + submitting contractor only (server-enforced ACL) */}
+                {q.has_boq_file && <div onClick={function(){ downloadBoq(q.id, q.boq_file_name); }} style={{ marginBottom: 10, padding: "10px 12px", background: "linear-gradient(135deg,rgba(16,185,129,.08),rgba(16,185,129,.04))", border: "1px solid rgba(16,185,129,.25)", borderRadius: 10, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+                  <span style={{ fontSize: 22 }}>📗</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: C.green }}>ملف BOQ مرفق (Excel)</div>
+                    <div style={{ fontSize: 9, color: C.t3 }}>{q.boq_file_name || "BOQ.xlsx"}{q.boq_file_size ? " • " + (q.boq_file_size / 1024).toFixed(1) + " KB" : ""}</div>
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: C.green, background: "rgba(16,185,129,.12)", padding: "4px 10px", borderRadius: 8 }}>📥 تحميل</span>
+                </div>}
 
                 {/* BOQ items — expandable with stage grouping */}
                 {boq.length > 0 && <div style={{ marginBottom: 10 }}>
