@@ -836,60 +836,71 @@ var BOQQuotationForm = memo(function BOQQuotationForm({ modal, onSubmit, onClose
   }
 
   return <div>
-    <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 16, fontWeight: 800, marginBottom: 4 }}>💰 عرض سعر BOQ</div>
-    <div style={{ fontSize: 11, color: C.t3, marginBottom: 14 }}>{modal.title}</div>
-    <div style={{ background: "rgba(232,114,12,.05)", padding: 10, borderRadius: 8, marginBottom: 12, fontSize: 11, color: C.amber, lineHeight: 1.6 }}>
-      📊 ارفع ملف Excel لجدول الكميات — سنقرأه تلقائياً ونعرض البنود قبل الإرسال.<br/>
-      <span style={{ fontSize: 10, color: C.t3 }}>الأعمدة المطلوبة: الوصف، الوحدة، الكمية، سعر الوحدة. اختيارية: المرحلة، الماركة</span>
+    <div id="boq-modal-title" style={{ fontFamily: "Cairo, sans-serif", fontSize: 16, fontWeight: 800, marginBottom: 4 }}><span aria-hidden="true">💰 </span>عرض سعر BOQ</div>
+    <div style={{ fontSize: 12, color: C.t2, marginBottom: 14 }}>{modal.title}</div>
+    <div style={{ background: "rgba(232,114,12,.05)", padding: 10, borderRadius: 8, marginBottom: 12, fontSize: 12, color: C.amber, lineHeight: 1.6 }}>
+      <span aria-hidden="true">📊 </span>ارفع ملف Excel لجدول الكميات — سنقرأه تلقائياً ونعرض البنود قبل الإرسال.<br/>
+      <span style={{ fontSize: 11, color: C.t2 }}>الأعمدة المطلوبة: الوصف، الوحدة، الكمية، سعر الوحدة. اختيارية: المرحلة، الماركة</span>
     </div>
 
     <label style={{ display: "block", border: "2px dashed " + (file ? C.green : "rgba(96,165,250,.4)"), borderRadius: 12, padding: 20, textAlign: "center", cursor: "pointer", background: file ? "rgba(16,185,129,.05)" : "rgba(15,23,42,.4)", marginBottom: 12 }}>
-      <input type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={onPick} style={{ display: "none" }} />
+      <input
+        type="file"
+        accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        onChange={onPick}
+        aria-label={file ? ("استبدال ملف BOQ الحالي: " + file.name) : "رفع ملف Excel لجدول الكميات، حد أقصى 10 ميغابايت"}
+        style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}
+      />
       {file ? (
         <div>
-          <div style={{ fontSize: 24, marginBottom: 6 }}>📗</div>
+          <div aria-hidden="true" style={{ fontSize: 24, marginBottom: 6 }}>📗</div>
           <div style={{ fontSize: 13, fontWeight: 700, color: C.t1 }}>{file.name}</div>
-          <div style={{ fontSize: 10, color: C.t3, marginTop: 4 }}>{(file.size / 1024).toFixed(1)} KB  •  استبدال الملف</div>
+          <div style={{ fontSize: 11, color: C.t2, marginTop: 4 }}>{(file.size / 1024).toFixed(1)} KB  •  استبدال الملف</div>
         </div>
       ) : (
         <div>
-          <div style={{ fontSize: 28, marginBottom: 6 }}>📤</div>
+          <div aria-hidden="true" style={{ fontSize: 28, marginBottom: 6 }}>📤</div>
           <div style={{ fontSize: 13, fontWeight: 700, color: C.t1 }}>اختر ملف Excel</div>
-          <div style={{ fontSize: 10, color: C.t3, marginTop: 4 }}>.xlsx حتى 10MB</div>
+          <div style={{ fontSize: 11, color: C.t2, marginTop: 4 }}>.xlsx حتى 10MB</div>
         </div>
       )}
     </label>
 
-    {parsing && <div style={{ textAlign: "center", padding: 12, fontSize: 12, color: C.t2 }}>⏳ جاري قراءة الملف…</div>}
-    {parseErr && <div style={{ background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.25)", padding: 10, borderRadius: 8, fontSize: 11, color: C.red, marginBottom: 10 }}>⚠️ {parseErr}</div>}
+    {/* Live region — SR users hear parse progress / errors without navigating back */}
+    <div aria-live="polite" style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}>
+      {parsing ? "جاري قراءة الملف" : (parsed ? ("تم التعرف على " + parsed.items.length + " بند، المجموع " + parsed.total.toLocaleString() + " دينار بحريني") : "")}
+    </div>
+
+    {parsing && <div style={{ textAlign: "center", padding: 12, fontSize: 12, color: C.t2 }}><span aria-hidden="true">⏳ </span>جاري قراءة الملف…</div>}
+    {parseErr && <div role="alert" aria-live="assertive" style={{ background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.25)", padding: 10, borderRadius: 8, fontSize: 12, color: C.red, marginBottom: 10 }}><span aria-hidden="true">⚠️ </span>{parseErr}</div>}
 
     {parsed && parsed.items.length > 0 && (
       <div style={{ border: "1.5px solid " + C.brd, borderRadius: 10, marginBottom: 12, overflow: "hidden" }}>
-        <div style={{ background: "rgba(16,185,129,.08)", padding: "8px 12px", fontSize: 11, fontWeight: 800, color: C.green, borderBottom: "1px solid rgba(16,185,129,.2)" }}>
-          ✅ قرأنا {parsed.items.length} {parsed.items.length >= 11 ? "بنداً" : "بند"} من الورقة "{parsed.sheetName}"  •  المجموع {parsed.total.toLocaleString()} د.ب
+        <div style={{ background: "rgba(16,185,129,.08)", padding: "8px 12px", fontSize: 12, fontWeight: 800, color: C.green, borderBottom: "1px solid rgba(16,185,129,.2)" }}>
+          <span aria-hidden="true">✅ </span>قرأنا {parsed.items.length} {parsed.items.length >= 11 ? "بنداً" : "بند"} من الورقة "{parsed.sheetName}"  •  المجموع {parsed.total.toLocaleString()} د.ب
         </div>
         <div style={{ maxHeight: 220, overflowY: "auto" }}>
           {parsed.items.slice(0, 50).map(function (it, i) {
-            return <div key={i} style={{ padding: "8px 12px", borderBottom: i < parsed.items.length - 1 ? "1px solid " + C.brd : "none", fontSize: 11, background: i % 2 === 0 ? "rgba(15,23,42,.3)" : "transparent" }}>
+            return <div key={i} style={{ padding: "8px 12px", borderBottom: i < parsed.items.length - 1 ? "1px solid " + C.brd : "none", fontSize: 12, background: i % 2 === 0 ? "rgba(15,23,42,.3)" : "transparent" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
                 <span style={{ fontWeight: 700, color: C.t1 }}>{it.description}</span>
                 <span style={{ fontWeight: 700, color: C.amber, whiteSpace: "nowrap" }}>{(it.total || 0).toLocaleString()} د.ب</span>
               </div>
-              <div style={{ fontSize: 9, color: C.t3, marginTop: 2 }}>
+              <div style={{ fontSize: 11, color: C.t2, marginTop: 2 }}>
                 {it.stage} • {it.quantity} {it.unit} × {(it.unit_price || 0).toLocaleString()} د.ب
                 {it.brand ? " • " + it.brand : ""}
               </div>
             </div>;
           })}
-          {parsed.items.length > 50 && <div style={{ padding: "6px 12px", fontSize: 10, color: C.t3, textAlign: "center" }}>+ {parsed.items.length - 50} بند إضافي…</div>}
+          {parsed.items.length > 50 && <div style={{ padding: "6px 12px", fontSize: 11, color: C.t2, textAlign: "center" }}>+ {parsed.items.length - 50} بند إضافي…</div>}
         </div>
       </div>
     )}
 
     {parsed && (
       <div style={{ background: C.navy, borderRadius: 10, padding: 14, marginBottom: 12, textAlign: "center" }}>
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,.5)" }}>الإجمالي الكلي (محسوب من الملف)</div>
-        <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 24, fontWeight: 900, color: C.amber }}>{parsed.total.toLocaleString()} <span style={{ fontSize: 11, color: "rgba(255,255,255,.5)" }}>د.ب</span></div>
+        <div style={{ fontSize: 11, color: "rgba(255,255,255,.75)" }}>الإجمالي الكلي (محسوب من الملف)</div>
+        <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 24, fontWeight: 900, color: C.amber }}>{parsed.total.toLocaleString()} <span style={{ fontSize: 12, color: "rgba(255,255,255,.75)" }}>د.ب</span></div>
       </div>
     )}
 
@@ -898,7 +909,7 @@ var BOQQuotationForm = memo(function BOQQuotationForm({ modal, onSubmit, onClose
       <div style={{ flex: 1 }}><Inp label="الضمان (أشهر)" type="number" value={warranty} onChange={function (e) { setWarranty(e.target.value); }} /></div>
     </div>
     <Inp label="ملاحظات إضافية" type="textarea" value={notes} onChange={function (e) { setNotes(e.target.value); }} ph="تفاصيل العرض والضمانات..." />
-    <Btn v="amber" f onClick={submit}>📤 إرسال العرض {parsed ? "— " + parsed.total.toLocaleString() + " د.ب" : ""}</Btn>
+    <Btn v="amber" f onClick={submit}><span aria-hidden="true">📤 </span>إرسال العرض {parsed ? "— " + parsed.total.toLocaleString() + " د.ب" : ""}</Btn>
   </div>;
 });
 
@@ -4634,16 +4645,16 @@ export default function App() {
                 <div style={{ fontSize: 9, color: C.t3 }}>{q.duration_months} {t.monthStr} | {t.warranty} {q.warranty_months} {t.monthStr}</div>
               </div>
             </div>
-            {q.notes && <div style={{ fontSize: 10, color: C.t2, marginTop: 6, padding: "6px 8px", background: "#F4F7FB", borderRadius: 6 }}>{q.notes}</div>}
+            {q.notes && <div style={{ fontSize: 11, color: C.steel, marginTop: 6, padding: "6px 8px", background: "#F4F7FB", borderRadius: 6 }}>{q.notes}</div>}
             {/* BOQ Excel file download — visible only when contractor attached one (server-enforced ACL) */}
-            {q.has_boq_file && <div onClick={function(){ downloadBoq(q.id, q.boq_file_name); }} style={{ marginTop: 8, padding: "8px 10px", background: "linear-gradient(135deg,rgba(16,185,129,.08),rgba(16,185,129,.04))", border: "1px solid rgba(16,185,129,.25)", borderRadius: 8, display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-              <span style={{ fontSize: 18 }}>📗</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: C.green }}>ملف BOQ — Excel</div>
-                <div style={{ fontSize: 9, color: C.t3 }}>{q.boq_file_name || "BOQ.xlsx"}{q.boq_file_size ? " • " + (q.boq_file_size / 1024).toFixed(1) + " KB" : ""}</div>
-              </div>
-              <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>📥 تحميل</span>
-            </div>}
+            {q.has_boq_file && <button type="button" onClick={function(){ downloadBoq(q.id, q.boq_file_name); }} aria-label={"تحميل ملف BOQ: " + (q.boq_file_name || "BOQ.xlsx")} style={{ all: "unset", boxSizing: "border-box", marginTop: 8, padding: "10px 12px", minHeight: 44, width: "100%", background: "linear-gradient(135deg,rgba(16,185,129,.08),rgba(16,185,129,.04))", border: "1px solid rgba(16,185,129,.25)", borderRadius: 8, display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+              <span aria-hidden="true" style={{ fontSize: 18 }}>📗</span>
+              <span style={{ flex: 1, textAlign: "start" }}>
+                <span style={{ display: "block", fontSize: 12, fontWeight: 700, color: C.green }}>ملف BOQ — Excel</span>
+                <span style={{ display: "block", fontSize: 11, color: C.t2 }}>{q.boq_file_name || "BOQ.xlsx"}{q.boq_file_size ? " • " + (q.boq_file_size / 1024).toFixed(1) + " KB" : ""}</span>
+              </span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}><span aria-hidden="true">📥 </span>تحميل</span>
+            </button>}
             {/* BOQ Details */}
             {boq.length > 0 && <div style={{ marginTop: 8 }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: C.t2, marginBottom: 4 }}>{t.boqTable} — {boq.length} {t.boqItems}</div>
@@ -5209,9 +5220,30 @@ export default function App() {
   // ═══════ MODALS ═══════
   var modalUI = null;
   function ModalWrap(p) {
-    return <div onClick={function () { setModal(null); }} style={{ position: "fixed", inset: 0, background: "rgba(11,29,51,.5)", zIndex: 300, display: "flex", alignItems: "flex-end" }}>
-      <div onClick={function (e) { e.stopPropagation(); }} style={{ background: C.card, borderRadius: "18px 18px 0 0", width: "100%", padding: "18px 18px 28px", maxHeight: "85vh", overflowY: "auto" }}>
-        <div style={{ width: 36, height: 4, background: "#DDE2EB", borderRadius: 2, margin: "0 auto 14px" }} />
+    // A11y: focus the dialog panel on mount so keyboard users land inside,
+    // and close on Escape. Tap-outside-to-close stays on the backdrop.
+    var panelRef = useRef(null);
+    useEffect(function () {
+      var el = panelRef.current;
+      if (el) { try { el.focus(); } catch (e) {} }
+    }, []);
+    function onKey(e) { if (e.key === "Escape") { e.stopPropagation(); setModal(null); } }
+    return <div
+      role="presentation"
+      onClick={function () { setModal(null); }}
+      style={{ position: "fixed", inset: 0, background: "rgba(11,29,51,.5)", zIndex: 300, display: "flex", alignItems: "flex-end" }}
+    >
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={p.labelledBy || "boq-modal-title"}
+        onClick={function (e) { e.stopPropagation(); }}
+        onKeyDown={onKey}
+        style={{ background: C.card, borderRadius: "18px 18px 0 0", width: "100%", padding: "18px 18px 28px", maxHeight: "85vh", overflowY: "auto", outline: "none" }}
+      >
+        <div aria-hidden="true" style={{ width: 36, height: 4, background: "#DDE2EB", borderRadius: 2, margin: "0 auto 14px" }} />
         {p.children}
       </div>
     </div>;
@@ -5423,17 +5455,17 @@ export default function App() {
                   <span>📅</span> {isEn ? "Submitted" : "تاريخ التقديم"}: {new Date(q.createdAt).toLocaleDateString("ar-BH", { year: "numeric", month: "long", day: "numeric" })}
                 </div>}
 
-                {q.notes && <div style={{ fontSize: 10, color: C.t2, padding: "7px 10px", background: "#F4F7FB", borderRadius: 8, marginBottom: 10, lineHeight: 1.5 }}>💬 {q.notes}</div>}
+                {q.notes && <div style={{ fontSize: 11, color: C.steel, padding: "7px 10px", background: "#F4F7FB", borderRadius: 8, marginBottom: 10, lineHeight: 1.5 }}><span aria-hidden="true">💬 </span>{q.notes}</div>}
 
                 {/* BOQ Excel file — visible to owner + submitting contractor only (server-enforced ACL) */}
-                {q.has_boq_file && <div onClick={function(){ downloadBoq(q.id, q.boq_file_name); }} style={{ marginBottom: 10, padding: "10px 12px", background: "linear-gradient(135deg,rgba(16,185,129,.08),rgba(16,185,129,.04))", border: "1px solid rgba(16,185,129,.25)", borderRadius: 10, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
-                  <span style={{ fontSize: 22 }}>📗</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: C.green }}>ملف BOQ — Excel</div>
-                    <div style={{ fontSize: 9, color: C.t3 }}>{q.boq_file_name || "BOQ.xlsx"}{q.boq_file_size ? " • " + (q.boq_file_size / 1024).toFixed(1) + " KB" : ""}</div>
-                  </div>
-                  <span style={{ fontSize: 11, fontWeight: 800, color: C.green, background: "rgba(16,185,129,.12)", padding: "4px 10px", borderRadius: 8 }}>📥 تحميل</span>
-                </div>}
+                {q.has_boq_file && <button type="button" onClick={function(){ downloadBoq(q.id, q.boq_file_name); }} aria-label={"تحميل ملف BOQ: " + (q.boq_file_name || "BOQ.xlsx")} style={{ all: "unset", boxSizing: "border-box", marginBottom: 10, padding: "10px 12px", minHeight: 44, width: "100%", background: "linear-gradient(135deg,rgba(16,185,129,.08),rgba(16,185,129,.04))", border: "1px solid rgba(16,185,129,.25)", borderRadius: 10, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+                  <span aria-hidden="true" style={{ fontSize: 22 }}>📗</span>
+                  <span style={{ flex: 1, textAlign: "start" }}>
+                    <span style={{ display: "block", fontSize: 12, fontWeight: 800, color: C.green }}>ملف BOQ — Excel</span>
+                    <span style={{ display: "block", fontSize: 11, color: C.t2 }}>{q.boq_file_name || "BOQ.xlsx"}{q.boq_file_size ? " • " + (q.boq_file_size / 1024).toFixed(1) + " KB" : ""}</span>
+                  </span>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: C.green, background: "rgba(16,185,129,.12)", padding: "4px 10px", borderRadius: 8 }}><span aria-hidden="true">📥 </span>تحميل</span>
+                </button>}
 
                 {/* BOQ items — expandable with stage grouping */}
                 {boq.length > 0 && <div style={{ marginBottom: 10 }}>
