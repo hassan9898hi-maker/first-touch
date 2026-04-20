@@ -34,7 +34,10 @@ var C = {
   navy: "#0A1628", ocean: "#2563EB", sky: "#60A5FA", amber: "#F59E0B",
   steel: "#475569", slate: "#94A3B8",
   green: "#10B981", red: "#EF4444", purple: "#8B5CF6", gold: "#F59E0B",
-  bg: "#0F172A", card: "rgba(30,58,95,.45)", brd: "rgba(148,163,184,.18)", t1: "#E2E8F0", t2: "#94A3B8", t3: "#64748B",
+  // t3 was #64748B (4.0:1 on navy — WCAG AA FAIL). Lifted to #7D8BA3
+  // so 11-12px copy on dark bg meets 4.5:1 without flattening the
+  // hierarchy against t2 (#94A3B8) and t1 (#E2E8F0).
+  bg: "#0F172A", card: "rgba(30,58,95,.45)", brd: "rgba(148,163,184,.18)", t1: "#E2E8F0", t2: "#94A3B8", t3: "#7D8BA3",
   // gradient presets
   gNavy: "linear-gradient(135deg,#0A1628 0%,#1E3A5F 50%,#0F2847 100%)",
   gBlue: "linear-gradient(135deg,#1D4ED8 0%,#2563EB 50%,#3B82F6 100%)",
@@ -56,6 +59,38 @@ var fadeIn = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { dura
 var stagger = { visible: { transition: { staggerChildren: 0.08 } } };
 var scaleIn = { hidden: { opacity: 0, scale: 0.92 }, visible: { opacity: 1, scale: 1, transition: { duration: 0.35, ease: "easeOut" } } };
 var slideRight = { hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.4 } } };
+
+// ═══════ MODAL WRAPPER — module-scope so it isn't recreated each parent render ═══════
+// A11y: role="dialog", aria-modal, labelled by the child's heading (default
+// "boq-modal-title" matches BOQ form, callers can override with labelledBy).
+// Focuses the panel on mount and closes on Escape; tap-outside still closes.
+var ModalWrap = memo(function ModalWrap(p) {
+  var panelRef = useRef(null);
+  useEffect(function () {
+    var el = panelRef.current;
+    if (el) { try { el.focus(); } catch (e) {} }
+  }, []);
+  function onKey(e) { if (e.key === "Escape") { e.stopPropagation(); p.onClose && p.onClose(); } }
+  return <div
+    role="presentation"
+    onClick={function () { p.onClose && p.onClose(); }}
+    style={{ position: "fixed", inset: 0, background: "rgba(11,29,51,.5)", zIndex: 300, display: "flex", alignItems: "flex-end" }}
+  >
+    <div
+      ref={panelRef}
+      tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={p.labelledBy || "boq-modal-title"}
+      onClick={function (e) { e.stopPropagation(); }}
+      onKeyDown={onKey}
+      style={{ background: C.card, borderRadius: "18px 18px 0 0", width: "100%", padding: "18px 18px 28px", maxHeight: "85vh", overflowY: "auto", outline: "none" }}
+    >
+      <div aria-hidden="true" style={{ width: 36, height: 4, background: "#DDE2EB", borderRadius: 2, margin: "0 auto 14px" }} />
+      {p.children}
+    </div>
+  </div>;
+});
 
 // ═══════ WHALE LOGO SVG — Realistic Blue Whale ═══════
 function WhaleLogo({ size = 48 }) {
@@ -5219,45 +5254,18 @@ export default function App() {
 
   // ═══════ MODALS ═══════
   var modalUI = null;
-  function ModalWrap(p) {
-    // A11y: focus the dialog panel on mount so keyboard users land inside,
-    // and close on Escape. Tap-outside-to-close stays on the backdrop.
-    var panelRef = useRef(null);
-    useEffect(function () {
-      var el = panelRef.current;
-      if (el) { try { el.focus(); } catch (e) {} }
-    }, []);
-    function onKey(e) { if (e.key === "Escape") { e.stopPropagation(); setModal(null); } }
-    return <div
-      role="presentation"
-      onClick={function () { setModal(null); }}
-      style={{ position: "fixed", inset: 0, background: "rgba(11,29,51,.5)", zIndex: 300, display: "flex", alignItems: "flex-end" }}
-    >
-      <div
-        ref={panelRef}
-        tabIndex={-1}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={p.labelledBy || "boq-modal-title"}
-        onClick={function (e) { e.stopPropagation(); }}
-        onKeyDown={onKey}
-        style={{ background: C.card, borderRadius: "18px 18px 0 0", width: "100%", padding: "18px 18px 28px", maxHeight: "85vh", overflowY: "auto", outline: "none" }}
-      >
-        <div aria-hidden="true" style={{ width: 36, height: 4, background: "#DDE2EB", borderRadius: 2, margin: "0 auto 14px" }} />
-        {p.children}
-      </div>
-    </div>;
-  }
+  // Stable callback so the module-scope ModalWrap memoizes cleanly across renders.
+  var closeModal = useCallback(function () { setModal(null); }, []);
 
   // ── Deposit Modal — isolated component ──
   if (modal === "deposit") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <DepositForm onSubmit={function (data) { doDeposit(data.amount, data.bank); }} />
     </ModalWrap>;
   }
   // ── AI Smart Upload Modal ──
   else if (modal === "aiUpload") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <AIProjectUpload
         token={tk}
         onClose={function () { setModal(null); }}
@@ -5273,7 +5281,7 @@ export default function App() {
   // ── Manual "newProject" modal REMOVED — projects must be created via AI upload flow only ──
   // ── BOQ Quotation Modal (contractor) — Excel upload ──
   else if (modal && modal.type === "quotation") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <BOQQuotationForm
         modal={modal}
         onClose={function () { setModal(null); }}
@@ -5302,7 +5310,7 @@ export default function App() {
   }
   // ── Inspector Apply Modal — isolated component ──
   else if (modal && modal.type === "inspectorApply") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <InspectorApplyForm
         modal={modal}
         onSubmit={function (data) {
@@ -5316,7 +5324,7 @@ export default function App() {
   }
   // ── Contractor Submit Modal — isolated component ──
   else if (modal && modal.type === "contractorSubmit") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <ContractorSubmitForm
         modal={modal}
         onSubmit={function (data) {
@@ -5330,7 +5338,7 @@ export default function App() {
   }
   // ── Inspector Review Modal — isolated component ──
   else if (modal && modal.type === "inspectorReview") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <InspectorReviewForm
         modal={modal}
         onApprove={function (data) {
@@ -5350,7 +5358,7 @@ export default function App() {
   }
   // ── Owner Decision Modal — isolated component ──
   else if (modal && modal.type === "ownerDecision") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <OwnerDecisionForm
         modal={modal}
         onApprove={function (data) {
@@ -5373,7 +5381,7 @@ export default function App() {
     var lowestQ = offersQuotations.length > 0
       ? offersQuotations.reduce(function(mn, q) { return (q.total_price || q.price || 0) < (mn.total_price || mn.price || 0) ? q : mn; }, offersQuotations[0])
       : null;
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       {/* Modal header */}
       <div style={{ background: C.gNavy, borderRadius: 12, padding: "12px 14px", marginBottom: 14, color: "#fff" }}>
         <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 15, fontWeight: 900 }}>{t.compareOffers}</div>
@@ -5585,7 +5593,7 @@ export default function App() {
 
   // ── Rating Modal — isolated component ──
   else if (modal && modal.type === "rate") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <RatingForm
         modal={modal}
         onSubmit={function (data) {
@@ -5605,7 +5613,7 @@ export default function App() {
   // ── Company Profile Modal (from achievements gallery) ──
   else if (modal && modal.type === "projectFiles") {
     var pf = modal.data;
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 16, fontWeight: 900, marginBottom: 4 }}>📂 جميع ملفات المشروع</div>
       <div style={{ fontSize: 11, color: C.t3, marginBottom: 14 }}>{pf.project_name} — {pf.total_files} ملف</div>
 
@@ -5663,7 +5671,7 @@ export default function App() {
     var coAvgRating = co.ratings.length > 0
       ? (co.ratings.reduce(function(s, r) { return s + r; }, 0) / co.ratings.length).toFixed(1)
       : "—";
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       {/* Company header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, paddingBottom: 14, borderBottom: "1px solid " + C.brd }}>
         <div style={{ width: 54, height: 54, borderRadius: 14, background: C.gNavy, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, flexShrink: 0 }}>🏢</div>
@@ -5746,7 +5754,7 @@ export default function App() {
 
   // ── Edit Profile Modal ──
   else if (modal === "editProfile") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <EditProfileForm
         user={user}
         onSubmit={function(data) {
@@ -5769,7 +5777,7 @@ export default function App() {
 
   // ── Change Password Modal ──
   else if (modal === "changePassword") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <ChangePasswordForm
         onSubmit={function(data) {
           call("/auth/change-password", "POST", data, tk).then(function(d) {
