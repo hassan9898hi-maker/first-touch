@@ -6,6 +6,8 @@ const { PrismaClient } = require("@prisma/client");
 const validate = require("../middleware/validate");
 const { loginSchema, registerSchema } = require("../utils/validators");
 const { auth } = require("../middleware/auth");
+const upload = require("../middleware/upload");
+const { processUploadedFiles } = require("../middleware/upload");
 const logger = require("../utils/logger");
 const { sendWelcome, sendVerificationEmail, sendPasswordReset } = require("../services/email");
 
@@ -65,7 +67,8 @@ router.post("/login", validate(loginSchema), async (req, res) => {
       refreshToken: refreshToken,
       user: {
         id: user.id, nameAr: user.nameAr, nameEn: user.nameEn, email: user.email,
-        role: activeRole, roles: roles, companyNameAr: user.companyNameAr,
+        role: activeRole, roles: roles, accountType: user.accountType, companyNameAr: user.companyNameAr,
+        companyLogo: user.companyLogo,
         specialty: user.specialty, rating: user.rating, totalProjects: user.totalProjects,
         phone: user.phone, crNumber: user.crNumber, bioAr: user.bioAr,
         profileImage: user.profileImage, isAdmin: user.isAdmin
@@ -80,7 +83,7 @@ router.post("/login", validate(loginSchema), async (req, res) => {
 // ═══════ REGISTER ═══════
 router.post("/register", validate(registerSchema), async (req, res) => {
   try {
-    const { nameAr, email, password, role, companyNameAr, specialty, phone } = req.validated;
+    const { nameAr, email, password, role, accountType, companyNameAr, specialty, phone } = req.validated;
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) return res.status(409).json({ error: "هذا البريد مسجل مسبقاً — سجّل الدخول أو استخدم بريداً آخر" });
@@ -96,7 +99,7 @@ router.post("/register", validate(registerSchema), async (req, res) => {
     const user = await prisma.user.create({
       data: {
         nameAr, email, passwordHash, role, roles: role,
-        companyNameAr, specialty, phone,
+        accountType, companyNameAr, specialty, phone,
         // If no email service → auto-verify; if email service → require verification
         emailVerified: !emailServiceEnabled,
         verifyToken: emailServiceEnabled ? verifyToken : null,
@@ -442,6 +445,25 @@ router.put("/profile", auth, async (req, res) => {
   } catch (e) {
     logger.error("Update profile error", { error: e.message });
     res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ═══════ UPLOAD COMPANY LOGO ═══════
+router.post("/company-logo", auth, upload.single("logo"), processUploadedFiles, async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: "يرجى رفع صورة اللوجو" });
+
+    const logoUrl = req.file.fileUrl || req.file.cloudinaryUrl || ("uploads/" + req.file.filename);
+
+    await prisma.user.update({
+      where: { id: req.user.id },
+      data: { companyLogo: logoUrl }
+    });
+
+    res.json({ success: true, companyLogo: logoUrl, message: "تم رفع لوجو الشركة بنجاح" });
+  } catch (e) {
+    logger.error("Company logo upload error", { error: e.message });
+    res.status(500).json({ error: "خطأ في رفع اللوجو" });
   }
 });
 

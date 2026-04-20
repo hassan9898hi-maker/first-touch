@@ -8,10 +8,50 @@ const { sendPaymentNotification, sendContractEmail, sendNewProjectNotification, 
 const { analyzeProject, matchContractors } = require("../services/ai");
 const upload = require("../middleware/upload");
 const { processUploadedFiles } = require("../middleware/upload");
+const { deleteFromCloudinary, isCloudinaryConfigured, signedPrivateUrl } = require("../services/cloudinary");
+const rateLimit = require("express-rate-limit");
 const logger = require("../utils/logger");
 const mammoth = require("mammoth");
+const XLSX = require("xlsx");
 const fs = require("fs");
 const path = require("path");
+
+// ═══════ Rate limit: BOQ Excel upload — prevent abuse / parse-storms ═══════
+// 10 uploads / minute / contractor (keyed on auth user, falls back to IP)
+const boqUploadLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { error: "محاولات كثيرة — يرجى الانتظار دقيقة قبل رفع ملف BOQ جديد" },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: function (req) { return req.user && req.user.id ? "user:" + req.user.id : req.ip; }
+});
+
+// ═══════ Helper: remove BOQ blob from disk or Cloudinary ═══════
+// Best-effort cleanup — never throws, always logs.
+async function deleteBoqBlob(q) {
+  if (!q) return;
+  // Cloudinary first (if we recorded the publicId) — BOQ uploads use type:"authenticated"
+  if (q.boqFilePublicId && isCloudinaryConfigured()) {
+    try {
+      await deleteFromCloudinary(q.boqFilePublicId, "raw", "authenticated");
+      logger.info("BOQ blob removed from Cloudinary", { quotationId: q.id, publicId: q.boqFilePublicId });
+    } catch (e) {
+      logger.warn("BOQ Cloudinary cleanup failed", { quotationId: q.id, error: e.message });
+    }
+  }
+  // Disk
+  if (q.boqFilePath) {
+    try {
+      if (fs.existsSync(q.boqFilePath)) {
+        fs.unlinkSync(q.boqFilePath);
+        logger.info("BOQ blob removed from disk", { quotationId: q.id, path: q.boqFilePath });
+      }
+    } catch (e) {
+      logger.warn("BOQ disk cleanup failed", { quotationId: q.id, error: e.message });
+    }
+  }
+}
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -155,7 +195,8 @@ router.get("/", auth, async (req, res) => {
       where, orderBy: { createdAt: "desc" },
       include: {
         contractor: { select: { nameAr: true, companyNameAr: true } },
-        inspector: { select: { nameAr: true } }
+        inspector: { select: { nameAr: true } },
+        _count: { select: { quotations: true, inspectorApps: true } }
       }
     });
 
@@ -163,8 +204,18 @@ router.get("/", auth, async (req, res) => {
       const pct = await getCompletion(p.id);
       return {
         ...p, completion_percentage: pct,
+        // snake_case aliases for frontend compatibility
+        title_ar: p.titleAr, title_en: p.titleEn,
+        area_sqm: p.areaSqm, total_budget: p.totalBudget,
+        location_ar: p.locationAr, location_en: p.locationEn,
+        description_ar: p.descriptionAr, description_en: p.descriptionEn,
+        owner_id: p.ownerId, contractor_id: p.contractorId, inspector_id: p.inspectorId,
+        has_designs: p.hasDesigns, needs_design: p.needsDesign,
+        current_stage: p.currentStage, owner_conditions: p.ownerConditions,
         contractor_name: p.contractor?.nameAr, contractor_company: p.contractor?.companyNameAr,
-        inspector_name: p.inspector?.nameAr
+        inspector_name: p.inspector?.nameAr,
+        quotation_count: p._count?.quotations || 0,
+        inspector_count: p._count?.inspectorApps || 0
       };
     }));
 
@@ -176,56 +227,91 @@ router.get("/", auth, async (req, res) => {
 });
 
 // ═══════ AI: ANALYZE PROJECT FILE ═══════
+// Requires a REAL uploaded file (PDF or Word) containing a BOQ or
+// project description. Text is extracted from the file and passed
+// to the analyzer — no fake/dummy data is ever fabricated.
 router.post("/ai-analyze", auth, requireRole("owner"), upload.single("file"), processUploadedFiles, async (req, res) => {
   try {
     const { description, goals } = req.body;
-    if (!description || !description.trim()) {
-      return res.status(400).json({ error: "يرجى كتابة وصف المشروع وأهدافه" });
+
+    // 1. File is MANDATORY — projects are created from real files only
+    if (!req.file) {
+      return res.status(400).json({
+        error: "يجب رفع ملف المشروع (PDF أو Word) — لا يمكن إنشاء المشروع بدون ملف حقيقي"
+      });
     }
 
-    let fileText = "";
+    const mime = req.file.mimetype;
+    const allowedMimes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/msword"
+    ];
+    if (!allowedMimes.includes(mime)) {
+      return res.status(400).json({
+        error: "نوع الملف غير مدعوم — يُقبل فقط PDF أو Word (.pdf / .docx)"
+      });
+    }
 
-    if (req.file) {
-      const mime = req.file.mimetype;
-      // Extract text from file
-      if (mime === "application/pdf") {
-        // For PDF files — use pdf-parse
-        try {
-          const { PDFParse } = require("pdf-parse");
-          const pdfParser = new PDFParse();
-          const buf = req.file.buffer || fs.readFileSync(req.file.path);
-          const result = await pdfParser.parseBuffer(buf);
-          fileText = result.pages.map(p => p.lines.map(l => l.text || "").join(" ")).join("\n");
-        } catch (pdfErr) {
-          logger.warn("PDF parse failed, continuing without file text", { error: pdfErr.message });
-          fileText = "[ملف PDF — لم يتم استخراج النص]";
-        }
-      } else if (mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-        // For DOCX files — use mammoth
-        try {
-          const buf = req.file.buffer || fs.readFileSync(req.file.path);
-          const result = await mammoth.extractRawText({ buffer: buf });
-          fileText = result.value;
-        } catch (docErr) {
-          logger.warn("DOCX parse failed", { error: docErr.message });
-          fileText = "[ملف Word — لم يتم استخراج النص]";
-        }
-      } else {
-        fileText = "[ملف مرفق: " + req.file.originalname + "]";
+    // 2. Extract real text from the file (no fallback to fake text)
+    let fileText = "";
+    if (mime === "application/pdf") {
+      try {
+        const { PDFParse } = require("pdf-parse");
+        const pdfParser = new PDFParse();
+        const buf = req.file.buffer || fs.readFileSync(req.file.path);
+        const result = await pdfParser.parseBuffer(buf);
+        fileText = result.pages.map(p => p.lines.map(l => l.text || "").join(" ")).join("\n");
+      } catch (pdfErr) {
+        logger.warn("PDF parse failed", { error: pdfErr.message });
+        return res.status(400).json({
+          error: "تعذّر قراءة ملف PDF — قد يكون الملف محمياً أو صورة ممسوحة ضوئياً. يرجى رفع ملف PDF نصي أو ملف Word."
+        });
+      }
+    } else {
+      // DOCX / DOC
+      try {
+        const buf = req.file.buffer || fs.readFileSync(req.file.path);
+        const result = await mammoth.extractRawText({ buffer: buf });
+        fileText = result.value;
+      } catch (docErr) {
+        logger.warn("DOCX parse failed", { error: docErr.message });
+        return res.status(400).json({
+          error: "تعذّر قراءة ملف Word — تأكد أن الملف غير تالف وبصيغة .docx"
+        });
       }
     }
 
-    // Call AI analysis
-    const analysis = await analyzeProject(fileText, description, goals);
+    // 3. Extracted text must contain meaningful content
+    const cleanText = (fileText || "").replace(/\s+/g, " ").trim();
+    if (cleanText.length < 50) {
+      return res.status(400).json({
+        error: "الملف المرفوع لا يحتوي على نص كافٍ للتحليل. تأكد أن الملف يتضمّن وصفاً للمشروع وجدول الكميات."
+      });
+    }
 
-    // Match contractors
+    // 4. Call analyzer — it will throw if the text has no real BOQ data
+    let analysis;
+    try {
+      analysis = await analyzeProject(fileText, description || "", goals || "");
+    } catch (analyzeErr) {
+      logger.warn("AI analysis rejected file", { error: analyzeErr.message });
+      return res.status(400).json({ error: analyzeErr.message });
+    }
+
+    // 5. Match contractors based on real extracted requirements
     const matchedContractors = await matchContractors(prisma, analysis);
 
-    logger.info("AI project analysis completed", { userId: req.user.id, projectName: analysis.projectName });
+    logger.info("AI project analysis completed", {
+      userId: req.user.id, projectName: analysis.projectName,
+      stagesCount: analysis.stages?.length || 0,
+      budget: analysis.estimatedBudget
+    });
     res.json({
       success: true,
       analysis,
-      matchedContractors: matchedContractors.slice(0, 10)
+      matchedContractors: matchedContractors.slice(0, 10),
+      extractedFrom: req.file.originalname
     });
   } catch (e) {
     logger.error("AI analysis error", { error: e.message, stack: e.stack });
@@ -410,7 +496,7 @@ router.get("/:id", auth, async (req, res) => {
       where: { id: parseInt(req.params.id) },
       include: {
         contractor: { select: { nameAr: true, companyNameAr: true, rating: true } },
-        inspector: { select: { nameAr: true, specialty: true, rating: true } },
+        inspector: { select: { nameAr: true, companyNameAr: true, specialty: true, rating: true } },
         stages: {
           orderBy: { orderNum: "asc" },
           include: {
@@ -423,11 +509,11 @@ router.get("/:id", auth, async (req, res) => {
         },
         quotations: {
           orderBy: { createdAt: "desc" },
-          include: { contractor: { select: { nameAr: true, companyNameAr: true, rating: true } } }
+          include: { contractor: { select: { nameAr: true, companyNameAr: true, crNumber: true, phone: true, rating: true } } }
         },
         inspectorApps: {
           orderBy: { createdAt: "desc" },
-          include: { inspector: { select: { nameAr: true, specialty: true, rating: true } } }
+          include: { inspector: { select: { nameAr: true, companyNameAr: true, specialty: true, rating: true } } }
         }
       }
     });
@@ -474,16 +560,38 @@ router.get("/:id", auth, async (req, res) => {
         }))
       }))
     }));
-    const quots = project.quotations.map(q => ({
-      ...q, contractor_name: q.contractor?.nameAr, company_name_ar: q.contractor?.companyNameAr, rating: q.contractor?.rating
-    }));
+    const quots = project.quotations.map(q => {
+      // Strip internal file path; expose only a flag + filename + size
+      const { boqFilePath, boqFileUrl, ...safe } = q;
+      return {
+        ...safe,
+        total_price: q.price,
+        contractor_name: q.contractor?.nameAr,
+        company_name_ar: q.contractor?.companyNameAr,
+        cr_number: q.contractor?.crNumber,
+        rating: q.contractor?.rating,
+        duration_months: q.durationMonths,
+        warranty_months: q.warrantyMonths,
+        has_boq_file: !!(q.boqFilePath || q.boqFileUrl),
+        boq_file_name: q.boqFileName || null,
+        boq_file_size: q.boqFileSize || null
+      };
+    });
     const iApps = project.inspectorApps.map(ia => ({
-      ...ia, name_ar: ia.inspector?.nameAr, specialty: ia.inspector?.specialty, rating: ia.inspector?.rating
+      ...ia,
+      name_ar: ia.inspector?.nameAr,
+      company_name_ar: ia.inspector?.companyNameAr,
+      specialty: ia.inspector?.specialty,
+      rating: ia.inspector?.rating
     }));
 
     res.json({
       project: {
         ...project, completion_percentage: pct,
+        title_ar: project.titleAr, title_en: project.titleEn,
+        description_ar: project.descriptionAr, location_ar: project.locationAr,
+        area_sqm: project.areaSqm, total_budget: project.totalBudget,
+        owner_id: project.ownerId, contractor_id: project.contractorId, inspector_id: project.inspectorId,
         contractor_name: project.contractor?.nameAr, contractor_company: project.contractor?.companyNameAr, contractor_rating: project.contractor?.rating,
         inspector_name: project.inspector?.nameAr, inspector_specialty: project.inspector?.specialty, inspector_rating: project.inspector?.rating
       },
@@ -686,6 +794,232 @@ router.post("/:id/quotation", auth, requireRole("contractor"), validate(quotatio
   }
 });
 
+// ═══════ Helper: parse BOQ Excel → normalized breakdown JSON ═══════
+function parseBoqExcel(buffer) {
+  const wb = XLSX.read(buffer, { type: "buffer" });
+  const firstSheet = wb.Sheets[wb.SheetNames[0]];
+  if (!firstSheet) return { items: [], total: 0, error: "ورقة العمل فارغة" };
+  const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: "", raw: false });
+  if (rows.length === 0) return { items: [], total: 0, error: "لا توجد صفوف في ملف الإكسل" };
+
+  // Column-name aliases (Arabic + English — match loose)
+  const pick = (row, aliases) => {
+    const keys = Object.keys(row);
+    for (const a of aliases) {
+      const found = keys.find(k => k.toString().trim().toLowerCase().includes(a.toLowerCase()));
+      if (found && row[found] !== "" && row[found] != null) return row[found];
+    }
+    return "";
+  };
+
+  const items = [];
+  let total = 0;
+  for (const row of rows) {
+    const description = String(pick(row, ["وصف", "البند", "description", "item"])).trim();
+    if (!description) continue; // skip empty rows
+    const stage = String(pick(row, ["مرحله", "مرحلة", "stage", "category", "قسم", "فئة"])).trim() || "أعمال عامة";
+    const unit = String(pick(row, ["وحده", "وحدة", "unit"])).trim() || "عدد";
+    const quantity = Number(pick(row, ["كميه", "كمية", "quantity", "qty"])) || 1;
+    const unit_price = Number(pick(row, ["سعر الوحده", "سعر الوحدة", "unit price", "price", "سعر"])) || 0;
+    const brand = String(pick(row, ["ماركه", "ماركة", "brand", "مواصفات", "spec"])).trim();
+    const rowTotalRaw = Number(pick(row, ["اجمالي", "إجمالي", "total", "الإجمالي", "الاجمالي"]));
+    const rowTotal = rowTotalRaw > 0 ? rowTotalRaw : (quantity * unit_price);
+    items.push({ stage, description, unit, quantity, unit_price, brand, total: rowTotal });
+    total += rowTotal;
+  }
+
+  return { items, total, sheetName: wb.SheetNames[0], rowCount: rows.length };
+}
+
+// ═══════ SUBMIT QUOTATION VIA EXCEL (Contractor) ═══════
+// multipart/form-data with:
+//   - boqFile: .xlsx (required)
+//   - durationMonths, warrantyMonths, notes (text fields)
+router.post("/:id/quotation-excel", auth, requireRole("contractor"), boqUploadLimiter, function (req, _res, next) {
+  // BOQ files are private: Cloudinary will upload as type:"authenticated" → no public URL
+  req.uploadFolder = "boq";
+  req.uploadPrivate = true;
+  next();
+}, upload.single("boqFile"), processUploadedFiles, async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.id);
+    if (!req.file) return res.status(400).json({ error: "يرجى رفع ملف Excel يحتوي على جدول الكميات (BOQ)" });
+
+    const mime = req.file.mimetype || "";
+    const origName = req.file.originalname || "";
+    const isXlsx = mime.includes("spreadsheet") || mime.includes("excel") || /\.(xlsx|xls)$/i.test(origName);
+    if (!isXlsx) return res.status(400).json({ error: "صيغة الملف غير مدعومة — يرجى رفع ملف Excel (.xlsx)" });
+
+    const project = await prisma.project.findFirst({ where: { id: projectId, status: { in: ["awaiting_pricing", "new", "design_required"] } } });
+    if (!project) return res.status(404).json({ error: "المشروع غير متاح للتسعير" });
+
+    const existing = await prisma.quotation.findFirst({ where: { projectId, contractorId: req.user.id } });
+    if (existing) return res.status(409).json({ error: "لديك عرض سعر مقدم مسبقاً" });
+
+    // Read buffer (memory-storage or disk-storage both supported)
+    let buffer;
+    if (req.file.buffer) buffer = req.file.buffer;
+    else if (req.file.path) buffer = fs.readFileSync(req.file.path);
+    else return res.status(500).json({ error: "تعذر قراءة ملف الإكسل" });
+
+    let parsed;
+    try { parsed = parseBoqExcel(buffer); }
+    catch (e) {
+      logger.error("Excel parse error", { error: e.message });
+      return res.status(400).json({ error: "تعذر قراءة ملف الإكسل — تأكد من صيغة الجدول" });
+    }
+
+    if (!parsed.items || parsed.items.length === 0) {
+      return res.status(400).json({ error: "لم يتم العثور على بنود في الملف — تأكد من وجود أعمدة: الوصف، الوحدة، الكمية، سعر الوحدة" });
+    }
+
+    // Price: prefer form field, else parsed total
+    const formPrice = Number(req.body.price);
+    const price = formPrice > 0 ? formPrice : parsed.total;
+    const durationMonths = parseInt(req.body.durationMonths) || 6;
+    const warrantyMonths = req.body.warrantyMonths ? parseInt(req.body.warrantyMonths) : null;
+    const notes = req.body.notes || null;
+
+    const created = await prisma.quotation.create({
+      data: {
+        projectId,
+        contractorId: req.user.id,
+        price,
+        durationMonths,
+        warrantyMonths,
+        notes,
+        breakdown: JSON.stringify(parsed.items),
+        boqFilePath: req.file.path || null,
+        boqFileName: origName,
+        boqFileSize: req.file.size || (buffer ? buffer.length : null),
+        boqFileUrl: req.file.cloudinaryUrl || req.file.fileUrl || null,
+        boqFilePublicId: req.file.cloudinaryPublicId || null
+      }
+    });
+
+    notify(project.ownerId, "info", "عرض سعر جديد (BOQ)", "تم استلام عرض سعر مرفق مع ملف BOQ لمشروع " + project.titleAr).catch(() => {});
+    const owner = await prisma.user.findUnique({ where: { id: project.ownerId }, select: { nameAr: true, email: true } });
+    const contractor = await prisma.user.findUnique({ where: { id: req.user.id }, select: { nameAr: true, companyNameAr: true } });
+    if (owner?.email) {
+      sendQuotationNotification(owner.email, owner.nameAr, contractor?.nameAr, contractor?.companyNameAr, project.titleAr, price, durationMonths).catch(() => {});
+    }
+
+    logger.info("Quotation via Excel submitted", { projectId, contractorId: req.user.id, quotationId: created.id, items: parsed.items.length, total: parsed.total });
+    res.status(201).json({
+      success: true,
+      message: "تم تقديم عرض السعر بنجاح",
+      quotation: {
+        id: created.id,
+        price,
+        itemCount: parsed.items.length,
+        parsedTotal: parsed.total,
+        fileName: origName
+      }
+    });
+  } catch (e) {
+    logger.error("Quotation via Excel error", { error: e.message, stack: e.stack });
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ═══════ DOWNLOAD BOQ EXCEL FILE — owner + submitter + admin only ═══════
+router.get("/quotations/:id/boq-file", auth, async (req, res) => {
+  try {
+    const q = await prisma.quotation.findUnique({
+      where: { id: parseInt(req.params.id) },
+      include: { project: { select: { ownerId: true, titleAr: true } } }
+    });
+    if (!q) return res.status(404).json({ error: "عرض السعر غير موجود" });
+    if (!q.boqFilePath && !q.boqFileUrl) return res.status(404).json({ error: "لا يوجد ملف BOQ مرفق" });
+
+    // ACL: owner of project, contractor who submitted, or admin
+    const isOwner = q.project.ownerId === req.user.id;
+    const isSubmitter = q.contractorId === req.user.id;
+    const isAdmin = req.user.role === "admin";
+    if (!isOwner && !isSubmitter && !isAdmin) {
+      logger.warn("BOQ file access denied", { quotationId: q.id, userId: req.user.id, role: req.user.role });
+      return res.status(403).json({ error: "هذا الملف متاح فقط للمالك والمقاول المقدِّم للعرض" });
+    }
+
+    const filename = (q.boqFileName || ("BOQ-" + q.id + ".xlsx")).replace(/[\r\n"]/g, "");
+
+    // Cloudinary: private (type:"authenticated") → generate a short-lived signed URL
+    // from the stored publicId. Fallback to the raw boqFileUrl for legacy records.
+    if ((q.boqFilePublicId || (q.boqFileUrl && /^https?:\/\//i.test(q.boqFileUrl)))) {
+      let fetchUrl = null;
+      if (q.boqFilePublicId && isCloudinaryConfigured()) {
+        try {
+          fetchUrl = signedPrivateUrl(q.boqFilePublicId, { resourceType: "raw", expiresInSec: 120 });
+        } catch (e) {
+          logger.warn("BOQ signed URL generation failed; falling back to stored URL", { error: e.message });
+        }
+      }
+      if (!fetchUrl) fetchUrl = q.boqFileUrl;
+
+      if (fetchUrl && /^https?:\/\//i.test(fetchUrl)) {
+        try {
+          const r = await fetch(fetchUrl);
+          if (!r.ok) throw new Error("upstream " + r.status);
+          const arr = Buffer.from(await r.arrayBuffer());
+          res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+          res.setHeader("Content-Disposition", 'attachment; filename="' + encodeURIComponent(filename) + '"');
+          return res.send(arr);
+        } catch (e) {
+          logger.error("BOQ cloud fetch failed", { error: e.message });
+          return res.status(502).json({ error: "تعذر جلب الملف من التخزين السحابي" });
+        }
+      }
+    }
+
+    // Local disk
+    if (q.boqFilePath && fs.existsSync(q.boqFilePath)) {
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", 'attachment; filename="' + encodeURIComponent(filename) + '"');
+      return fs.createReadStream(q.boqFilePath).pipe(res);
+    }
+
+    return res.status(404).json({ error: "ملف BOQ غير متوفر" });
+  } catch (e) {
+    logger.error("BOQ download error", { error: e.message });
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
+// ═══════ WITHDRAW QUOTATION — contractor (submitter) or admin ═══════
+// Deletes the quotation row AND the attached BOQ blob (disk or Cloudinary).
+// Blocked once the quotation has been accepted — owner must cancel the project instead.
+router.delete("/quotations/:id", auth, async (req, res) => {
+  try {
+    const q = await prisma.quotation.findUnique({
+      where: { id: parseInt(req.params.id) },
+      include: { project: { select: { titleAr: true, ownerId: true } } }
+    });
+    if (!q) return res.status(404).json({ error: "عرض السعر غير موجود" });
+
+    const isSubmitter = q.contractorId === req.user.id;
+    const isAdmin = req.user.role === "admin";
+    if (!isSubmitter && !isAdmin) {
+      return res.status(403).json({ error: "لا يمكنك حذف هذا العرض" });
+    }
+    if (q.status === "accepted") {
+      return res.status(409).json({ error: "تعذّر السحب — تم قبول هذا العرض بالفعل" });
+    }
+
+    // Delete blob first (best-effort), then the row
+    await deleteBoqBlob(q);
+    await prisma.quotation.delete({ where: { id: q.id } });
+
+    // Let the owner know the offer was pulled (non-blocking)
+    notify(q.project.ownerId, "info", "تم سحب عرض سعر", "قام المقاول بسحب عرضه لمشروع " + q.project.titleAr).catch(function(){});
+
+    logger.info("Quotation withdrawn", { quotationId: q.id, by: req.user.id, role: req.user.role });
+    res.json({ success: true, message: "تم سحب العرض بنجاح" });
+  } catch (e) {
+    logger.error("Quotation withdraw error", { error: e.message });
+    res.status(500).json({ error: "خطأ في الخادم" });
+  }
+});
+
 // ═══════ ACCEPT QUOTATION (Owner) — sends contract email to all parties ═══════
 router.post("/quotations/:id/accept", auth, requireRole("owner"), async (req, res) => {
   try {
@@ -698,10 +1032,46 @@ router.post("/quotations/:id/accept", auth, requireRole("owner"), async (req, re
     });
     if (!q || q.project.ownerId !== req.user.id) return res.status(404).json({ error: "العرض غير موجود" });
 
+    // ═══ WALLET BALANCE GATE — owner must have sufficient funds ═══
+    const wallet = await prisma.wallet.findUnique({ where: { userId: req.user.id } });
+    if (!wallet) {
+      return res.status(400).json({
+        error: "لم يتم العثور على محفظتك — يرجى التواصل مع الإدارة",
+        errorCode: "NO_WALLET"
+      });
+    }
+    const availableBalance = wallet.balance - wallet.reserved;
+    if (availableBalance < q.price) {
+      return res.status(400).json({
+        error: "رصيد المحفظة غير كافٍ لقبول هذا العرض. " +
+               "المطلوب: " + q.price.toLocaleString() + " د.ب — " +
+               "المتاح: " + availableBalance.toLocaleString() + " د.ب. " +
+               "يرجى إيداع المبلغ أولاً ثم قبول العرض.",
+        errorCode: "INSUFFICIENT_BALANCE",
+        required: q.price,
+        available: availableBalance
+      });
+    }
+
     await prisma.$transaction(async (tx) => {
       await tx.quotation.update({ where: { id: q.id }, data: { status: "accepted" } });
       await tx.quotation.updateMany({ where: { projectId: q.projectId, id: { not: q.id } }, data: { status: "rejected" } });
       await tx.project.update({ where: { id: q.projectId }, data: { contractorId: q.contractorId, status: "active", totalBudget: q.price } });
+      // Reserve the quotation amount in the wallet
+      await tx.wallet.update({
+        where: { userId: req.user.id },
+        data: { reserved: { increment: q.price } }
+      });
+      // Log the reservation transaction
+      await tx.transaction.create({
+        data: {
+          walletId: wallet.id,
+          amount: q.price,
+          type: "reserve",
+          descriptionAr: "حجز مبلغ عرض المقاول — " + (q.contractor?.companyNameAr || q.contractor?.nameAr || "المقاول"),
+          reference: "quotation-" + q.id
+        }
+      });
     });
 
     const stageCount = await prisma.stage.count({ where: { projectId: q.projectId } });
@@ -868,33 +1238,65 @@ router.post("/items/:id/owner-decision", auth, requireRole("owner"), validate(ow
     if (!item.inspectorDone || !item.inspectorApproved) return res.status(400).json({ error: "لم يتم اعتماد البند بعد" });
 
     const approved = req.validated.approved;
-    await prisma.checklistItem.update({
-      where: { id: item.id },
-      data: { ownerDone: true, ownerApproved: approved, ownerDate: new Date() }
-    });
-
     const project = item.subStage.stage.project;
     const stage = item.subStage.stage;
 
-    // Payment via escrow wallet
+    // ═══ PRE-FLIGHT BALANCE CHECK ═══ (before any DB writes — atomic guarantee)
+    let wallet = null;
     if (approved && item.cost > 0) {
-      const wallet = await prisma.wallet.findUnique({ where: { userId: req.user.id } });
-      if (wallet && wallet.balance >= item.cost) {
-        await prisma.$transaction(async (tx) => {
-          await tx.wallet.update({ where: { id: wallet.id }, data: { balance: { decrement: item.cost }, totalPaid: { increment: item.cost } } });
-          await tx.transaction.create({ data: { walletId: wallet.id, amount: -item.cost, type: "payment", description: "Payment: " + item.textAr, descriptionAr: "دفع: " + item.textAr } });
-          await tx.contractorEarning.create({ data: { contractorId: project.contractorId, projectId: project.id, itemId: item.id, amount: item.cost } });
+      wallet = await prisma.wallet.findUnique({ where: { userId: req.user.id } });
+      if (!wallet || wallet.balance < item.cost) {
+        logger.warn("Payment rejected: insufficient balance", { itemId: item.id, cost: item.cost, balance: wallet?.balance || 0 });
+        return res.status(402).json({
+          error: "رصيد المحفظة غير كافٍ — يرجى الإيداع قبل الاعتماد",
+          required: item.cost,
+          available: wallet?.balance || 0,
+          deficit: item.cost - (wallet?.balance || 0)
         });
-        notify(project.contractorId, "success", "تم صرف مستحقات بند", item.textAr + " — " + item.cost.toLocaleString() + " د.ب").catch(() => {});
       }
     }
 
-    // Reject → reset all
+    // ═══ ATOMIC TRANSACTION ═══ (item update + wallet debit + earning in one commit)
+    await prisma.$transaction(async (tx) => {
+      // 1. Update the checklist item (approve or reset on reject)
+      if (approved) {
+        await tx.checklistItem.update({
+          where: { id: item.id },
+          data: { ownerDone: true, ownerApproved: true, ownerDate: new Date() }
+        });
+      } else {
+        // Reject → reset all flags
+        await tx.checklistItem.update({
+          where: { id: item.id },
+          data: {
+            contractorDone: false, contractorNotes: null, contractorDate: null,
+            inspectorDone: false, inspectorApproved: false, inspectorNotes: null, inspectorDate: null,
+            ownerDone: false, ownerApproved: false, ownerDate: new Date()
+          }
+        });
+      }
+
+      // 2. Payment (only on approval with cost)
+      if (approved && item.cost > 0 && wallet) {
+        const releaseReserved = Math.min(wallet.reserved, item.cost);
+        await tx.wallet.update({
+          where: { id: wallet.id },
+          data: {
+            balance: { decrement: item.cost },
+            reserved: { decrement: releaseReserved },
+            totalPaid: { increment: item.cost }
+          }
+        });
+        await tx.transaction.create({ data: { walletId: wallet.id, amount: -item.cost, type: "payment", descriptionAr: "صرف مستحقات: " + item.textAr, reference: "item-" + item.id } });
+        await tx.contractorEarning.create({ data: { contractorId: project.contractorId, projectId: project.id, itemId: item.id, amount: item.cost } });
+      }
+    });
+
+    // ═══ POST-TRANSACTION NOTIFICATIONS ═══ (fire-and-forget)
+    if (approved && item.cost > 0) {
+      notify(project.contractorId, "success", "تم صرف مستحقات بند", item.textAr + " — " + item.cost.toLocaleString() + " د.ب").catch(() => {});
+    }
     if (!approved) {
-      await prisma.checklistItem.update({
-        where: { id: item.id },
-        data: { contractorDone: false, contractorNotes: null, contractorDate: null, inspectorDone: false, inspectorApproved: false, inspectorNotes: null, inspectorDate: null, ownerDone: false, ownerApproved: false, ownerDate: null }
-      });
       notify(project.contractorId, "warning", "بند مرفوض من المالك", item.textAr + " — يحتاج إعادة تنفيذ").catch(() => {});
     }
 

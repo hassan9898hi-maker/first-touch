@@ -1,8 +1,11 @@
 import { useState, useEffect, useCallback, useRef, memo, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Home, Inbox, Wallet, ClipboardList, User, Coins, Trophy, HardHat, Building2, FileText, Search, BarChart3, FolderOpen, Clock, Construction, CheckCircle2, XCircle, Upload, Bell, Ruler, Layers, Zap, Droplets, Paintbrush, Building, Store, Lock, Handshake, Users, ArrowLeft, Plus, Settings, LogOut, Eye, Star, TrendingUp, Shield, Briefcase, MapPin, Calendar, ChevronRight, ChevronLeft, X, Package, Wrench, Hammer, CircleDollarSign, ScrollText, Send, ListChecks, BadgeCheck, AlertTriangle, Hospital, LayoutGrid, PenSquare, Repeat2 } from "lucide-react";
 
 var BASE = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
   ? "http://localhost:5000/api"
   : "https://first-touch2.onrender.com/api";
+var ASSET_BASE = BASE.replace("/api", "");
 function call(path, method, body, tkn) {
   var h = { "Content-Type": "application/json" };
   if (tkn) h["Authorization"] = "Bearer " + tkn;
@@ -26,20 +29,135 @@ function fileToBase64(file) {
   });
 }
 
-// ═══════ THEME — Blue-Grey Gradient Palette ═══════
+// ═══════ THEME — Ocean Blue-Grey Palette ═══════
 var C = {
-  navy: "#0D1B2A", ocean: "#1565C0", sky: "#42A5F5", amber: "#E8720C",
-  steel: "#546E7A", slate: "#78909C",
-  green: "#0EAD69", red: "#E53935", purple: "#7C3AED", gold: "#D4A017",
-  bg: "#E8EFF8", card: "#FFFFFF", brd: "#C9D8EC", t1: "#0D1B2A", t2: "#3A5068", t3: "#7A8FA6",
+  navy: "#0A1628", ocean: "#2563EB", sky: "#60A5FA", amber: "#F59E0B",
+  steel: "#475569", slate: "#94A3B8",
+  green: "#10B981", red: "#EF4444", purple: "#8B5CF6", gold: "#F59E0B",
+  // t3 was #64748B (4.0:1 on navy — WCAG AA FAIL). Lifted to #7D8BA3
+  // so 11-12px copy on dark bg meets 4.5:1 without flattening the
+  // hierarchy against t2 (#94A3B8) and t1 (#E2E8F0).
+  bg: "#0F172A", card: "rgba(30,58,95,.45)", brd: "rgba(148,163,184,.18)", t1: "#E2E8F0", t2: "#94A3B8", t3: "#7D8BA3",
   // gradient presets
-  gNavy: "linear-gradient(135deg,#0D1B2A 0%,#1A3A5C 100%)",
-  gBlue: "linear-gradient(135deg,#0D47A1 0%,#1565C0 100%)",
-  gSteel: "linear-gradient(135deg,#37474F 0%,#546E7A 100%)",
-  gAmber: "linear-gradient(135deg,#BF5B00 0%,#E8720C 100%)",
-  gGreen: "linear-gradient(135deg,#087A44 0%,#0EAD69 100%)",
-  gGold: "linear-gradient(135deg,#8B6500 0%,#D4A017 100%)"
+  gNavy: "linear-gradient(135deg,#0A1628 0%,#1E3A5F 50%,#0F2847 100%)",
+  gBlue: "linear-gradient(135deg,#1D4ED8 0%,#2563EB 50%,#3B82F6 100%)",
+  gSteel: "linear-gradient(135deg,#334155 0%,#475569 100%)",
+  gAmber: "linear-gradient(135deg,#D97706 0%,#F59E0B 100%)",
+  gGreen: "linear-gradient(135deg,#059669 0%,#10B981 100%)",
+  gGold: "linear-gradient(135deg,#B45309 0%,#F59E0B 100%)",
+  // premium blue-grey
+  glass: "rgba(30,58,95,.35)",
+  glassBorder: "rgba(96,165,250,.15)",
+  shadow: "0 4px 24px rgba(0,0,0,.2)",
+  shadowLg: "0 12px 40px rgba(0,0,0,.3)",
+  shadowBlue: "0 8px 32px rgba(37,99,235,.3)"
 };
+
+// ═══════ FRAMER MOTION VARIANTS ═══════
+var fadeUp = { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } } };
+var fadeIn = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.4 } } };
+var stagger = { visible: { transition: { staggerChildren: 0.08 } } };
+var scaleIn = { hidden: { opacity: 0, scale: 0.92 }, visible: { opacity: 1, scale: 1, transition: { duration: 0.35, ease: "easeOut" } } };
+var slideRight = { hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.4 } } };
+
+// ═══════ MODAL WRAPPER — module-scope so it isn't recreated each parent render ═══════
+// A11y: role="dialog", aria-modal, labelled by the child's heading (default
+// "boq-modal-title" matches BOQ form, callers can override with labelledBy).
+// Focuses the panel on mount and closes on Escape; tap-outside still closes.
+var ModalWrap = memo(function ModalWrap(p) {
+  var panelRef = useRef(null);
+  useEffect(function () {
+    var el = panelRef.current;
+    if (el) { try { el.focus(); } catch (e) {} }
+  }, []);
+  function onKey(e) { if (e.key === "Escape") { e.stopPropagation(); p.onClose && p.onClose(); } }
+  return <div
+    role="presentation"
+    onClick={function () { p.onClose && p.onClose(); }}
+    style={{ position: "fixed", inset: 0, background: "rgba(11,29,51,.5)", zIndex: 300, display: "flex", alignItems: "flex-end" }}
+  >
+    <div
+      ref={panelRef}
+      tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={p.labelledBy || "boq-modal-title"}
+      onClick={function (e) { e.stopPropagation(); }}
+      onKeyDown={onKey}
+      style={{ background: C.card, borderRadius: "18px 18px 0 0", width: "100%", padding: "18px 18px 28px", maxHeight: "85vh", overflowY: "auto", outline: "none" }}
+    >
+      <div aria-hidden="true" style={{ width: 36, height: 4, background: "#DDE2EB", borderRadius: 2, margin: "0 auto 14px" }} />
+      {p.children}
+    </div>
+  </div>;
+});
+
+// ═══════ WHALE LOGO SVG — Realistic Blue Whale ═══════
+function WhaleLogo({ size = 48 }) {
+  var uid = useMemo(function(){ return "wl" + Math.random().toString(36).substring(2,8); }, []);
+  return <svg width={size} height={size} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* ═══ TAIL — upper fluke rising up-right ═══ */}
+    <path d="M148 88 Q152 58 164 34 Q176 16 186 22 Q190 38 178 60 Q168 80 156 96 Q150 100 148 88 Z" fill={"url(#"+uid+"tailDark)"} />
+    {/* ═══ TAIL — lower fluke curving right ═══ */}
+    <path d="M150 98 Q172 88 190 92 Q196 98 190 108 Q176 120 158 118 Q148 116 150 98 Z" fill={"url(#"+uid+"tailLight)"} />
+
+    {/* ═══ MAIN BODY — clean bean/oval shape ═══ */}
+    <path d="M40 95 C40 65 70 48 100 48 C135 48 160 70 160 95 C160 122 135 132 100 132 C65 132 40 122 40 95 Z" fill={"url(#"+uid+"body)"} />
+
+    {/* ═══ DARK BACK — crescent only on top half ═══ */}
+    <path d="M42 92 C45 62 72 48 100 48 C135 48 160 70 158 92 C140 82 118 76 100 76 C78 76 58 82 42 92 Z" fill={"url(#"+uid+"back)"} />
+
+    {/* ═══ WHITE BELLY — wavy top edge is the visible separator ═══ */}
+    <path d="M40 100 C58 94 78 92 98 94 C118 96 138 100 158 102 C156 122 132 132 100 132 C65 132 42 122 40 100 Z" fill={"url(#"+uid+"belly)"} />
+
+    {/* ═══ PECTORAL FIN — rounded teardrop below body ═══ */}
+    <path d="M95 120 Q82 138 66 144 Q58 144 62 134 Q72 122 86 116 Q94 114 95 120 Z" fill={"url(#"+uid+"fin)"} />
+
+    {/* ═══ EYE — simple 3-layer circle ═══ */}
+    <circle cx="64" cy="82" r="5" fill="#fff" />
+    <circle cx="64" cy="82" r="3" fill="#0A1F3D" />
+    <circle cx="65.2" cy="81" r="1" fill="#fff" />
+
+    {/* ═══ TINY SMILE ═══ */}
+    <path d="M50 94 Q48 97 51 98" stroke="#0A2847" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.6" />
+
+    <defs>
+      {/* Main body — bright gradient blue */}
+      <linearGradient id={uid+"body"} x1="40" y1="48" x2="160" y2="132">
+        <stop offset="0%" stopColor="#5BAEF5" />
+        <stop offset="45%" stopColor="#2E8AE6" />
+        <stop offset="100%" stopColor="#1565C0" />
+      </linearGradient>
+      {/* Dark back crescent */}
+      <linearGradient id={uid+"back"} x1="50" y1="48" x2="158" y2="92">
+        <stop offset="0%" stopColor="#0D47A1" />
+        <stop offset="100%" stopColor="#1976D2" />
+      </linearGradient>
+      {/* White belly */}
+      <linearGradient id={uid+"belly"} x1="40" y1="94" x2="120" y2="132">
+        <stop offset="0%" stopColor="#FFFFFF" />
+        <stop offset="70%" stopColor="#E3F2FD" />
+        <stop offset="100%" stopColor="#BBDEFB" />
+      </linearGradient>
+      {/* Tail dark fluke */}
+      <linearGradient id={uid+"tailDark"} x1="150" y1="94" x2="184" y2="28">
+        <stop offset="0%" stopColor="#2E8AE6" />
+        <stop offset="50%" stopColor="#1565C0" />
+        <stop offset="100%" stopColor="#0D47A1" />
+      </linearGradient>
+      {/* Tail light fluke */}
+      <linearGradient id={uid+"tailLight"} x1="150" y1="98" x2="188" y2="112">
+        <stop offset="0%" stopColor="#5BAEF5" />
+        <stop offset="100%" stopColor="#1976D2" />
+      </linearGradient>
+      {/* Fin */}
+      <linearGradient id={uid+"fin"} x1="88" y1="116" x2="68" y2="142">
+        <stop offset="0%" stopColor="#1976D2" />
+        <stop offset="100%" stopColor="#0D47A1" />
+      </linearGradient>
+    </defs>
+  </svg>;
+}
 
 // ═══════ REUSABLE COMPONENTS ═══════
 function Badge(p) {
@@ -48,64 +166,90 @@ function Badge(p) {
   return <span style={{ display: "inline-flex", padding: "3px 9px", borderRadius: 12, fontSize: 10, fontWeight: 700, color: s[0], background: s[1], whiteSpace: "nowrap" }}>{p.children}</span>;
 }
 function PB(p) {
-  return <div style={{ height: 5, background: "#EDF1F7", borderRadius: 3, overflow: "hidden" }}><div style={{ height: "100%", width: p.v + "%", borderRadius: 3, background: p.c === "green" ? C.green : p.c === "amber" ? C.amber : C.ocean, transition: "width 0.5s" }} /></div>;
+  return <div style={{ height: 6, background: "#EDF2F7", borderRadius: 4, overflow: "hidden" }}>
+    <motion.div initial={{ width: 0 }} animate={{ width: p.v + "%" }} transition={{ duration: 0.8, ease: "easeOut" }} style={{ height: "100%", borderRadius: 4, background: p.c === "green" ? "linear-gradient(90deg,#059669,#10B981)" : p.c === "amber" ? "linear-gradient(90deg,#D97706,#F59E0B)" : "linear-gradient(90deg,#1D4ED8,#3B82F6)" }} />
+  </div>;
 }
 function Btn(p) {
   var bgMap = {
     primary: C.gBlue,
     amber: C.gAmber,
     green: C.gGreen,
-    red: "linear-gradient(135deg,#B71C1C,#E53935)",
+    red: "linear-gradient(135deg,#DC2626,#EF4444)",
     gold: C.gGold,
     outline: "transparent"
   };
   var bg = bgMap[p.v] || bgMap.primary;
-  return <button disabled={p.dis} onClick={p.onClick} style={{
-    display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 5,
-    padding: p.sm ? "7px 12px" : "10px 18px",
-    borderRadius: 10, fontFamily: "Tajawal", fontSize: p.sm ? 10 : 12, fontWeight: 700,
-    border: p.v === "outline" ? "1.5px solid " + C.brd : "none",
-    cursor: p.dis ? "not-allowed" : "pointer",
-    background: bg, color: p.v === "outline" ? C.t2 : "#fff",
-    width: p.f ? "100%" : "auto", opacity: p.dis ? 0.5 : 1,
-    boxShadow: p.v === "outline" ? "none" : "0 3px 8px rgba(0,0,0,.15)"
-  }}>{p.loading ? "⏳" : p.children}</button>;
+  return <motion.button
+    disabled={p.dis}
+    onClick={p.onClick}
+    whileHover={p.dis ? {} : { scale: 1.02, boxShadow: p.v === "outline" ? "0 2px 12px rgba(0,0,0,.08)" : "0 6px 20px rgba(37,99,235,.3)" }}
+    whileTap={p.dis ? {} : { scale: 0.97 }}
+    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+    style={{
+      display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
+      padding: p.sm ? "8px 14px" : "11px 20px",
+      borderRadius: 12, fontFamily: "Tajawal", fontSize: p.sm ? 11 : 13, fontWeight: 700,
+      border: p.v === "outline" ? "1.5px solid " + C.brd : "none",
+      cursor: p.dis ? "not-allowed" : "pointer",
+      background: bg, color: p.v === "outline" ? C.t2 : "#fff",
+      width: p.f ? "100%" : "auto", opacity: p.dis ? 0.5 : 1,
+      boxShadow: p.v === "outline" ? "none" : "0 4px 14px rgba(0,0,0,.12)",
+      letterSpacing: 0.3
+    }}>{p.loading ? "⏳" : p.children}</motion.button>;
 }
 function Inp(p) {
+  var inputStyle = { width: "100%", padding: 10, border: "1.5px solid rgba(96,165,250,.2)", borderRadius: 8, fontFamily: "Tajawal", fontSize: 13, boxSizing: "border-box", background: "rgba(15,23,42,.6)", color: "#E2E8F0", outline: "none" };
   return <div style={{ marginBottom: 12 }}>
-    {p.label && <div style={{ fontSize: 11, fontWeight: 600, color: C.t2, marginBottom: 4 }}>{p.label}</div>}
+    {p.label && <div style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8", marginBottom: 4 }}>{p.label}</div>}
     {p.type === "select"
-      ? <select value={p.value} onChange={p.onChange} style={{ width: "100%", padding: 10, border: "1.5px solid " + C.brd, borderRadius: 8, fontFamily: "Tajawal", fontSize: 13, direction: "rtl", background: "#fff" }}>{(p.opts||[]).map(function (o) { return <option key={o.v} value={o.v}>{o.l}</option>; })}</select>
+      ? <select value={p.value} onChange={p.onChange} style={{ ...inputStyle, direction: "rtl" }}>{(p.opts||[]).map(function (o) { return <option key={o.v} value={o.v}>{o.l}</option>; })}</select>
       : p.type === "textarea"
-        ? <textarea value={p.value} onChange={p.onChange} placeholder={p.ph} rows={p.rows || 3} style={{ width: "100%", padding: 10, border: "1.5px solid " + C.brd, borderRadius: 8, fontFamily: "Tajawal", fontSize: 12, direction: "rtl", resize: "vertical", boxSizing: "border-box" }} />
-        : <input type={p.type || "text"} value={p.value} onChange={p.onChange} placeholder={p.ph} style={{ width: "100%", padding: 10, border: "1.5px solid " + C.brd, borderRadius: 8, fontFamily: "Tajawal", fontSize: 13, boxSizing: "border-box" }} />}
+        ? <textarea value={p.value} onChange={p.onChange} placeholder={p.ph} rows={p.rows || 3} style={{ ...inputStyle, fontSize: 12, direction: "rtl", resize: "vertical" }} />
+        : <input type={p.type || "text"} value={p.value} onChange={p.onChange} placeholder={p.ph} style={inputStyle} />}
   </div>;
 }
 function Card(p) {
-  return <div onClick={p.onClick} style={{
-    background: C.card,
-    border: "1.5px solid " + (p.bc || C.brd),
-    borderRadius: 14, padding: p.p || 14, marginBottom: p.mb || 10,
-    cursor: p.onClick ? "pointer" : "default",
-    boxShadow: "0 3px 12px rgba(13,27,42,.07)",
-    ...p.sx
-  }}>{p.children}</div>;
+  return <motion.div
+    onClick={p.onClick}
+    variants={fadeUp}
+    initial="hidden"
+    animate="visible"
+    whileHover={p.onClick ? { y: -2, boxShadow: "0 8px 30px rgba(13,27,42,.12)" } : {}}
+    whileTap={p.onClick ? { scale: 0.985 } : {}}
+    style={{
+      background: C.card,
+      border: "1px solid " + (p.bc || C.brd),
+      borderRadius: 16, padding: p.p || 16, marginBottom: p.mb || 10,
+      cursor: p.onClick ? "pointer" : "default",
+      boxShadow: C.shadow,
+      transition: "border-color 0.2s",
+      ...p.sx
+    }}>{p.children}</motion.div>;
 }
 function StatCard(p) {
-  var accentAlpha = (p.cl || C.ocean) + "22";
-  return <div style={{
-    background: "linear-gradient(145deg,#FFFFFF,#F0F5FC)",
-    border: "1px solid " + C.brd, borderRadius: 14, padding: 13,
-    boxShadow: "0 3px 10px rgba(13,27,42,.07)"
-  }}>
+  return <motion.div
+    variants={fadeUp}
+    initial="hidden"
+    animate="visible"
+    whileHover={{ y: -4, boxShadow: "0 12px 36px rgba(37,99,235,.15)" }}
+    style={{
+      background: "rgba(30,58,95,.4)",
+      border: "1px solid rgba(96,165,250,.12)", borderRadius: 18, padding: 16,
+      boxShadow: "0 4px 20px rgba(0,0,0,.2)",
+      position: "relative", overflow: "hidden",
+      backdropFilter: "blur(12px)"
+    }}>
+    <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: (p.cl || C.ocean) + "12", pointerEvents: "none" }} />
     <div style={{
-      width: 36, height: 36, borderRadius: 10,
-      background: "linear-gradient(135deg," + (p.cl || C.ocean) + "22," + (p.cl || C.ocean) + "44)",
-      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, marginBottom: 7
+      width: 40, height: 40, borderRadius: 12,
+      background: "linear-gradient(135deg," + (p.cl || C.ocean) + "20," + (p.cl || C.ocean) + "35)",
+      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, marginBottom: 10,
+      color: p.cl || C.ocean
     }}>{p.ic}</div>
-    <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 20, fontWeight: 900, color: p.cl || C.ocean }}>{p.v}</div>
-    <div style={{ fontSize: 10, color: C.t3, marginTop: 2 }}>{p.l}</div>
-  </div>;
+    <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 22, fontWeight: 900, color: p.cl || C.ocean, letterSpacing: -0.5 }}>{p.v}</div>
+    <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 3, fontWeight: 500 }}>{p.l}</div>
+  </motion.div>;
 }
 function SectionTitle(p) {
   return <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 14, fontWeight: 800, marginBottom: 8, marginTop: p.mt || 0, display: "flex", alignItems: "center", gap: 6 }}>{p.ic} {p.children}</div>;
@@ -114,20 +258,20 @@ function SectionTitle(p) {
 // ═══════ ANNOUNCEMENT BANNER — Banks, Top Companies, Top Inspectors ═══════
 var BANNER_ADS = {
   ar: [
-    { ic: "🏗️", cat: "مقاول معتمد", title: "Dr Quality Constructions", sub: "سجل تجاري 117102-02 — مقاولات عامة وتشطيبات متكاملة في مملكة البحرين", bg: "linear-gradient(135deg,#0D47A1,#1565C0)", accent: "#42A5F5" },
-    { ic: "📋", cat: "FIRST TOUCH", title: "اتفاقيات رقمية بين المالك والمقاول", sub: "عقود إلكترونية موثقة — متابعة مراحل العمل والدفعات بشفافية تامة", bg: "linear-gradient(135deg,#0A2647,#154B8A)", accent: "#64B5F6" },
-    { ic: "🔒", cat: "FIRST TOUCH", title: "حماية حقوق الطرفين", sub: "نظام موافقات متعدد المراحل — لا يتم الصرف إلا بعد اعتماد العمل المنجز", bg: "linear-gradient(135deg,#087A44,#0EAD69)", accent: "#81C784" },
-    { ic: "📊", cat: "FIRST TOUCH", title: "تتبع المشروع لحظة بلحظة", sub: "873 بند عمل مقسّم على 45 منطقة — متابعة تقدم كل مرحلة بالتفصيل", bg: "linear-gradient(135deg,#7A3000,#E8720C)", accent: "#FFB74D" },
-    { ic: "🏥", cat: "مشروع جاري", title: "مركز د. نجيب أبو بكر الطبي", sub: "السيف، مملكة البحرين — تجديد وتشطيب شامل بقيمة 97,360 د.ب", bg: "linear-gradient(135deg,#6B4A00,#D4A017)", accent: "#FFD54F" },
-    { ic: "🤝", cat: "قريباً", title: "مساحة إعلانية للشركات المتميزة", sub: "سجّل شركتك على FIRST TOUCH واحصل على ظهور مميز للعملاء المحتملين", bg: "linear-gradient(135deg,#4A1490,#7C3AED)", accent: "#CE93D8" },
+    { ic: <Construction size={22} color="#fff" />, cat: "مقاول معتمد", title: "Dr Quality Constructions", sub: "سجل تجاري 117102-02 — مقاولات عامة وتشطيبات متكاملة في مملكة البحرين", bg: "linear-gradient(135deg,#0D47A1,#1565C0)", accent: "#42A5F5" },
+    { ic: <ScrollText size={22} color="#fff" />, cat: "FIRST TOUCH", title: "اتفاقيات رقمية بين المالك والمقاول", sub: "عقود إلكترونية موثقة — متابعة مراحل العمل والدفعات بشفافية تامة", bg: "linear-gradient(135deg,#0A2647,#154B8A)", accent: "#64B5F6" },
+    { ic: <Shield size={22} color="#fff" />, cat: "FIRST TOUCH", title: "حماية حقوق الطرفين", sub: "نظام موافقات متعدد المراحل — لا يتم الصرف إلا بعد اعتماد العمل المنجز", bg: "linear-gradient(135deg,#087A44,#0EAD69)", accent: "#81C784" },
+    { ic: <BarChart3 size={22} color="#fff" />, cat: "FIRST TOUCH", title: "تتبع المشروع لحظة بلحظة", sub: "873 بند عمل مقسّم على 45 منطقة — متابعة تقدم كل مرحلة بالتفصيل", bg: "linear-gradient(135deg,#7A3000,#E8720C)", accent: "#FFB74D" },
+    { ic: <Hospital size={22} color="#fff" />, cat: "مشروع جاري", title: "مركز د. نجيب أبو بكر الطبي", sub: "السيف، مملكة البحرين — تجديد وتشطيب شامل بقيمة 97,360 د.ب", bg: "linear-gradient(135deg,#6B4A00,#D4A017)", accent: "#FFD54F" },
+    { ic: <Handshake size={22} color="#fff" />, cat: "قريباً", title: "مساحة إعلانية للشركات المتميزة", sub: "سجّل شركتك على FIRST TOUCH واحصل على ظهور مميز للعملاء المحتملين", bg: "linear-gradient(135deg,#4A1490,#7C3AED)", accent: "#CE93D8" },
   ],
   en: [
-    { ic: "🏗️", cat: "Licensed Contractor", title: "Dr Quality Constructions", sub: "CR 117102-02 — General contracting & full finishing in Bahrain", bg: "linear-gradient(135deg,#0D47A1,#1565C0)", accent: "#42A5F5" },
-    { ic: "📋", cat: "FIRST TOUCH", title: "Digital Agreements", sub: "Verified e-contracts — Track work stages & payments with full transparency", bg: "linear-gradient(135deg,#0A2647,#154B8A)", accent: "#64B5F6" },
-    { ic: "🔒", cat: "FIRST TOUCH", title: "Protecting Both Parties", sub: "Multi-stage approval system — No payment released until work is verified", bg: "linear-gradient(135deg,#087A44,#0EAD69)", accent: "#81C784" },
-    { ic: "📊", cat: "FIRST TOUCH", title: "Real-Time Project Tracking", sub: "873 work items across 45 zones — Monitor every stage in detail", bg: "linear-gradient(135deg,#7A3000,#E8720C)", accent: "#FFB74D" },
-    { ic: "🏥", cat: "Active Project", title: "Dr. Najeeb Abu Bakr Medical Center", sub: "Al Seef, Bahrain — Full renovation & finishing worth 97,360 BHD", bg: "linear-gradient(135deg,#6B4A00,#D4A017)", accent: "#FFD54F" },
-    { ic: "🤝", cat: "Coming Soon", title: "Ad Space for Top Companies", sub: "Register on FIRST TOUCH and get premium visibility for potential clients", bg: "linear-gradient(135deg,#4A1490,#7C3AED)", accent: "#CE93D8" },
+    { ic: <Construction size={22} color="#fff" />, cat: "Licensed Contractor", title: "Dr Quality Constructions", sub: "CR 117102-02 — General contracting & full finishing in Bahrain", bg: "linear-gradient(135deg,#0D47A1,#1565C0)", accent: "#42A5F5" },
+    { ic: <ScrollText size={22} color="#fff" />, cat: "FIRST TOUCH", title: "Digital Agreements", sub: "Verified e-contracts — Track work stages & payments with full transparency", bg: "linear-gradient(135deg,#0A2647,#154B8A)", accent: "#64B5F6" },
+    { ic: <Shield size={22} color="#fff" />, cat: "FIRST TOUCH", title: "Protecting Both Parties", sub: "Multi-stage approval system — No payment released until work is verified", bg: "linear-gradient(135deg,#087A44,#0EAD69)", accent: "#81C784" },
+    { ic: <BarChart3 size={22} color="#fff" />, cat: "FIRST TOUCH", title: "Real-Time Project Tracking", sub: "873 work items across 45 zones — Monitor every stage in detail", bg: "linear-gradient(135deg,#7A3000,#E8720C)", accent: "#FFB74D" },
+    { ic: <Hospital size={22} color="#fff" />, cat: "Active Project", title: "Dr. Najeeb Abu Bakr Medical Center", sub: "Al Seef, Bahrain — Full renovation & finishing worth 97,360 BHD", bg: "linear-gradient(135deg,#6B4A00,#D4A017)", accent: "#FFD54F" },
+    { ic: <Handshake size={22} color="#fff" />, cat: "Coming Soon", title: "Ad Space for Top Companies", sub: "Register on FIRST TOUCH and get premium visibility for potential clients", bg: "linear-gradient(135deg,#4A1490,#7C3AED)", accent: "#CE93D8" },
   ]
 };
 
@@ -203,18 +347,18 @@ var AnnouncementBanner = memo(function AnnouncementBanner(props) {
 
 // ═══════ NEW PROJECT FORM — 5 Steps with build stage selector ═══════
 var BUILD_STAGES = [
-  { v: "design",      i: "📐", l: "مرحلة التصميم",       d: "لم يبدأ البناء بعد",             hasDesigns: false },
-  { v: "foundation",  i: "🏗️", l: "الأساسات والقواعد",   d: "جاهز للبدء أو في مرحلة الأساس",  hasDesigns: true },
-  { v: "structure",   i: "🧱", l: "الهيكل الخرساني",     d: "الجدران والأعمدة والسقف",          hasDesigns: true },
-  { v: "electrical",  i: "⚡", l: "الأعمال الكهربائية",  d: "تمديدات كهرباء وإنارة",           hasDesigns: true },
-  { v: "plumbing",    i: "🚿", l: "السباكة والصرف",      d: "تمديدات المياه والصرف الصحي",      hasDesigns: true },
-  { v: "finishing",   i: "🎨", l: "التشطيبات",           d: "دهانات وسيراميك ونجارة",          hasDesigns: true },
+  { v: "design",      i: <Ruler size={20} color="#2563EB" />, l: "مرحلة التصميم",       d: "لم يبدأ البناء بعد",             hasDesigns: false },
+  { v: "foundation",  i: <Construction size={20} color="#2563EB" />, l: "الأساسات والقواعد",   d: "جاهز للبدء أو في مرحلة الأساس",  hasDesigns: true },
+  { v: "structure",   i: <Layers size={20} color="#2563EB" />, l: "الهيكل الخرساني",     d: "الجدران والأعمدة والسقف",          hasDesigns: true },
+  { v: "electrical",  i: <Zap size={20} color="#F59E0B" />, l: "الأعمال الكهربائية",  d: "تمديدات كهرباء وإنارة",           hasDesigns: true },
+  { v: "plumbing",    i: <Droplets size={20} color="#3B82F6" />, l: "السباكة والصرف",      d: "تمديدات المياه والصرف الصحي",      hasDesigns: true },
+  { v: "finishing",   i: <Paintbrush size={20} color="#8B5CF6" />, l: "التشطيبات",           d: "دهانات وسيراميك ونجارة",          hasDesigns: true },
 ];
 var PROJECT_TYPES = [
-  { v: "villa",       i: "🏡", l: "فيلا",         d: "منزل مستقل بحديقة" },
-  { v: "apartment",   i: "🏢", l: "شقة سكنية",    d: "وحدة في عمارة أو مجمع" },
-  { v: "commercial",  i: "🏪", l: "تجاري",        d: "محل، مكتب، مبنى تجاري" },
-  { v: "residential", i: "🏠", l: "سكني مجمع",   d: "عمارة أو مجمع سكني" },
+  { v: "villa",       i: <Home size={20} color="#2563EB" />, l: "فيلا",         d: "منزل مستقل بحديقة" },
+  { v: "apartment",   i: <Building size={20} color="#2563EB" />, l: "شقة سكنية",    d: "وحدة في عمارة أو مجمع" },
+  { v: "commercial",  i: <Store size={20} color="#2563EB" />, l: "تجاري",        d: "محل، مكتب، مبنى تجاري" },
+  { v: "residential", i: <Building2 size={20} color="#2563EB" />, l: "سكني مجمع",   d: "عمارة أو مجمع سكني" },
 ];
 
 var NewProjectForm = memo(function NewProjectForm({ onSubmit, onClose }) {
@@ -433,13 +577,14 @@ var AIProjectUpload = memo(function AIProjectUpload({ onCreated, onClose, token 
   }
 
   function doAnalyze() {
-    if (!desc.trim()) { setError("يرجى كتابة وصف المشروع"); return; }
-    if (!file && !desc.trim()) { setError("يرجى رفع ملف أو كتابة وصف"); return; }
+    // File is MANDATORY — all project data comes from real uploaded files
+    if (!file) { setError("يجب رفع ملف المشروع (PDF أو Word) يحتوي على جدول الكميات — لا يمكن إنشاء مشروع بدون ملف حقيقي"); return; }
+    if (!desc.trim()) { setError("يرجى كتابة وصف مختصر للمشروع"); return; }
     setError("");
     setStep(1);
 
     var formData = new FormData();
-    if (file) formData.append("file", file);
+    formData.append("file", file);
     formData.append("description", desc);
     formData.append("goals", goals);
 
@@ -484,7 +629,7 @@ var AIProjectUpload = memo(function AIProjectUpload({ onCreated, onClose, token 
     {error && <div style={{ background: "rgba(231,76,60,.1)", border: "1px solid rgba(231,76,60,.3)", color: C.red, padding: "8px 12px", borderRadius: 8, marginBottom: 10, fontSize: 11, fontWeight: 700 }}>{error}</div>}
 
     <div style={{ marginBottom: 14 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: C.t2, marginBottom: 6 }}>📁 ملف المشروع (PDF أو Word)</div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: C.t2, marginBottom: 6 }}>📁 ملف المشروع * <span style={{ color: C.red, fontSize: 9 }}>(مطلوب — PDF أو Word يحتوي على جدول الكميات)</span></div>
       <div onClick={function () { fileRef.current.click(); }} style={{ border: "2px dashed " + (file ? C.purple : C.brd), borderRadius: 12, padding: 20, textAlign: "center", cursor: "pointer", background: file ? "rgba(124,58,237,.04)" : "#FAFBFD", transition: "all .2s" }}>
         {file ? <div>
           <div style={{ fontSize: 28, marginBottom: 4 }}>📄</div>
@@ -509,8 +654,12 @@ var AIProjectUpload = memo(function AIProjectUpload({ onCreated, onClose, token 
       <textarea value={goals} onChange={function (e) { setGoals(e.target.value); }} placeholder={"ما هو الهدف؟ ما الذي تبحث عنه؟\nمثال: أريد مقاول متخصص في المنشآت الطبية بأسعار تنافسية وضمان سنة"} rows={3} style={{ width: "100%", padding: "10px 12px", border: "1.5px solid " + C.brd, borderRadius: 10, fontSize: 12, fontFamily: "Cairo, sans-serif", resize: "vertical", boxSizing: "border-box", direction: "rtl" }} />
     </div>
 
-    <div style={{ background: "rgba(124,58,237,.06)", border: "1px solid rgba(124,58,237,.2)", borderRadius: 10, padding: 12, marginBottom: 14, fontSize: 10, color: C.purple }}>
-      🤖 الذكاء الاصطناعي سيقوم بـ: تسمية المشروع • تحليل الملف • تقسيم المراحل • تقدير التكاليف • ترشيح المقاولين المناسبين
+    <div style={{ background: "rgba(124,58,237,.06)", border: "1px solid rgba(124,58,237,.2)", borderRadius: 10, padding: 12, marginBottom: 14, fontSize: 10, color: C.purple, lineHeight: 1.6 }}>
+      🤖 النظام يقرأ الملف المرفوع مباشرةً ويستخرج:<br/>
+      ✓ بنود جدول الكميات (BOQ) الحقيقية من الملف<br/>
+      ✓ تقسيم المراحل حسب البنود الفعلية في الملف<br/>
+      ✓ الميزانية = مجموع أسعار البنود الحقيقية<br/>
+      ✓ ترشيح المقاولين بناءً على تخصصات المشروع الفعلية
     </div>
 
     <Btn f onClick={doAnalyze} style={{ background: "linear-gradient(135deg, #7C3AED, #5B21B6)" }}>🤖 تحليل بالذكاء الاصطناعي</Btn>
@@ -630,76 +779,172 @@ var AIProjectUpload = memo(function AIProjectUpload({ onCreated, onClose, token 
   return null;
 });
 
-// ═══════ BOQ QUOTATION FORM — isolated to prevent re-render lag ═══════
+// ═══════ BOQ QUOTATION FORM — Excel upload ═══════
+// Contractor uploads an .xlsx BOQ file. Browser previews the parsed rows
+// (using SheetJS dynamically imported) before submission. Backend re-parses
+// the authoritative copy and stores the file with owner+submitter ACL.
 var BOQQuotationForm = memo(function BOQQuotationForm({ modal, onSubmit, onClose }) {
-  var [items, setItems] = useState([{ stage: "", description: "", unit: "عدد", quantity: "1", unit_price: "", brand: "" }]);
+  var [file, setFile] = useState(null);
+  var [parsed, setParsed] = useState(null); // { items, total, sheetName }
+  var [parseErr, setParseErr] = useState("");
+  var [parsing, setParsing] = useState(false);
   var [dur, setDur] = useState("6");
   var [warranty, setWarranty] = useState("12");
   var [notes, setNotes] = useState("");
 
-  var boqTotal = items.reduce(function (s, i) { return s + ((Number(i.quantity) || 0) * (Number(i.unit_price) || 0)); }, 0);
+  function pickFieldLoose(row, aliases) {
+    var keys = Object.keys(row);
+    for (var i = 0; i < aliases.length; i++) {
+      var a = aliases[i].toLowerCase();
+      for (var j = 0; j < keys.length; j++) {
+        var k = keys[j].toString().trim().toLowerCase();
+        if (k.indexOf(a) !== -1 && row[keys[j]] !== "" && row[keys[j]] != null) return row[keys[j]];
+      }
+    }
+    return "";
+  }
 
-  function updateItem(idx, field, value) {
-    setItems(function (prev) {
-      return prev.map(function (item, i) {
-        if (i === idx) { var n = Object.assign({}, item); n[field] = value; return n; }
-        return item;
-      });
+  function parseBrowserSide(f) {
+    setParsing(true); setParseErr(""); setParsed(null);
+    import("xlsx").then(function (XLSX) {
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        try {
+          var wb = XLSX.read(ev.target.result, { type: "array" });
+          var firstName = wb.SheetNames[0];
+          var sheet = wb.Sheets[firstName];
+          if (!sheet) { setParseErr("ورقة العمل فارغة"); setParsing(false); return; }
+          var rows = XLSX.utils.sheet_to_json(sheet, { defval: "", raw: false });
+          var items = [];
+          var total = 0;
+          for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var description = String(pickFieldLoose(row, ["وصف", "البند", "description", "item"]) || "").trim();
+            if (!description) continue;
+            var stage = String(pickFieldLoose(row, ["مرحله", "مرحلة", "stage", "category", "قسم", "فئة"]) || "").trim() || "أعمال عامة";
+            var unit = String(pickFieldLoose(row, ["وحده", "وحدة", "unit"]) || "").trim() || "عدد";
+            var quantity = Number(pickFieldLoose(row, ["كميه", "كمية", "quantity", "qty"])) || 1;
+            var unit_price = Number(pickFieldLoose(row, ["سعر الوحده", "سعر الوحدة", "unit price", "price", "سعر"])) || 0;
+            var brand = String(pickFieldLoose(row, ["ماركه", "ماركة", "brand", "مواصفات", "spec"]) || "").trim();
+            var tRaw = Number(pickFieldLoose(row, ["اجمالي", "إجمالي", "total", "الإجمالي", "الاجمالي"]));
+            var tVal = tRaw > 0 ? tRaw : (quantity * unit_price);
+            items.push({ stage: stage, description: description, unit: unit, quantity: quantity, unit_price: unit_price, brand: brand, total: tVal });
+            total += tVal;
+          }
+          if (items.length === 0) { setParseErr("لم نتعرف على بنود في الملف. تأكد أن الصف الأول يحتوي على رؤوس الأعمدة: الوصف، الوحدة، الكمية، سعر الوحدة"); setParsing(false); return; }
+          setParsed({ items: items, total: total, sheetName: firstName });
+          setParsing(false);
+        } catch (e) {
+          console.error("xlsx parse", e);
+          setParseErr("تعذّرت قراءة الملف. قد يكون تالفاً أو محمياً بكلمة مرور — احفظه مرة أخرى كـ .xlsx وحاول");
+          setParsing(false);
+        }
+      };
+      reader.onerror = function () { setParseErr("فشل قراءة الملف. أعد المحاولة"); setParsing(false); };
+      reader.readAsArrayBuffer(f);
+    }).catch(function (e) {
+      console.error("xlsx import", e);
+      setParseErr("انقطع الاتصال أثناء تحميل أداة القراءة. أعد المحاولة"); setParsing(false);
     });
   }
-  function addItem() {
-    setItems(function (prev) { return prev.concat([{ stage: "", description: "", unit: "عدد", quantity: "1", unit_price: "", brand: "" }]); });
+
+  function onPick(e) {
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    var okExt = /\.(xlsx|xls)$/i.test(f.name);
+    if (!okExt) { setParseErr("الصيغة غير مدعومة. الرجاء رفع ملف Excel (.xlsx أو .xls)"); return; }
+    setFile(f);
+    parseBrowserSide(f);
   }
-  function removeItem(idx) {
-    setItems(function (prev) { return prev.filter(function (_, i) { return i !== idx; }); });
-  }
+
   function submit() {
-    var validItems = items.filter(function (i) { return i.description.trim(); }).map(function (i) {
-      var qty = Number(i.quantity) || 1;
-      var up = Number(i.unit_price) || 0;
-      return { stage: i.stage || "أعمال عامة", description: i.description, unit: i.unit || "عدد", quantity: qty, unit_price: up, brand: i.brand || "", total: qty * up };
+    if (!file) { setParseErr("الرجاء رفع ملف BOQ أولاً"); return; }
+    if (!parsed || parsed.items.length === 0) { setParseErr("جميع الصفوف فارغة أو بدون وصف. أضف وصف البند ثم ارفع الملف مرة أخرى"); return; }
+    onSubmit({
+      file: file,
+      items: parsed.items,
+      total: parsed.total,
+      dur: Number(dur) || 6,
+      warranty: Number(warranty) || 12,
+      notes: notes
     });
-    var total = validItems.reduce(function (s, i) { return s + i.total; }, 0);
-    onSubmit({ items: validItems, total: total, dur: Number(dur) || 6, warranty: Number(warranty) || 12, notes: notes });
   }
 
   return <div>
-    <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 16, fontWeight: 800, marginBottom: 4 }}>💰 عرض سعر BOQ</div>
-    <div style={{ fontSize: 11, color: C.t3, marginBottom: 14 }}>{modal.title}</div>
-    <div style={{ background: "rgba(232,114,12,.05)", padding: 10, borderRadius: 8, marginBottom: 12, fontSize: 10, color: C.amber }}>
-      📋 أضف بنود جدول الكميات: المرحلة، الوصف، الوحدة، الكمية، سعر الوحدة، والماركة المطلوبة
+    <div id="boq-modal-title" style={{ fontFamily: "Cairo, sans-serif", fontSize: 16, fontWeight: 800, marginBottom: 4 }}><span aria-hidden="true">💰 </span>عرض سعر BOQ</div>
+    <div style={{ fontSize: 12, color: C.t2, marginBottom: 14 }}>{modal.title}</div>
+    <div style={{ background: "rgba(232,114,12,.05)", padding: 10, borderRadius: 8, marginBottom: 12, fontSize: 12, color: C.amber, lineHeight: 1.6 }}>
+      <span aria-hidden="true">📊 </span>ارفع ملف Excel لجدول الكميات — سنقرأه تلقائياً ونعرض البنود قبل الإرسال.<br/>
+      <span style={{ fontSize: 11, color: C.t2 }}>الأعمدة المطلوبة: الوصف، الوحدة، الكمية، سعر الوحدة. اختيارية: المرحلة، الماركة</span>
     </div>
-    {items.map(function (item, idx) {
-      var itemTotal = (Number(item.quantity) || 0) * (Number(item.unit_price) || 0);
-      return <div key={idx} style={{ border: "1.5px solid " + C.brd, borderRadius: 10, padding: 12, marginBottom: 8, background: "#FAFBFD" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: C.amber }}>بند #{idx + 1}</span>
-          {items.length > 1 && <span onClick={function () { removeItem(idx); }} style={{ fontSize: 12, color: C.red, cursor: "pointer" }}>✕ حذف</span>}
+
+    <label style={{ display: "block", border: "2px dashed " + (file ? C.green : "rgba(96,165,250,.4)"), borderRadius: 12, padding: 20, textAlign: "center", cursor: "pointer", background: file ? "rgba(16,185,129,.05)" : "rgba(15,23,42,.4)", marginBottom: 12 }}>
+      <input
+        type="file"
+        accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        onChange={onPick}
+        aria-label={file ? ("استبدال ملف BOQ الحالي: " + file.name) : "رفع ملف Excel لجدول الكميات، حد أقصى 10 ميغابايت"}
+        style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}
+      />
+      {file ? (
+        <div>
+          <div aria-hidden="true" style={{ fontSize: 24, marginBottom: 6 }}>📗</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.t1 }}>{file.name}</div>
+          <div style={{ fontSize: 11, color: C.t2, marginTop: 4 }}>{(file.size / 1024).toFixed(1)} KB  •  استبدال الملف</div>
         </div>
-        <Inp label="المرحلة" value={item.stage} onChange={function (e) { updateItem(idx, "stage", e.target.value); }} ph="الأساسات، الهيكل، الكهرباء..." />
-        <Inp label="وصف البند" value={item.description} onChange={function (e) { updateItem(idx, "description", e.target.value); }} ph="حفر الأساسات، صب الخرسانة..." />
-        <div style={{ display: "flex", gap: 6 }}>
-          <div style={{ flex: 1 }}><Inp label="الوحدة" type="select" value={item.unit} onChange={function (e) { updateItem(idx, "unit", e.target.value); }} opts={[{v:"عدد",l:"عدد"},{v:"م²",l:"م²"},{v:"م³",l:"م³"},{v:"متر طولي",l:"متر طولي"},{v:"كجم",l:"كجم"},{v:"طن",l:"طن"},{v:"مقطوعية",l:"مقطوعية"}]} /></div>
-          <div style={{ flex: 1 }}><Inp label="الكمية" type="number" value={item.quantity} onChange={function (e) { updateItem(idx, "quantity", e.target.value); }} /></div>
+      ) : (
+        <div>
+          <div aria-hidden="true" style={{ fontSize: 28, marginBottom: 6 }}>📤</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.t1 }}>اختر ملف Excel</div>
+          <div style={{ fontSize: 11, color: C.t2, marginTop: 4 }}>.xlsx حتى 10MB</div>
         </div>
-        <div style={{ display: "flex", gap: 6 }}>
-          <div style={{ flex: 1 }}><Inp label="سعر الوحدة (د.ب)" type="number" value={item.unit_price} onChange={function (e) { updateItem(idx, "unit_price", e.target.value); }} ph="0" /></div>
-          <div style={{ flex: 1 }}><Inp label="الماركة / المواصفات" value={item.brand} onChange={function (e) { updateItem(idx, "brand", e.target.value); }} ph="TOTO, Samsung..." /></div>
-        </div>
-        {itemTotal > 0 && <div style={{ fontSize: 11, fontWeight: 700, color: C.amber, textAlign: "left" }}>الإجمالي: {itemTotal.toLocaleString()} د.ب</div>}
-      </div>;
-    })}
-    <Btn v="outline" f onClick={addItem}>➕ إضافة بند جديد</Btn>
-    <div style={{ background: C.navy, borderRadius: 10, padding: 14, marginTop: 12, marginBottom: 12, textAlign: "center" }}>
-      <div style={{ fontSize: 10, color: "rgba(255,255,255,.5)" }}>الإجمالي الكلي</div>
-      <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 24, fontWeight: 900, color: C.amber }}>{boqTotal.toLocaleString()} <span style={{ fontSize: 11, color: "rgba(255,255,255,.5)" }}>د.ب</span></div>
+      )}
+    </label>
+
+    {/* Live region — SR users hear parse progress / errors without navigating back */}
+    <div aria-live="polite" style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}>
+      {parsing ? "جاري قراءة الملف" : (parsed ? ("تم التعرف على " + parsed.items.length + " بند، المجموع " + parsed.total.toLocaleString() + " دينار بحريني") : "")}
     </div>
+
+    {parsing && <div style={{ textAlign: "center", padding: 12, fontSize: 12, color: C.t2 }}><span aria-hidden="true">⏳ </span>جاري قراءة الملف…</div>}
+    {parseErr && <div role="alert" aria-live="assertive" style={{ background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.25)", padding: 10, borderRadius: 8, fontSize: 12, color: C.red, marginBottom: 10 }}><span aria-hidden="true">⚠️ </span>{parseErr}</div>}
+
+    {parsed && parsed.items.length > 0 && (
+      <div style={{ border: "1.5px solid " + C.brd, borderRadius: 10, marginBottom: 12, overflow: "hidden" }}>
+        <div style={{ background: "rgba(16,185,129,.08)", padding: "8px 12px", fontSize: 12, fontWeight: 800, color: C.green, borderBottom: "1px solid rgba(16,185,129,.2)" }}>
+          <span aria-hidden="true">✅ </span>قرأنا {parsed.items.length} {parsed.items.length >= 11 ? "بنداً" : "بند"} من الورقة "{parsed.sheetName}"  •  المجموع {parsed.total.toLocaleString()} د.ب
+        </div>
+        <div style={{ maxHeight: 220, overflowY: "auto" }}>
+          {parsed.items.slice(0, 50).map(function (it, i) {
+            return <div key={i} style={{ padding: "8px 12px", borderBottom: i < parsed.items.length - 1 ? "1px solid " + C.brd : "none", fontSize: 12, background: i % 2 === 0 ? "rgba(15,23,42,.3)" : "transparent" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                <span style={{ fontWeight: 700, color: C.t1 }}>{it.description}</span>
+                <span style={{ fontWeight: 700, color: C.amber, whiteSpace: "nowrap" }}>{(it.total || 0).toLocaleString()} د.ب</span>
+              </div>
+              <div style={{ fontSize: 11, color: C.t2, marginTop: 2 }}>
+                {it.stage} • {it.quantity} {it.unit} × {(it.unit_price || 0).toLocaleString()} د.ب
+                {it.brand ? " • " + it.brand : ""}
+              </div>
+            </div>;
+          })}
+          {parsed.items.length > 50 && <div style={{ padding: "6px 12px", fontSize: 11, color: C.t2, textAlign: "center" }}>+ {parsed.items.length - 50} بند إضافي…</div>}
+        </div>
+      </div>
+    )}
+
+    {parsed && (
+      <div style={{ background: C.navy, borderRadius: 10, padding: 14, marginBottom: 12, textAlign: "center" }}>
+        <div style={{ fontSize: 11, color: "rgba(255,255,255,.75)" }}>الإجمالي الكلي (محسوب من الملف)</div>
+        <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 24, fontWeight: 900, color: C.amber }}>{parsed.total.toLocaleString()} <span style={{ fontSize: 12, color: "rgba(255,255,255,.75)" }}>د.ب</span></div>
+      </div>
+    )}
+
     <div style={{ display: "flex", gap: 8 }}>
       <div style={{ flex: 1 }}><Inp label="المدة (أشهر)" type="number" value={dur} onChange={function (e) { setDur(e.target.value); }} /></div>
       <div style={{ flex: 1 }}><Inp label="الضمان (أشهر)" type="number" value={warranty} onChange={function (e) { setWarranty(e.target.value); }} /></div>
     </div>
     <Inp label="ملاحظات إضافية" type="textarea" value={notes} onChange={function (e) { setNotes(e.target.value); }} ph="تفاصيل العرض والضمانات..." />
-    <Btn v="amber" f onClick={submit}>📤 تقديم العرض ({boqTotal.toLocaleString()} د.ب)</Btn>
+    <Btn v="amber" f onClick={submit}><span aria-hidden="true">📤 </span>إرسال العرض {parsed ? "— " + parsed.total.toLocaleString() + " د.ب" : ""}</Btn>
   </div>;
 });
 
@@ -910,16 +1155,16 @@ var AdminPage = memo(function AdminPage({ tk, onBack, show }) {
     </div>
 
     {adminStats && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
-      <StatCard v={adminStats.users.total} l="المستخدمين" ic="👥" cl={C.ocean} />
-      <StatCard v={adminStats.projects.total} l="المشاريع" ic="🏗️" cl={C.amber} />
-      <StatCard v={adminStats.projects.completed} l="مكتملة" ic="✅" cl={C.green} />
-      <StatCard v={adminStats.users.owners} l="ملاك" ic="👤" cl={C.ocean} />
-      <StatCard v={adminStats.users.contractors} l="مقاولون" ic="👷" cl={C.amber} />
-      <StatCard v={adminStats.users.inspectors} l="مفتشون" ic="🔍" cl={C.green} />
+      <StatCard v={adminStats.users.total} l="المستخدمين" ic={<Users size={18} />} cl={C.ocean} />
+      <StatCard v={adminStats.projects.total} l="المشاريع" ic={<Construction size={18} />} cl={C.amber} />
+      <StatCard v={adminStats.projects.completed} l="مكتملة" ic={<CheckCircle2 size={18} />} cl={C.green} />
+      <StatCard v={adminStats.users.owners} l="ملاك" ic={<User size={18} />} cl={C.ocean} />
+      <StatCard v={adminStats.users.contractors} l="مقاولون" ic={<HardHat size={18} />} cl={C.amber} />
+      <StatCard v={adminStats.users.inspectors} l="مفتشون" ic={<Search size={18} />} cl={C.green} />
     </div>}
     {!adminStats && <div style={{ textAlign: "center", padding: 20, color: C.t3 }}>⏳ جاري تحميل الإحصائيات...</div>}
 
-    <SectionTitle ic="👥" mt={8}>إدارة المستخدمين ({adminUsers.length})</SectionTitle>
+    <SectionTitle ic={<Users size={16} color={C.ocean} />} mt={8}>إدارة المستخدمين ({adminUsers.length})</SectionTitle>
     <div style={{ marginBottom: 10 }}>
       <Inp label="" value={adminSearch} onChange={function(e){ setAdminSearch(e.target.value); }} ph="🔍 بحث بالاسم أو البريد..." />
     </div>
@@ -1015,7 +1260,11 @@ var RegisterForm = memo(function RegisterForm({ onSubmit, onBack }) {
   var [pass, setPass] = useState("");
   var [pass2, setPass2] = useState("");
   var [role, setRole] = useState("owner");
+  var [accountType, setAccountType] = useState("individual");
   var [company, setCompany] = useState("");
+  var [crNum, setCrNum] = useState("");
+  var [logoFile, setLogoFile] = useState(null);
+  var [logoPreview, setLogoPreview] = useState(null);
   var [specialty, setSpecialty] = useState("");
   var [phone, setPhone] = useState("+973");
   var [err, setErr] = useState("");
@@ -1023,25 +1272,50 @@ var RegisterForm = memo(function RegisterForm({ onSubmit, onBack }) {
 
   function submit() {
     setErr("");
-    if (!nameAr.trim()) { setErr("الاسم مطلوب"); return; }
+    if (accountType === "company" && !company.trim()) { setErr("اسم الشركة مطلوب للحسابات التجارية"); return; }
+    if (!nameAr.trim()) { setErr(accountType === "company" ? "اسم المسؤول مطلوب" : "الاسم مطلوب"); return; }
     if (!email.trim() || !email.includes("@")) { setErr("بريد إلكتروني صحيح مطلوب"); return; }
     if (!phone.trim() || phone.length < 8) { setErr("رقم الجوال مطلوب (مثال: +97336123456)"); return; }
     if (pass.length < 6) { setErr("كلمة المرور 6 أحرف على الأقل"); return; }
     if (pass !== pass2) { setErr("كلمتا المرور غير متطابقتين"); return; }
     if (role === "inspector" && !specialty) { setErr("يجب تحديد التخصص: مهندس مدني أو مهندس تصميم داخلي"); return; }
     setLd(true);
-    onSubmit({ nameAr: nameAr.trim(), email: email.trim(), password: pass, role, companyNameAr: company || null, specialty: specialty || null, phone: phone.trim() }, function(e){ setLd(false); setErr(e); });
+    onSubmit({
+      nameAr: nameAr.trim(), email: email.trim(), password: pass, role,
+      accountType: accountType,
+      companyNameAr: accountType === "company" ? company.trim() : (company || null),
+      crNumber: accountType === "company" ? (crNum.trim() || null) : null,
+      specialty: specialty || null, phone: phone.trim(),
+      _logoFile: logoFile
+    }, function(e){ setLd(false); setErr(e); });
   }
 
   return <div>
-    <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 16, fontWeight: 800, marginBottom: 4 }}>🐋 إنشاء حساب جديد</div>
+    <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 16, fontWeight: 800, marginBottom: 4, display: "flex", alignItems: "center", gap: 8 }}><WhaleLogo size={28} /> إنشاء حساب جديد</div>
     <div style={{ fontSize: 11, color: C.t3, marginBottom: 14 }}>FIRST TOUCH — Securing Your Build</div>
     {err && <div style={{ background: "rgba(231,76,60,.08)", border: "1px solid rgba(231,76,60,.3)", borderRadius: 8, padding: "8px 12px", marginBottom: 10, fontSize: 11, color: C.red }}>⚠️ {err}</div>}
 
-    <div style={{ marginBottom: 12 }}>
+    {/* Account Type: Individual / Company */}
+    <div style={{ marginBottom: 14 }}>
       <div style={{ fontSize: 11, fontWeight: 600, color: C.t2, marginBottom: 6 }}>نوع الحساب</div>
+      <div style={{ display: "flex", gap: 8 }}>
+        {[{ v: "individual", i: "👤", l: "فرد", d: "حساب شخصي" }, { v: "company", i: "🏢", l: "شركة", d: "حساب تجاري / مؤسسة" }].map(function(at) {
+          var sel = accountType === at.v;
+          return <div key={at.v} onClick={function(){ setAccountType(at.v); }} style={{ flex: 1, padding: "12px 8px", border: "2px solid " + (sel ? C.ocean : C.brd), borderRadius: 12, textAlign: "center", cursor: "pointer", background: sel ? "rgba(26,111,181,.07)" : "#fff", transition: "all .2s" }}>
+            <div style={{ fontSize: 24, marginBottom: 4 }}>{at.i}</div>
+            <div style={{ fontSize: 12, fontWeight: sel ? 800 : 500, color: sel ? C.ocean : C.t1 }}>{at.l}</div>
+            <div style={{ fontSize: 9, color: C.t3, marginTop: 2 }}>{at.d}</div>
+            {sel && <div style={{ marginTop: 4, fontSize: 10, color: C.ocean }}>✓</div>}
+          </div>;
+        })}
+      </div>
+    </div>
+
+    {/* Role Selection */}
+    <div style={{ marginBottom: 12 }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: C.t2, marginBottom: 6 }}>الدور في المنصة</div>
       <div style={{ display: "flex", gap: 6 }}>
-        {[{ v: "owner", i: "👤", l: "مالك" }, { v: "contractor", i: "👷", l: "مقاول" }, { v: "inspector", i: "🔍", l: "مفتش" }].map(function(r) {
+        {[{ v: "owner", i: "👤", l: "مالك مشروع" }, { v: "contractor", i: "👷", l: "مقاول" }, { v: "inspector", i: "🔍", l: "مفتش" }].map(function(r) {
           return <div key={r.v} onClick={function(){ setRole(r.v); }} style={{ flex: 1, padding: "8px 4px", border: "2px solid " + (role === r.v ? C.ocean : C.brd), borderRadius: 8, textAlign: "center", cursor: "pointer", background: role === r.v ? "rgba(26,111,181,.07)" : "#fff" }}>
             <div style={{ fontSize: 16 }}>{r.i}</div>
             <div style={{ fontSize: 10, fontWeight: role === r.v ? 700 : 400, color: role === r.v ? C.ocean : C.t2 }}>{r.l}</div>
@@ -1050,13 +1324,28 @@ var RegisterForm = memo(function RegisterForm({ onSubmit, onBack }) {
       </div>
     </div>
 
-    <Inp label="الاسم الكامل *" value={nameAr} onChange={function(e){ setNameAr(e.target.value); }} ph="أحمد محمد" />
+    {/* Company fields */}
+    {accountType === "company" && <div style={{ background: "rgba(26,111,181,.04)", border: "1px solid rgba(26,111,181,.15)", borderRadius: 10, padding: 12, marginBottom: 12 }}>
+      <div style={{ fontSize: 10, fontWeight: 700, color: C.ocean, marginBottom: 8 }}>🏢 بيانات الشركة</div>
+      {/* Company Logo Upload */}
+      <div style={{ marginBottom: 12, textAlign: "center" }}>
+        <div style={{ fontSize: 11, fontWeight: 600, color: C.t2, marginBottom: 6, textAlign: "right" }}>لوجو الشركة</div>
+        <div onClick={function(){ document.getElementById("logo-upload-input").click(); }} style={{ width: 80, height: 80, borderRadius: 16, border: "2px dashed " + (logoPreview ? C.ocean : C.brd), background: logoPreview ? "transparent" : "#f8f9ff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", margin: "0 auto", overflow: "hidden", transition: "all .2s" }}>
+          {logoPreview ? <img src={logoPreview} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ textAlign: "center" }}><div style={{ fontSize: 24 }}>📷</div><div style={{ fontSize: 8, color: C.t3 }}>رفع اللوجو</div></div>}
+        </div>
+        <input id="logo-upload-input" type="file" accept="image/*" style={{ display: "none" }} onChange={function(e){ var f = e.target.files[0]; if(f){ setLogoFile(f); setLogoPreview(URL.createObjectURL(f)); } }} />
+        {logoPreview && <div onClick={function(){ setLogoFile(null); setLogoPreview(null); }} style={{ fontSize: 10, color: C.red, cursor: "pointer", marginTop: 4 }}>✕ إزالة</div>}
+      </div>
+      <Inp label="اسم الشركة *" value={company} onChange={function(e){ setCompany(e.target.value); }} ph="شركة البناء المتقدم" />
+      <Inp label="السجل التجاري (اختياري)" value={crNum} onChange={function(e){ setCrNum(e.target.value); }} ph="CR-12345678" />
+    </div>}
+
+    <Inp label={accountType === "company" ? "اسم المسؤول *" : "الاسم الكامل *"} value={nameAr} onChange={function(e){ setNameAr(e.target.value); }} ph={accountType === "company" ? "اسم مسؤول المشاريع" : "أحمد محمد"} />
     <Inp label="البريد الإلكتروني *" type="email" value={email} onChange={function(e){ setEmail(e.target.value); }} ph="name@example.com" />
     <div style={{ marginBottom: 12 }}>
       <div style={{ fontSize: 11, fontWeight: 600, color: C.t2, marginBottom: 4 }}>رقم الجوال * <span style={{ color: C.ocean, fontSize: 10 }}>(سيُرسل رمز التحقق)</span></div>
       <input type="tel" value={phone} onChange={function(e){ setPhone(e.target.value); }} placeholder="+97336123456" style={{ width: "100%", padding: 10, border: "2px solid " + C.ocean, borderRadius: 8, fontFamily: "Tajawal", fontSize: 13, boxSizing: "border-box", direction: "ltr", textAlign: "left" }} />
     </div>
-    {role === "contractor" && <Inp label="اسم الشركة" value={company} onChange={function(e){ setCompany(e.target.value); }} ph="شركة البناء المتقدم" />}
     {role === "inspector" && <div style={{ marginBottom: 14 }}>
       <div style={{ fontSize: 11, fontWeight: 600, color: C.t2, marginBottom: 6 }}>
         التخصص الهندسي * <span style={{ color: C.red, fontSize: 9 }}>(مطلوب)</span>
@@ -1976,14 +2265,11 @@ var T = {
     projectsLabel: "مشاريع",
     noNotifications: "لا توجد إشعارات",
     availableProjects: "مشروع متاح",
-    myProjects: "مشاريعي",
     willNotifyNewProjects: "سيتم إشعارك فور طرح مشاريع جديدة",
     projectsAwaitingPricing: "{0} مشروع بانتظار التسعير",
     projectsAwaitingInspector: "{0} مشروع بانتظار مفتش الجودة",
     tenderDescContractor: "ارفع عرض BOQ تفصيلي لأي مشروع مطروح للتسعير",
     tenderDescInspector: "ترشح كمفتش جودة معتمد لأي من المشاريع التالية",
-    floors: "أدوار",
-    sqm: "م²",
     priceQuoteCount: "عرض سعر",
     inspectorCountLabel: "مفتش",
     nominateSelf: "🔍 ترشيح نفسي",
@@ -2164,14 +2450,11 @@ var T = {
     projectsLabel: "Projects",
     noNotifications: "No notifications",
     availableProjects: "Available Projects",
-    myProjects: "My Projects",
     willNotifyNewProjects: "You will be notified when new projects are posted",
     projectsAwaitingPricing: "{0} project(s) awaiting pricing",
     projectsAwaitingInspector: "{0} project(s) awaiting quality inspector",
     tenderDescContractor: "Submit a detailed BOQ offer for any project open for pricing",
     tenderDescInspector: "Apply as a certified quality inspector for any of these projects",
-    floors: "Floors",
-    sqm: "m²",
     priceQuoteCount: "Price Quote",
     inspectorCountLabel: "Inspector",
     nominateSelf: "🔍 Apply as Inspector",
@@ -2187,8 +2470,8 @@ var T = {
 // ═══════ MAIN APP ═══════
 export default function App() {
   // Auth state
-  var [tk, setTk] = useState(null);
-  var [user, setUser] = useState(null);
+  var [tk, setTk] = useState(function() { return localStorage.getItem("ft_token") || null; });
+  var [user, setUser] = useState(function() { try { var u = localStorage.getItem("ft_user"); return u ? JSON.parse(u) : null; } catch(e) { return null; } });
   var [selectedRole, setSelectedRole] = useState(null);
   var [lang, setLang] = useState(function() { return localStorage.getItem("ft_lang") || "ar"; });
   var t = T[lang] || T.ar;
@@ -2234,6 +2517,7 @@ export default function App() {
   var [em, setEm] = useState("");
   var [pw, setPw] = useState("");
   var [authScreen, setAuthScreen] = useState("login"); // "login" | "register" | "otp" | "forgot" | "verify" | "reset"
+  var [loginRole, setLoginRole] = useState(null);
   var [forgotEmail, setForgotEmail] = useState("");
   var [resetToken, setResetToken] = useState("");
   var [resetPw, setResetPw] = useState("");
@@ -2244,6 +2528,7 @@ export default function App() {
   var [otpUserId, setOtpUserId] = useState(null);
   var [otpPhone, setOtpPhone] = useState("");
   var [otpDevCode, setOtpDevCode] = useState(null);
+  var [pendingLogo, setPendingLogo] = useState(null);
   // Owner special screens
   var [ownerScreen, setOwnerScreen] = useState(null); // null | "walletFund" | "completedProjects"
   // Developer state
@@ -2254,14 +2539,18 @@ export default function App() {
   var [unitsGrid, setUnitsGrid] = useState([]);
   var [qualityIssues, setQualityIssues] = useState([]);
   var [devPage, setDevPage] = useState("overview"); // overview | compound | unit
+  // Role switcher for preview
+  var [roleOverride, setRoleOverride] = useState(null);
+  var [showRoleSwitcher, setShowRoleSwitcher] = useState(false);
   // (All other form state moved to isolated memo components for performance)
 
   function show(m) { setToast(m); setTimeout(function () { setToast(null); }, 3000); }
   function tog(k) { setExp(function (p) { var n = Object.assign({}, p); n[k] = !n[k]; return n; }); }
 
-  var role = user ? user.role : null;
+  var realRole = user ? user.role : null;
+  var role = roleOverride || realRole;
   var rc = role === "owner" ? C.ocean : role === "contractor" ? C.amber : role === "developer" ? "#7B1FA2" : C.green;
-  var ri = role === "owner" ? "👤" : role === "contractor" ? "👷" : role === "developer" ? "🏗️" : "🔍";
+  var ri = role === "owner" ? <User size={14} /> : role === "contractor" ? <HardHat size={14} /> : role === "developer" ? <Building2 size={14} /> : <Search size={14} />;
   var rt = role === "owner" ? t.owner : role === "contractor" ? t.contractor : role === "inspector" ? t.inspector : role === "developer" ? t.developer : "";
 
   // ═══════ DATA FETCHING ═══════
@@ -2277,9 +2566,12 @@ export default function App() {
     var t = token || tk;
     var r = userRole || role;
     if (!t) return;
+    // Preview mode: if the requested role differs from the real JWT role, pass
+    // previewRole so the backend returns that role's dashboard structure.
+    var previewQ = (user && r !== user.role) ? "?previewRole=" + r : "";
     // Parallel requests - better-sqlite3 with WAL mode handles concurrency
     var promises = [
-      call("/dashboard", "GET", null, t).then(function (d) { if (!d.error) setDash(d); }),
+      call("/dashboard" + previewQ, "GET", null, t).then(function (d) { if (!d.error) setDash(d); }),
       call("/projects", "GET", null, t).then(function (d) { if (d.projects) setProjects(d.projects); }),
       call("/notifications", "GET", null, t).then(function (d) { if (d.notifications) setNotifs(d.notifications); }),
       call("/achievements", "GET", null, t).then(function (d) { if (d.achievements) setAchievements(d.achievements); })
@@ -2367,11 +2659,14 @@ export default function App() {
       var u = d.user;
       if (u.nameAr && !u.name_ar) u.name_ar = u.nameAr;
       if (u.companyNameAr && !u.company_name_ar) u.company_name_ar = u.companyNameAr;
+      if (u.accountType && !u.account_type) u.account_type = u.accountType;
       if (u.bioAr && !u.bio_ar) u.bio_ar = u.bioAr;
       if (u.crNumber && !u.cr_number) u.cr_number = u.crNumber;
       if (u.profileImage && !u.profile_image) u.profile_image = u.profileImage;
       setTk(d.token); setUser(u); setPage("home"); setSelectedRole(null); setAuthScreen("login");
-      show("✅ مرحباً " + (u.name_ar || u.nameAr));
+      localStorage.setItem("ft_token", d.token); localStorage.setItem("ft_user", JSON.stringify(u)); localStorage.setItem("ft_role", u.role);
+      var greetName = (u.account_type || u.accountType) === "company" ? (u.company_name_ar || u.companyNameAr || u.name_ar || u.nameAr) : (u.name_ar || u.nameAr);
+      show("✅ مرحباً " + greetName);
       loadData(d.token, u.role);
     });
   }
@@ -2380,6 +2675,7 @@ export default function App() {
     setStages([]); setWallet(null); setTxns([]); setDash({}); setNotifs([]);
     setProjFiles([]); setQuotations([]); setInspApps([]); setAchievements([]);
     setPage("home"); setExp({});
+    localStorage.removeItem("ft_token"); localStorage.removeItem("ft_user"); localStorage.removeItem("ft_role");
   }
 
   // ═══════ ACTIONS ═══════
@@ -2392,14 +2688,44 @@ export default function App() {
   }
 
   function acceptQuotation(qid) {
-    call("/quotations/" + qid + "/accept", "POST", {}, tk).then(function (d) {
-      if (d.success) { show("✅ تم قبول العرض"); loadData(); if (proj) fetchProj(proj.id); }
+    call("/projects/quotations/" + qid + "/accept", "POST", {}, tk).then(function (d) {
+      if (d.success) { show("✅ تم قبول العرض وتم حجز المبلغ من المحفظة"); loadData(); if (proj) fetchProj(proj.id); }
+      else if (d.errorCode === "INSUFFICIENT_BALANCE") {
+        show("💰 رصيد المحفظة غير كافٍ — المطلوب: " + (d.required || 0).toLocaleString() + " د.ب — المتاح: " + (d.available || 0).toLocaleString() + " د.ب");
+        setPage("wallet");
+      }
       else show("❌ " + (d.error || "خطأ"));
     });
   }
 
+  // Download BOQ Excel file for a quotation — auth-protected, owner + submitter + admin only.
+  // Uses fetch → blob → anchor trick because <a href> can't carry the Bearer token.
+  function downloadBoq(qid, suggestedName) {
+    fetch(BASE + "/projects/quotations/" + qid + "/boq-file", {
+      method: "GET",
+      headers: { "Authorization": "Bearer " + tk }
+    }).then(function (r) {
+      if (!r.ok) {
+        if (r.status === 403) { show("❌ غير مصرح — لا يمكن الاطلاع على هذا الملف"); return null; }
+        if (r.status === 404) { show("❌ لا يوجد ملف BOQ مرفق لهذا العرض"); return null; }
+        show("❌ فشل تحميل الملف"); return null;
+      }
+      return r.blob();
+    }).then(function (blob) {
+      if (!blob) return;
+      var url = window.URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = suggestedName || ("BOQ-" + qid + ".xlsx");
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () { window.URL.revokeObjectURL(url); a.remove(); }, 100);
+      show("📥 تم تحميل ملف BOQ");
+    }).catch(function (e) { console.error("boq download", e); show("❌ خطأ في الاتصال"); });
+  }
+
   function acceptInspector(appId) {
-    call("/inspector-applications/" + appId + "/accept", "POST", {}, tk).then(function (d) {
+    call("/projects/inspector-applications/" + appId + "/accept", "POST", {}, tk).then(function (d) {
       if (d.success) { show("✅ تم تعيين المفتش"); loadData(); if (proj) fetchProj(proj.id); }
       else show("❌ " + (d.error || "خطأ"));
     });
@@ -2410,17 +2736,23 @@ export default function App() {
   // ═══════════════════════════════════════════════
   if (!user) {
     var authWrap = function(children) {
-      return <div style={{ fontFamily: "Tajawal, sans-serif", background: C.bg, minHeight: "100vh", direction: "rtl", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-        <div style={{ width: "100%", maxWidth: 420 }}>
-          <div style={{ textAlign: "center", marginBottom: 20 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: C.navy, borderRadius: 14, padding: "12px 24px", color: "#fff" }}>
-              <span style={{ fontSize: 24 }}>🐋</span>
-              <span style={{ fontFamily: "Cairo, sans-serif", fontSize: 18, fontWeight: 900 }}>FIRST <span style={{ color: C.amber }}>TOUCH</span></span>
-            </div>
-          </div>
-          <div style={{ background: C.card, border: "1px solid " + C.brd, borderRadius: 16, padding: 22 }}>
+      return <div style={{ fontFamily: "Tajawal, sans-serif", background: "linear-gradient(160deg, #0A1628 0%, #0F2847 30%, #1E3A5F 50%, #1A365D 70%, #0A1628 100%)", minHeight: "100vh", direction: "rtl", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, position: "relative", overflow: "hidden" }}>
+        {/* Ambient gradient circles */}
+        <div style={{ position: "absolute", top: -120, right: -80, width: 350, height: 350, borderRadius: "50%", background: "radial-gradient(circle, rgba(37,99,235,.15) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: -100, left: -60, width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,.1) 0%, transparent 70%)", pointerEvents: "none" }} />
+        {/* Wave decoration at bottom */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 80, background: "linear-gradient(0deg, rgba(37,99,235,.08) 0%, transparent 100%)", pointerEvents: "none" }} />
+        <div style={{ width: "100%", maxWidth: 420, position: "relative", zIndex: 1 }}>
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} style={{ textAlign: "center", marginBottom: 24 }}>
+            <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }} style={{ marginBottom: 8 }}>
+              <WhaleLogo size={80} />
+            </motion.div>
+            <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 26, fontWeight: 900, color: "#fff", letterSpacing: 2 }}>FIRST <span style={{ color: "#60A5FA" }}>TOUCH</span></div>
+            <div style={{ fontSize: 11, color: "rgba(148,163,184,.8)", marginTop: 4, letterSpacing: 1 }}>{isEn ? "Construction Management Platform" : "منصة إدارة مشاريع البناء"}</div>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} style={{ background: "rgba(255,255,255,.06)", backdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 20, padding: 24, boxShadow: "0 20px 60px rgba(0,0,0,.3)" }}>
             {children}
-          </div>
+          </motion.div>
         </div>
       </div>;
     };
@@ -2506,10 +2838,12 @@ export default function App() {
       return authWrap(<RegisterForm
         onBack={function(){ setAuthScreen("login"); setSelectedRole(null); }}
         onSubmit={function(data, onErr){
+          var logoF = data._logoFile; delete data._logoFile;
           setLd(true);
           call("/auth/register", "POST", data).then(function(d){
             setLd(false);
             if (d.error) { if(onErr) onErr(d.error); else show("❌ " + d.error); return; }
+            if (logoF) setPendingLogo(logoF);
             // After register → send OTP and go to OTP screen
             call("/auth/send-otp", "POST", { phone: data.phone }).then(function(otpRes){
               if (otpRes.userId) {
@@ -2545,152 +2879,144 @@ export default function App() {
           setPage("home");
           loadData(t, u.role);
           show("✅ مرحباً " + u.nameAr + " — تم التحقق بنجاح!");
+          // Upload company logo if pending
+          if (pendingLogo) {
+            var fd = new FormData();
+            fd.append("logo", pendingLogo);
+            fetch((window.__API || "http://localhost:5000/api") + "/auth/company-logo", {
+              method: "POST", headers: { "Authorization": "Bearer " + t }, body: fd
+            }).then(function(r){ return r.json(); }).then(function(lr){
+              if (lr.companyLogo) {
+                u.company_logo = lr.companyLogo; u.companyLogo = lr.companyLogo;
+                setUser(Object.assign({}, u));
+                localStorage.setItem("ft_user", JSON.stringify(u));
+              }
+            }).catch(function(){});
+            setPendingLogo(null);
+          }
         }}
       />);
     }
 
-    // ── Role selection screen ──
+    // ── Landing screen — Login / Register ──
     if (!selectedRole) {
-      var roleCards = [
-        { r: "owner", i: "👤", t: t.owner, d: t.ownerDesc, g: C.gBlue, features: [t.ownerF1, t.ownerF2, t.ownerF3] },
-        { r: "contractor", i: "👷", t: t.contractor, d: t.contractorDesc, g: C.gAmber, features: [t.contractorF1, t.contractorF2, t.contractorF3] },
-        { r: "inspector", i: "🔍", t: t.inspector, d: t.inspectorDesc, g: C.gGreen, features: [t.inspectorF1, t.inspectorF2, t.inspectorF3], soon: true },
-        { r: "developer", i: "🏗️", t: t.developer, d: t.developerDesc, g: "linear-gradient(135deg,#4A148C 0%,#7B1FA2 100%)", features: [t.developerF1, t.developerF2, t.developerF3], soon: true }
-      ];
       return (
-        <div style={{ fontFamily: "Tajawal, sans-serif", background: "linear-gradient(160deg,#0D1B2A 0%,#1A3A5C 55%,#0D2B4A 100%)", minHeight: "100vh", direction: isEn ? "ltr" : "rtl", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "20px 16px", overflowY: "auto" }}>
-          <div style={{ width: "100%", maxWidth: 420 }}>
+        <div style={{ fontFamily: "Tajawal, sans-serif", background: "linear-gradient(160deg, #0A1628 0%, #0F2847 30%, #1E3A5F 50%, #1A365D 70%, #0A1628 100%)", minHeight: "100vh", direction: isEn ? "ltr" : "rtl", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "20px 16px", overflowY: "auto", position: "relative" }}>
+          {/* Ocean-themed ambient glow effects */}
+          <div style={{ position: "fixed", top: "-20%", right: "-10%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(37,99,235,.15) 0%, transparent 70%)", pointerEvents: "none" }} />
+          <div style={{ position: "fixed", bottom: "-20%", left: "-10%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,.1) 0%, transparent 70%)", pointerEvents: "none" }} />
+          {/* Wave bottom decoration */}
+          <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, height: 120, background: "linear-gradient(0deg, rgba(37,99,235,.06) 0%, transparent 100%)", pointerEvents: "none" }} />
+
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }} style={{ width: "100%", maxWidth: 420, position: "relative", zIndex: 1 }}>
 
             {/* Language Selector */}
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: 18 }}>
-              <div style={{ display: "flex", background: "rgba(255,255,255,.08)", borderRadius: 12, padding: 3, border: "1px solid rgba(255,255,255,.1)" }}>
-                <div onClick={function(){ switchLang("ar"); }} style={{ padding: "6px 18px", borderRadius: 10, fontSize: 12, fontWeight: 800, cursor: "pointer", transition: "all .2s", background: lang === "ar" ? "linear-gradient(135deg,#1565C0,#42A5F5)" : "transparent", color: lang === "ar" ? "#fff" : "rgba(255,255,255,.5)", boxShadow: lang === "ar" ? "0 2px 8px rgba(21,101,192,.4)" : "none" }}>العربية</div>
-                <div onClick={function(){ switchLang("en"); }} style={{ padding: "6px 18px", borderRadius: 10, fontSize: 12, fontWeight: 800, cursor: "pointer", transition: "all .2s", background: lang === "en" ? "linear-gradient(135deg,#1565C0,#42A5F5)" : "transparent", color: lang === "en" ? "#fff" : "rgba(255,255,255,.5)", boxShadow: lang === "en" ? "0 2px 8px rgba(21,101,192,.4)" : "none" }}>English</div>
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
+              <div style={{ display: "flex", background: "rgba(255,255,255,.06)", borderRadius: 14, padding: 3, border: "1px solid rgba(255,255,255,.08)", backdropFilter: "blur(20px)" }}>
+                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} onClick={function(){ switchLang("ar"); }} style={{ padding: "7px 22px", borderRadius: 12, fontSize: 12, fontWeight: 800, cursor: "pointer", transition: "all .3s", background: lang === "ar" ? C.gBlue : "transparent", color: lang === "ar" ? "#fff" : "rgba(255,255,255,.45)", boxShadow: lang === "ar" ? C.shadowBlue : "none" }}>العربية</motion.div>
+                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} onClick={function(){ switchLang("en"); }} style={{ padding: "7px 22px", borderRadius: 12, fontSize: 12, fontWeight: 800, cursor: "pointer", transition: "all .3s", background: lang === "en" ? C.gBlue : "transparent", color: lang === "en" ? "#fff" : "rgba(255,255,255,.45)", boxShadow: lang === "en" ? C.shadowBlue : "none" }}>English</motion.div>
               </div>
-            </div>
+            </motion.div>
 
-            {/* Logo */}
-            <div style={{ textAlign: "center", marginBottom: 28 }}>
-              <div style={{ width: 72, height: 72, borderRadius: 22, background: "linear-gradient(135deg,#1565C0,#42A5F5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, margin: "0 auto 12px", boxShadow: "0 8px 28px rgba(21,101,192,.45)" }}>🐋</div>
-              <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 28, fontWeight: 900, color: "#fff", letterSpacing: 1 }}>FIRST <span style={{ color: C.amber }}>TOUCH</span></div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,.4)", marginTop: 3, letterSpacing: 2 }}>{t.securingBuild}</div>
-            </div>
+            {/* Logo — Blue Whale */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.1 }} style={{ textAlign: "center", marginBottom: 32 }}>
+              <motion.div animate={{ y: [0, -8, 0], filter: ["drop-shadow(0 8px 24px rgba(37,99,235,.3))", "drop-shadow(0 16px 40px rgba(37,99,235,.5))", "drop-shadow(0 8px 24px rgba(37,99,235,.3))"] }} transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }} style={{ margin: "0 auto 14px", width: 100, height: 100 }}>
+                <WhaleLogo size={100} />
+              </motion.div>
+              <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 32, fontWeight: 900, color: "#fff", letterSpacing: 2 }}>FIRST <span style={{ background: "linear-gradient(135deg,#3B82F6,#60A5FA,#93C5FD)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>TOUCH</span></div>
+              <div style={{ fontSize: 11, color: "rgba(148,163,184,.5)", marginTop: 5, letterSpacing: 3, textTransform: "uppercase" }}>{t.securingBuild}</div>
+            </motion.div>
 
             {/* Feature highlights */}
-            <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 24 }}>
-              {[{ic:"🔒",l:t.guaranteedWallet},{ic:"📋",l:t.digitalContracts},{ic:"✅",l:t.tripleApproval}].map(function(f,i){
-                return <div key={i} style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 18, marginBottom: 3 }}>{f.ic}</div>
-                  <div style={{ fontSize: 9, color: "rgba(255,255,255,.45)" }}>{f.l}</div>
-                </div>;
+            <motion.div variants={stagger} initial="hidden" animate="visible" style={{ display: "flex", justifyContent: "center", gap: 24, marginBottom: 32 }}>
+              {[{ic:<Shield size={20} color="#60A5FA" />,l:t.guaranteedWallet},{ic:<ScrollText size={20} color="#60A5FA" />,l:t.digitalContracts},{ic:<BadgeCheck size={20} color="#60A5FA" />,l:t.tripleApproval}].map(function(f,i){
+                return <motion.div key={i} variants={fadeUp} style={{ textAlign: "center" }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(37,99,235,.08)", border: "1px solid rgba(59,130,246,.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 6px", backdropFilter: "blur(12px)" }}>{f.ic}</div>
+                  <div style={{ fontSize: 9, color: "rgba(148,163,184,.6)", fontWeight: 600 }}>{f.l}</div>
+                </motion.div>;
               })}
-            </div>
+            </motion.div>
 
-            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.6)", marginBottom: 12, textAlign: "center", letterSpacing: 1 }}>{t.chooseAccount}</div>
-
-            {roleCards.map(function(u) {
-              return <div key={u.r} onClick={u.soon ? null : function(){ setSelectedRole(u.r); }} style={{ background: u.soon ? "rgba(255,255,255,.02)" : "rgba(255,255,255,.05)", border: "1.5px solid " + (u.soon ? "rgba(255,255,255,.06)" : "rgba(255,255,255,.1)"), borderRadius: 16, padding: "14px 16px", marginBottom: 10, cursor: u.soon ? "default" : "pointer", opacity: u.soon ? 0.5 : 1, position: "relative" }}>
-                {u.soon && <div style={{ position: "absolute", top: 10, [isEn ? "right" : "left"]: 10, background: "linear-gradient(135deg,#D4A017,#FFD54F)", color: "#0D1B2A", fontSize: 9, fontWeight: 900, padding: "2px 10px", borderRadius: 8, zIndex: 1 }}>{t.comingSoon}</div>}
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                  <div style={{ width: 50, height: 50, borderRadius: 14, background: u.g, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0, boxShadow: "0 4px 14px rgba(0,0,0,.3)" }}>{u.i}</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 15, fontWeight: 900, color: "#fff" }}>{u.t}</div>
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,.45)", marginTop: 1 }}>{u.d}</div>
-                  </div>
-                  {!u.soon && <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ color: "rgba(255,255,255,.5)", fontSize: 12 }}>{isEn ? "→" : "←"}</span>
-                  </div>}
+            {/* Login Form — Glass Card */}
+            <motion.div variants={scaleIn} initial="hidden" animate="visible" transition={{ delay: 0.2 }} style={{ background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 20, padding: 24, marginBottom: 16, backdropFilter: "blur(24px)", boxShadow: "0 8px 32px rgba(0,0,0,.2)" }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "#fff", textAlign: "center", marginBottom: 20 }}>{t.login}</div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,.5)", marginBottom: 5, fontWeight: 600 }}>{t.email}</div>
+                <input value={em} onChange={function(e){ setEm(e.target.value); }} placeholder="email@example.com" style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid rgba(255,255,255,.12)", background: "rgba(255,255,255,.06)", color: "#fff", fontFamily: "Tajawal", fontSize: 13, boxSizing: "border-box", outline: "none", direction: "ltr", textAlign: isEn ? "left" : "right", transition: "border-color .3s, background .3s" }} onFocus={function(e){ e.target.style.borderColor="rgba(59,130,246,.6)"; e.target.style.background="rgba(59,130,246,.08)"; }} onBlur={function(e){ e.target.style.borderColor="rgba(255,255,255,.12)"; e.target.style.background="rgba(255,255,255,.06)"; }} />
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,.5)", marginBottom: 5, fontWeight: 600 }}>{t.password}</div>
+                <input type="password" value={pw} onChange={function(e){ setPw(e.target.value); }} placeholder="••••••" style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid rgba(255,255,255,.12)", background: "rgba(255,255,255,.06)", color: "#fff", fontFamily: "Tajawal", fontSize: 13, boxSizing: "border-box", outline: "none", direction: "ltr", textAlign: isEn ? "left" : "right", transition: "border-color .3s, background .3s" }} onFocus={function(e){ e.target.style.borderColor="rgba(59,130,246,.6)"; e.target.style.background="rgba(59,130,246,.08)"; }} onBlur={function(e){ e.target.style.borderColor="rgba(255,255,255,.12)"; e.target.style.background="rgba(255,255,255,.06)"; }} />
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,.5)", marginBottom: 8, fontWeight: 600 }}>{isEn ? "Login role" : "الدخول كـ"}</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(5,minmax(0,1fr))", gap: 6 }}>
+                  {[
+                    { key: null, label: isEn ? "Auto" : "تلقائي" },
+                    { key: "owner", label: t.owner },
+                    { key: "contractor", label: t.contractor },
+                    { key: "inspector", label: t.inspector },
+                    { key: "developer", label: t.developer }
+                  ].map(function(opt) {
+                    var active = opt.key === loginRole || (!opt.key && !loginRole);
+                    return <motion.div
+                      key={opt.key || "auto"}
+                      whileHover={{ y: -1 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={function(){ setLoginRole(opt.key); }}
+                      style={{
+                        padding: "10px 6px",
+                        borderRadius: 12,
+                        border: active ? "1.5px solid rgba(96,165,250,.85)" : "1px solid rgba(255,255,255,.08)",
+                        background: active ? "rgba(37,99,235,.16)" : "rgba(255,255,255,.04)",
+                        color: active ? "#fff" : "rgba(255,255,255,.7)",
+                        cursor: "pointer",
+                        textAlign: "center",
+                        fontSize: 10,
+                        fontWeight: 700,
+                        lineHeight: 1.35
+                      }}
+                    >{opt.label}</motion.div>;
+                  })}
                 </div>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  {u.features.map(function(f,i){ return <span key={i} style={{ fontSize: 9, background: "rgba(255,255,255,.08)", color: "rgba(255,255,255,.6)", padding: "2px 8px", borderRadius: 8 }}>{f}</span>; })}
-                </div>
-              </div>;
-            })}
+              </div>
+              <motion.button disabled={ld} onClick={function(){ login(em, pw, loginRole); }} whileHover={{ scale: 1.02, boxShadow: "0 8px 30px rgba(37,99,235,.4)" }} whileTap={{ scale: 0.97 }} style={{ width: "100%", padding: "13px 0", borderRadius: 14, border: "none", background: C.gBlue, color: "#fff", fontSize: 15, fontWeight: 800, fontFamily: "Tajawal", cursor: ld ? "not-allowed" : "pointer", boxShadow: C.shadowBlue, letterSpacing: 0.5 }}>{ld ? (isEn ? "⏳ Logging in..." : "⏳ جاري الدخول...") : t.loginBtn}</motion.button>
+              <div style={{ marginTop: 12, textAlign: "center" }}>
+                <span onClick={function(){ setAuthScreen("forgot"); }} style={{ fontSize: 11, color: "rgba(255,255,255,.35)", cursor: "pointer", transition: "color .2s" }} onMouseOver={function(e){e.target.style.color="rgba(96,165,250,.8)";}} onMouseOut={function(e){e.target.style.color="rgba(255,255,255,.35)";}}>{t.forgotPw}</span>
+              </div>
+            </motion.div>
 
-            <div style={{ marginTop: 20, textAlign: "center", paddingTop: 16, borderTop: "1px solid rgba(255,255,255,.08)" }}>
-              <span onClick={function(){ setAuthScreen("register"); }} style={{ fontSize: 13, color: C.amber, cursor: "pointer", fontWeight: 800 }}>{t.createAccount}</span>
-            </div>
-          </div>
+            {/* Demo Quick Login */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.35 }} style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,.25)", marginBottom: 8, textAlign: "center", letterSpacing: 1 }}>{t.demoAccount}</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                {[
+                  { e: "hassan.isa.ali.nasser@gmail.com", i: "🏗️", l: isEn ? "Dr. Najib (Owner)" : "د. نجيب (مالك)", g: C.gBlue },
+                  { e: "owner@firsttouch.bh", i: "👤", l: isEn ? "Owner" : "مالك", g: C.gBlue },
+                  { e: "contractor@firsttouch.bh", i: "👷", l: isEn ? "Contractor" : "مقاول", g: C.gAmber }
+                ].map(function(u) {
+                  return <motion.div key={u.e} whileHover={{ y: -3, borderColor: "rgba(59,130,246,.4)" }} whileTap={{ scale: 0.95 }} onClick={function(){ login(u.e, "123456", null); }} style={{ flex: 1, background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.08)", borderRadius: 14, padding: "12px 8px", cursor: "pointer", textAlign: "center", backdropFilter: "blur(8px)", transition: "border-color .3s" }}>
+                    <div style={{ fontSize: 22, marginBottom: 5 }}>{u.i}</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,.85)" }}>{u.l}</div>
+                    <div style={{ fontSize: 8, color: "rgba(255,255,255,.25)", marginTop: 3, fontFamily: "monospace" }}>123456</div>
+                  </motion.div>;
+                })}
+              </div>
+            </motion.div>
+
+            {/* Register CTA */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: 0.45 }} style={{ textAlign: "center", paddingTop: 18, borderTop: "1px solid rgba(255,255,255,.06)" }}>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,.35)", marginBottom: 8 }}>{isEn ? "Don't have an account?" : "ليس لديك حساب؟"}</div>
+              <motion.div whileHover={{ scale: 1.04, boxShadow: "0 6px 24px rgba(245,158,11,.35)" }} whileTap={{ scale: 0.96 }} onClick={function(){ setAuthScreen("register"); }} style={{ display: "inline-block", padding: "11px 36px", borderRadius: 14, background: "linear-gradient(135deg,#F59E0B,#FBBF24)", color: "#0F172A", fontSize: 13, fontWeight: 900, cursor: "pointer", boxShadow: "0 4px 16px rgba(245,158,11,.3)", letterSpacing: 0.5 }}>{t.createAccount}</motion.div>
+            </motion.div>
+          </motion.div>
         </div>
       );
     }
 
-    var roleInfo = {
-      owner: { i: "👤", t: t.owner, cl: C.ocean, g: C.gBlue },
-      contractor: { i: "👷", t: t.contractor, cl: C.amber, g: C.gAmber },
-      inspector: { i: "🔍", t: t.inspector, cl: C.green, g: C.gGreen },
-      developer: { i: "🏗️", t: t.developer, cl: "#7B1FA2", g: "linear-gradient(135deg,#4A148C 0%,#7B1FA2 100%)" }
-    }[selectedRole];
-    var quickLogins = {
-      owner: [{ e: "owner@firsttouch.bh", n: "د. نجيب أبو بكر", sub: "مركز د. نجيب أبو بكر الطبي — السيف" }],
-      contractor: [{ e: "contractor@firsttouch.bh", n: "حسن ناصر", sub: "Dr Quality Constructions — CR 117102-02" }],
-      inspector: [],
-      developer: []
-    }[selectedRole];
-
-    return (
-      <div style={{ fontFamily: "Tajawal, sans-serif", background: "linear-gradient(160deg,#0D1B2A 0%,#1A3A5C 100%)", minHeight: "100vh", direction: isEn ? "ltr" : "rtl", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "20px 20px 40px", overflowY: "auto" }}>
-        <div style={{ width: "100%", maxWidth: 420 }}>
-          {/* Back + Logo */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}>
-            <div onClick={function(){ setSelectedRole(null); }} style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255,255,255,.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-              <span style={{ color: "#fff", fontSize: 14 }}>{isEn ? "←" : "→"}</span>
-            </div>
-            <div style={{ flex: 1, textAlign: "center" }}>
-              <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 16, fontWeight: 900, color: "#fff" }}>FIRST <span style={{ color: C.amber }}>TOUCH</span></div>
-            </div>
-            <div style={{ width: 36 }} />
-          </div>
-
-          {/* Role badge */}
-          <div style={{ textAlign: "center", marginBottom: 22 }}>
-            <div style={{ width: 64, height: 64, borderRadius: 18, background: roleInfo.g, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, margin: "0 auto 10px", boxShadow: "0 6px 20px rgba(0,0,0,.3)" }}>{roleInfo.i}</div>
-            <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 18, fontWeight: 900, color: "#fff" }}>{t.login}</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,.5)" }}>{roleInfo.t}</div>
-          </div>
-
-          {/* Quick login demo */}
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,.4)", marginBottom: 6, textAlign: "center" }}>{t.demoAccount}</div>
-            {quickLogins.map(function(u) {
-              return <div key={u.e} onClick={function(){ login(u.e, "123456", selectedRole); }} style={{ background: "rgba(255,255,255,.07)", border: "1.5px solid rgba(255,255,255,.12)", borderRadius: 14, padding: 14, cursor: "pointer" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 42, height: 42, borderRadius: 12, background: roleInfo.g, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: "#fff", flexShrink: 0 }}>{roleInfo.i}</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>{u.n}</div>
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,.4)" }}>{u.e} | {t.pwHint}: 123456</div>
-                  </div>
-                  <div style={{ background: roleInfo.g, borderRadius: 8, padding: "5px 10px" }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: "#fff" }}>{isEn ? "Login →" : "دخول ←"}</span>
-                  </div>
-                </div>
-              </div>;
-            })}
-          </div>
-
-          {/* Manual login */}
-          <div style={{ background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 14, padding: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.6)", marginBottom: 10, textAlign: "center" }}>{isEn ? "Or enter your credentials" : "أو أدخل بياناتك"}</div>
-            <div style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,.5)", marginBottom: 4 }}>{t.email}</div>
-              <input value={em} onChange={function(e){ setEm(e.target.value); }} placeholder="email@example.com" style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1.5px solid rgba(255,255,255,.15)", background: "rgba(255,255,255,.08)", color: "#fff", fontFamily: "Tajawal", fontSize: 13, boxSizing: "border-box", outline: "none", direction: "ltr", textAlign: isEn ? "left" : "right" }} />
-            </div>
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,.5)", marginBottom: 4 }}>{t.password}</div>
-              <input type="password" value={pw} onChange={function(e){ setPw(e.target.value); }} placeholder="••••••" style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1.5px solid rgba(255,255,255,.15)", background: "rgba(255,255,255,.08)", color: "#fff", fontFamily: "Tajawal", fontSize: 13, boxSizing: "border-box", outline: "none", direction: "ltr", textAlign: isEn ? "left" : "right" }} />
-            </div>
-            <button disabled={ld} onClick={function(){ login(em, pw, selectedRole); }} style={{ width: "100%", padding: "12px 0", borderRadius: 12, border: "none", background: roleInfo.g, color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "Tajawal", cursor: ld ? "not-allowed" : "pointer", boxShadow: "0 4px 14px rgba(0,0,0,.25)" }}>{ld ? (isEn ? "⏳ Logging in..." : "⏳ جاري الدخول...") : t.loginBtn}</button>
-            <div style={{ marginTop: 10, textAlign: "center" }}>
-              <span onClick={function(){ setAuthScreen("forgot"); }} style={{ fontSize: 11, color: "rgba(255,255,255,.4)", cursor: "pointer" }}>{t.forgotPw}</span>
-            </div>
-          </div>
-
-          <div style={{ marginTop: 16, textAlign: "center" }}>
-            <span onClick={function(){ setAuthScreen("register"); }} style={{ fontSize: 12, color: C.amber, cursor: "pointer", fontWeight: 700 }}>{t.createAccount}</span>
-          </div>
-        </div>
-      </div>
-    );
+    // selectedRole is set but user is not logged in — redirect to landing
+    setSelectedRole(null);
+    return null;
   }
 
   // ═══════════════════════════════════════════════
@@ -2816,7 +3142,7 @@ export default function App() {
 
           {/* ── STEP 1: CONTRACTOR ── */}
           <div style={{ display: "flex", gap: 8, padding: "10px 0", borderBottom: "1px solid #EDF1F7" }}>
-            <div style={{ width: 28, height: 28, borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, background: cD ? "rgba(14,173,105,.08)" : "rgba(232,114,12,.08)", flexShrink: 0 }}>👷</div>
+            <div style={{ width: 28, height: 28, borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", background: cD ? "rgba(14,173,105,.08)" : "rgba(232,114,12,.08)", flexShrink: 0 }}><HardHat size={14} color={cD ? C.green : C.amber} /></div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 11, fontWeight: 700 }}>{t.contractorLabel} {cD && <span style={{ color: C.green, fontSize: 10 }}>{t.delivered}</span>}</div>
               {cD ? <div>
@@ -2847,7 +3173,7 @@ export default function App() {
 
           {/* ── STEP 2: INSPECTOR ── */}
           <div style={{ display: "flex", gap: 8, padding: "10px 0", borderBottom: "1px solid #EDF1F7", opacity: cD ? 1 : 0.35 }}>
-            <div style={{ width: 28, height: 28, borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, background: iD && iA ? "rgba(14,173,105,.08)" : iD ? "rgba(231,76,60,.08)" : "rgba(26,111,181,.06)", flexShrink: 0 }}>🔍</div>
+            <div style={{ width: 28, height: 28, borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", background: iD && iA ? "rgba(14,173,105,.08)" : iD ? "rgba(231,76,60,.08)" : "rgba(26,111,181,.06)", flexShrink: 0 }}><Search size={14} color={iD && iA ? C.green : iD ? C.red : C.ocean} /></div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 11, fontWeight: 700 }}>{t.inspectorLabel} {iD && (iA ? <span style={{ color: C.green, fontSize: 10 }}>{t.approved}</span> : <span style={{ color: C.red, fontSize: 10 }}>{t.rejectedMark}</span>)}</div>
               {iD ? <div>
@@ -2878,7 +3204,7 @@ export default function App() {
 
           {/* ── STEP 3: OWNER ── */}
           <div style={{ display: "flex", gap: 8, padding: "10px 0", borderBottom: "1px solid #EDF1F7", opacity: iD && iA ? 1 : 0.35 }}>
-            <div style={{ width: 28, height: 28, borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, background: done ? "rgba(14,173,105,.08)" : "rgba(124,58,237,.06)", flexShrink: 0 }}>👤</div>
+            <div style={{ width: 28, height: 28, borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", background: done ? "rgba(14,173,105,.08)" : "rgba(124,58,237,.06)", flexShrink: 0 }}><User size={14} color={done ? C.green : C.purple} /></div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 11, fontWeight: 700 }}>المالك {oD && (oA ? <span style={{ color: C.green, fontSize: 10 }}>✓ موافق 💰</span> : <span style={{ color: C.red, fontSize: 10 }}>✕ مرفوض</span>)}</div>
               {oD ? <div>
@@ -3014,7 +3340,7 @@ export default function App() {
   // PAGES
   // ═══════════════════════════════════════════════
 
-  var openProjects = projects.filter(function (p) { return p.status === "open"; });
+  var openProjects = projects.filter(function (p) { return p.status === "awaiting_pricing" || p.status === "new" || p.status === "design_required" || p.status === "open"; });
   var activeP = projects.find(function (p) { return p.status === "active" && (role === "owner" ? p.owner_id === user.id : role === "contractor" ? p.contractor_id === user.id : p.inspector_id === user.id); });
 
   // ── HOME: Owner Dashboard ──
@@ -3048,26 +3374,30 @@ export default function App() {
     var api = dash.active_project_info;
 
     // Main owner home
-    return <div>
+    return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
     {/* Announcement Banner */}
     <AnnouncementBanner lang={lang} />
     {/* Header greeting */}
-    <div style={{ background: "linear-gradient(135deg," + C.navy + "," + C.ocean + ")", borderRadius: 16, padding: 20, color: "#fff", marginBottom: 14 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-        <div style={{ width: 44, height: 44, borderRadius: 12, background: "rgba(255,255,255,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>👤</div>
+    <motion.div variants={fadeUp} initial="hidden" animate="visible" style={{ background: "linear-gradient(135deg,#0A1628 0%,#1E3A5F 50%,#2563EB 100%)", borderRadius: 20, padding: 22, color: "#fff", marginBottom: 16, position: "relative", overflow: "hidden", boxShadow: "0 8px 32px rgba(37,99,235,.2)" }}>
+      <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: "rgba(96,165,250,.12)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: -30, left: -30, width: 100, height: 100, borderRadius: "50%", background: "rgba(139,92,246,.1)", pointerEvents: "none" }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14, position: "relative" }}>
+        {(user.account_type || user.accountType) === "company" && (user.company_logo || user.companyLogo)
+          ? <img src={(user.company_logo || user.companyLogo).startsWith("http") ? (user.company_logo || user.companyLogo) : (window.__API || "http://localhost:5000").replace("/api","") + "/" + (user.company_logo || user.companyLogo)} alt="logo" style={{ width: 48, height: 48, borderRadius: 14, objectFit: "cover", flexShrink: 0, border: "2px solid rgba(255,255,255,.2)" }} />
+          : <div style={{ width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, backdropFilter: "blur(8px)" }}>{(user.account_type || user.accountType) === "company" ? "🏢" : "👤"}</div>}
         <div>
-          <div style={{ fontSize: 14, fontWeight: 800 }}>{t.hello} {isEn ? (user.name_en || user.nameEn || user.name_ar || user.nameAr) : (user.name_ar || user.nameAr)} 👋</div>
-          <div style={{ fontSize: 10, opacity: 0.6 }}>{t.ownerRole}</div>
+          <div style={{ fontSize: 16, fontWeight: 800, letterSpacing: 0.3 }}>{t.hello} {(function(){ var isCompany = (user.account_type || user.accountType) === "company"; if (isCompany) return user.company_name_ar || user.companyNameAr || user.name_ar || user.nameAr; return isEn ? (user.name_en || user.nameEn || user.name_ar || user.nameAr) : (user.name_ar || user.nameAr); })()} 👋</div>
+          <div style={{ fontSize: 11, opacity: 0.5, marginTop: 2 }}>{(user.account_type || user.accountType) === "company" ? (isEn ? "Company Projects Manager" : "مسؤول مشاريع الشركة") : t.ownerRole}</div>
         </div>
       </div>
-      <div style={{ background: "rgba(255,255,255,.1)", borderRadius: 10, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ background: "rgba(255,255,255,.08)", borderRadius: 14, padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,.06)" }}>
         <div>
-          <div style={{ fontSize: 10, opacity: 0.6 }}>{t.escrowWallet}</div>
+          <div style={{ fontSize: 10, opacity: 0.5, marginBottom: 2 }}>{t.escrowWallet}</div>
           <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.7 }}>{t.walletComingSoonMsg}</div>
         </div>
         <Badge c="gold">{t.comingSoon}</Badge>
       </div>
-    </div>
+    </motion.div>
 
     {/* 3 Main Action Cards */}
     <div style={{ marginBottom: 16 }}>
@@ -3080,24 +3410,17 @@ export default function App() {
         </div>
         <Badge c="gold">{t.comingSoon}</Badge>
       </div>
-      <div onClick={function(){ setModal("newProject"); }} style={{ display: "flex", alignItems: "center", gap: 14, background: "linear-gradient(135deg, rgba(26,111,181,.07), rgba(26,111,181,.13))", border: "2px solid rgba(26,111,181,.3)", borderRadius: 14, padding: "14px 16px", marginBottom: 10, cursor: "pointer" }}>
-        <div style={{ width: 52, height: 52, borderRadius: 14, background: C.ocean, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>🏗️</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: C.ocean }}>{t.newProject}</div>
-          <div style={{ fontSize: 11, color: C.t2, marginTop: 2 }}>{t.newProjectDesc}</div>
+      <motion.div whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(139,92,246,.2)" }} whileTap={{ scale: 0.98 }} onClick={function(){ setModal("aiUpload"); }} style={{ display: "flex", alignItems: "center", gap: 14, background: "linear-gradient(135deg, rgba(139,92,246,.06), rgba(139,92,246,.14))", border: "1.5px solid rgba(139,92,246,.3)", borderRadius: 18, padding: "18px 20px", marginBottom: 10, cursor: "pointer", boxShadow: "0 4px 20px rgba(139,92,246,.1)", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "rgba(139,92,246,.06)", pointerEvents: "none" }} />
+        <motion.div animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }} style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, #8B5CF6, #6D28D9)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, flexShrink: 0, boxShadow: "0 4px 16px rgba(139,92,246,.3)" }}>🤖</motion.div>
+        <div style={{ flex: 1, position: "relative" }}>
+          <div style={{ fontSize: 15, fontWeight: 900, color: "#7C3AED" }}>🏗️ رفع مشروع جديد</div>
+          <div style={{ fontSize: 11, color: C.t2, marginTop: 4, lineHeight: 1.5 }}>ارفع ملفات المشروع (PDF / Word) — الذكاء الاصطناعي سيحلّل ويُنشئ المشروع تلقائياً مع المراحل وجدول الكميات</div>
         </div>
-        <span style={{ color: C.ocean, fontSize: 16 }}>←</span>
-      </div>
-      <div onClick={function(){ setModal("aiUpload"); }} style={{ display: "flex", alignItems: "center", gap: 14, background: "linear-gradient(135deg, rgba(124,58,237,.06), rgba(124,58,237,.12))", border: "2px solid rgba(124,58,237,.3)", borderRadius: 14, padding: "14px 16px", marginBottom: 10, cursor: "pointer" }}>
-        <div style={{ width: 52, height: 52, borderRadius: 14, background: "linear-gradient(135deg, #7C3AED, #5B21B6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>🤖</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: "#7C3AED" }}>رفع مشروع ذكي (AI)</div>
-          <div style={{ fontSize: 11, color: C.t2, marginTop: 2 }}>ارفع ملف المشروع والذكاء الاصطناعي يحلل ويقسّم المراحل</div>
-        </div>
-        <span style={{ color: "#7C3AED", fontSize: 16 }}>←</span>
-      </div>
+        <span style={{ color: "#8B5CF6", fontSize: 20, fontWeight: 900 }}>←</span>
+      </motion.div>
       <div style={{ display: "flex", alignItems: "center", gap: 14, background: "linear-gradient(135deg, rgba(212,160,23,.04), rgba(212,160,23,.08))", border: "2px solid rgba(212,160,23,.15)", borderRadius: 14, padding: "14px 16px", opacity: 0.55, cursor: "default", position: "relative" }}>
-        <div style={{ width: 52, height: 52, borderRadius: 14, background: C.gold, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0, opacity: 0.5 }}>🏆</div>
+        <div style={{ width: 52, height: 52, borderRadius: 14, background: C.gold, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: 0.5 }}><Trophy size={24} color="#fff" /></div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 14, fontWeight: 800, color: C.gold }}>{t.achievementsGallery}</div>
           <div style={{ fontSize: 11, color: C.t2, marginTop: 2 }}>{t.achievementsDesc}</div>
@@ -3108,7 +3431,7 @@ export default function App() {
 
     {/* ── Pending approvals alert ── */}
     {(dash.pending_approvals || 0) > 0 && <div onClick={function(){ if(activeP) { fetchProj(activeP.id); setPage("tracking"); } }} style={{ background: "linear-gradient(135deg,rgba(232,114,12,.1),rgba(232,114,12,.06))", border: "1.5px solid rgba(232,114,12,.35)", borderRadius: 12, padding: "12px 14px", marginBottom: 12, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
-      <div style={{ width: 36, height: 36, borderRadius: 9, background: C.gAmber, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>⏳</div>
+      <div style={{ width: 36, height: 36, borderRadius: 9, background: C.gAmber, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Clock size={16} color="#fff" /></div>
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 12, fontWeight: 800, color: C.amber }}>{isEn ? dash.pending_approvals + " " + t.itemPendingApproval : t.thereAre + " " + dash.pending_approvals + " " + t.itemPendingApproval}</div>
         <div style={{ fontSize: 10, color: C.t2, marginTop: 1 }}>{t.tapToReview}</div>
@@ -3118,7 +3441,7 @@ export default function App() {
 
     {/* ── Pending offers alert ── */}
     {(dash.pending_quotations || 0) > 0 && <div onClick={function(){ setPage("offers"); }} style={{ background: "linear-gradient(135deg,rgba(212,160,23,.09),rgba(212,160,23,.05))", border: "1.5px solid rgba(212,160,23,.3)", borderRadius: 12, padding: "12px 14px", marginBottom: 12, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
-      <div style={{ width: 36, height: 36, borderRadius: 9, background: C.gGold, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>💰</div>
+      <div style={{ width: 36, height: 36, borderRadius: 9, background: C.gGold, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Coins size={16} color="#fff" /></div>
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 12, fontWeight: 800, color: C.gold }}>{dash.pending_quotations} {t.newQuotations}</div>
         <div style={{ fontSize: 10, color: C.t2, marginTop: 1 }}>{t.reviewOffers}</div>
@@ -3128,10 +3451,10 @@ export default function App() {
 
     {/* Stats row */}
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
-      <StatCard v={dash.pending_approvals || 0} l={t.pendingYourApproval} ic="⏳" cl={C.amber} />
-      <StatCard v={dash.active_projects || 0} l={t.activeProjects} ic="🏗️" cl={C.ocean} />
-      <StatCard v={dash.pending_quotations || 0} l={t.newQuotationOffers} ic="💰" cl={C.gold} />
-      <StatCard v={dash.completed_projects || 0} l={t.completedProjects} ic="✅" cl={C.green} />
+      <StatCard v={dash.pending_approvals || 0} l={t.pendingYourApproval} ic={<Clock size={18} />} cl={C.amber} />
+      <StatCard v={dash.active_projects || 0} l={t.activeProjects} ic={<Construction size={18} />} cl={C.ocean} />
+      <StatCard v={dash.pending_quotations || 0} l={t.newQuotationOffers} ic={<Coins size={18} />} cl={C.gold} />
+      <StatCard v={dash.completed_projects || 0} l={t.completedProjects} ic={<CheckCircle2 size={18} />} cl={C.green} />
     </div>
 
     {/* ══════ CONTRACT — FIXED AGREEMENT DATA (لا تتغير بعد الاتفاق) ══════ */}
@@ -3205,7 +3528,7 @@ export default function App() {
 
     {/* ══════ STAGE PROGRESS — Live updates from dashboard ══════ */}
     {sp.length > 0 && <div style={{ marginBottom: 14 }}>
-      <SectionTitle ic="📊">{isEn ? "Construction Stage Progress" : "تقدم مراحل البناء"}</SectionTitle>
+      <SectionTitle ic={<BarChart3 size={16} color={C.ocean} />}>{isEn ? "Construction Stage Progress" : "تقدم مراحل البناء"}</SectionTitle>
       {sp.map(function(stage) {
         var stIc = stage.status === "completed" ? "✅" : stage.status === "active" ? "🔵" : "🔒";
         return <Card key={stage.id} onClick={function(){ if(activeP) { fetchProj(activeP.id); setPage("tracking"); } }}>
@@ -3260,7 +3583,7 @@ export default function App() {
 
     {/* Projects list */}
     {projects.length > 0 && <div>
-      <SectionTitle ic="📁" mt={8}>{t.allMyProjects} ({projects.length})</SectionTitle>
+      <SectionTitle ic={<FolderOpen size={16} color={C.ocean} />} mt={8}>{t.allMyProjects} ({projects.length})</SectionTitle>
       {projects.map(function (p) {
         var stLabel = { active: t.stActive, completed: t.stCompleted, open: t.stOpenPricing, awaiting_pricing: t.stAwaitingPricing, new: t.stNew };
         var stColor = { active: "amber", completed: "green", open: "gold", awaiting_pricing: "gold", new: "blue" };
@@ -3283,7 +3606,7 @@ export default function App() {
         </Card>;
       })}
     </div>}
-  </div>; }
+  </motion.div>; }
 
   // ── HOME: Contractor Dashboard ──
   function renderContractorHome() {
@@ -3297,10 +3620,12 @@ export default function App() {
     <div style={{ background: "linear-gradient(135deg," + C.navy + ",#E8720C)", borderRadius: 16, padding: 20, color: "#fff", marginBottom: 14, position: "relative", overflow: "hidden" }}>
       <div style={{ position: "absolute", top: -20, left: -20, width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,.04)" }} />
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14, position: "relative" }}>
-        <div style={{ width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>👷</div>
+        {(user.account_type || user.accountType) === "company" && (user.company_logo || user.companyLogo)
+          ? <img src={(user.company_logo || user.companyLogo).startsWith("http") ? (user.company_logo || user.companyLogo) : (window.__API || "http://localhost:5000").replace("/api","") + "/" + (user.company_logo || user.companyLogo)} alt="logo" style={{ width: 48, height: 48, borderRadius: 14, objectFit: "cover", flexShrink: 0 }} />
+          : <div style={{ width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>{(user.account_type || user.accountType) === "company" ? "🏢" : "👷"}</div>}
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 15, fontWeight: 800 }}>{t.hello} {isEn ? (user.name_en || user.nameEn || user.name_ar) : user.name_ar} 👋</div>
-          <div style={{ fontSize: 10, opacity: 0.6 }}>{isEn ? (user.company_name_en || user.companyNameEn || user.company_name_ar || t.contractor) : (user.company_name_ar || "المقاول")} — FIRST TOUCH</div>
+          <div style={{ fontSize: 15, fontWeight: 800 }}>{t.hello} {(function(){ var isCompany = (user.account_type || user.accountType) === "company"; if (isCompany) return user.company_name_ar || user.companyNameAr || user.name_ar; return isEn ? (user.name_en || user.nameEn || user.name_ar) : user.name_ar; })()} 👋</div>
+          <div style={{ fontSize: 10, opacity: 0.6 }}>{(user.account_type || user.accountType) === "company" ? (isEn ? "Company Contracting Manager" : "مسؤول مقاولات الشركة") : (isEn ? t.contractor : "المقاول")} — FIRST TOUCH</div>
         </div>
         {user.rating > 0 && <div style={{ textAlign: "center", background: "rgba(255,255,255,.12)", borderRadius: 10, padding: "6px 10px" }}>
           <div style={{ fontSize: 14, fontWeight: 900 }}>⭐ {Number(user.rating).toFixed(1)}</div>
@@ -3326,7 +3651,7 @@ export default function App() {
 
     {/* Urgent alerts */}
     {(dash.pending_deliveries || 0) > 0 && <div style={{ background: "linear-gradient(135deg,rgba(232,114,12,.1),rgba(232,114,12,.06))", border: "1.5px solid rgba(232,114,12,.35)", borderRadius: 12, padding: "12px 14px", marginBottom: 12, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={function(){ if(activeP) { fetchProj(activeP.id); setPage("tracking"); } }}>
-      <div style={{ width: 36, height: 36, borderRadius: 9, background: C.gAmber, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>📤</div>
+      <div style={{ width: 36, height: 36, borderRadius: 9, background: C.gAmber, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Upload size={16} color="#fff" /></div>
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 12, fontWeight: 800, color: C.amber }}>{dash.pending_deliveries} {t.pendingDelivery}</div>
         <div style={{ fontSize: 10, color: C.t2, marginTop: 1 }}>{t.tapToDeliverItems}</div>
@@ -3335,7 +3660,7 @@ export default function App() {
     </div>}
 
     {(dash.awaiting_pricing || 0) > 0 && <div style={{ background: "linear-gradient(135deg,rgba(212,160,23,.09),rgba(212,160,23,.05))", border: "1.5px solid rgba(212,160,23,.3)", borderRadius: 12, padding: "12px 14px", marginBottom: 12, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={function(){ setPage("tenders"); }}>
-      <div style={{ width: 36, height: 36, borderRadius: 9, background: C.gGold, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>💰</div>
+      <div style={{ width: 36, height: 36, borderRadius: 9, background: C.gGold, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Coins size={16} color="#fff" /></div>
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 12, fontWeight: 800, color: C.gold }}>{dash.awaiting_pricing} {t.newProjectForPricing}</div>
         <div style={{ fontSize: 10, color: C.t2, marginTop: 1 }}>{t.submitOfferToWin}</div>
@@ -3344,10 +3669,10 @@ export default function App() {
     </div>}
 
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
-      <StatCard v={dash.pending_deliveries || 0} l={t.itemsNeedDelivery} ic="📤" cl={C.amber} />
-      <StatCard v={dash.awaiting_pricing || 0} l={t.projectsForPricing} ic="💰" cl={C.gold} />
-      <StatCard v={dash.active_projects || 0} l={t.activeProjects} ic="🏗️" cl={C.ocean} />
-      <StatCard v={Number(dash.total_earned || 0).toLocaleString()} l={t.totalEarnings} ic="💵" cl={C.green} />
+      <StatCard v={dash.pending_deliveries || 0} l={t.itemsNeedDelivery} ic={<Upload size={18} />} cl={C.amber} />
+      <StatCard v={dash.awaiting_pricing || 0} l={t.projectsForPricing} ic={<Coins size={18} />} cl={C.gold} />
+      <StatCard v={dash.active_projects || 0} l={t.activeProjects} ic={<Construction size={18} />} cl={C.ocean} />
+      <StatCard v={Number(dash.total_earned || 0).toLocaleString()} l={t.totalEarnings} ic={<CircleDollarSign size={18} />} cl={C.green} />
     </div>
 
     {/* ══════ CONTRACT — FIXED AGREEMENT (بيانات العقد الثابتة) ══════ */}
@@ -3409,7 +3734,7 @@ export default function App() {
 
     {/* ══════ STAGE PROGRESS — تقدم المراحل ══════ */}
     {sp.length > 0 && <div style={{ marginBottom: 14 }}>
-      <SectionTitle ic="📊">{isEn ? "Construction Stage Progress" : "تقدم مراحل البناء"}</SectionTitle>
+      <SectionTitle ic={<BarChart3 size={16} color={C.ocean} />}>{isEn ? "Construction Stage Progress" : "تقدم مراحل البناء"}</SectionTitle>
       {sp.map(function(stage) {
         var stIc = stage.status === "completed" ? "✅" : stage.status === "active" ? "🔵" : "🔒";
         var isMyTurn = stage.status === "active" && stage.contractorDone < stage.totalItems;
@@ -3468,7 +3793,7 @@ export default function App() {
     </div>}
 
     {projects.filter(function(p){ return p.contractor_id === user.id; }).length > 0 && <div>
-      <SectionTitle ic="📋" mt={4}>{t.myContractedProjects}</SectionTitle>
+      <SectionTitle ic={<ClipboardList size={16} color={C.ocean} />} mt={4}>{t.myContractedProjects}</SectionTitle>
       {projects.filter(function(p){ return p.contractor_id === user.id; }).map(function (p) {
         return <Card key={p.id} onClick={function () { fetchProj(p.id); setPage("tracking"); }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: p.status === "active" ? 8 : 0 }}>
@@ -3500,10 +3825,12 @@ export default function App() {
     <div style={{ background: "linear-gradient(135deg," + C.navy + "," + C.green + ")", borderRadius: 16, padding: 20, color: "#fff", marginBottom: 14, position: "relative", overflow: "hidden" }}>
       <div style={{ position: "absolute", top: -20, left: -20, width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,.04)" }} />
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14, position: "relative" }}>
-        <div style={{ width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>🔍</div>
+        {(user.account_type || user.accountType) === "company" && (user.company_logo || user.companyLogo)
+          ? <img src={(user.company_logo || user.companyLogo).startsWith("http") ? (user.company_logo || user.companyLogo) : (window.__API || "http://localhost:5000").replace("/api","") + "/" + (user.company_logo || user.companyLogo)} alt="logo" style={{ width: 48, height: 48, borderRadius: 14, objectFit: "cover", flexShrink: 0 }} />
+          : <div style={{ width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>{(user.account_type || user.accountType) === "company" ? "🏢" : "🔍"}</div>}
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 15, fontWeight: 800 }}>{t.hello} {isEn ? (user.name_en || user.nameEn || user.name_ar) : user.name_ar} 👋</div>
-          <div style={{ fontSize: 10, opacity: 0.6 }}>{isEn ? (user.specialty_en || user.specialtyEn || user.specialty || t.inspector) : (user.specialty || "مفتش جودة")} — FIRST TOUCH</div>
+          <div style={{ fontSize: 15, fontWeight: 800 }}>{t.hello} {(function(){ var isCompany = (user.account_type || user.accountType) === "company"; if (isCompany) return user.company_name_ar || user.companyNameAr || user.name_ar; return isEn ? (user.name_en || user.nameEn || user.name_ar) : user.name_ar; })()} 👋</div>
+          <div style={{ fontSize: 10, opacity: 0.6 }}>{(user.account_type || user.accountType) === "company" ? (isEn ? "Company Inspection Manager" : "مسؤول فحص الشركة") : (isEn ? (user.specialty_en || user.specialtyEn || user.specialty || t.inspector) : (user.specialty || "مفتش جودة"))} — FIRST TOUCH</div>
         </div>
         {user.rating > 0 && <div style={{ textAlign: "center", background: "rgba(255,255,255,.12)", borderRadius: 10, padding: "6px 10px" }}>
           <div style={{ fontSize: 14, fontWeight: 900 }}>⭐ {Number(user.rating).toFixed(1)}</div>
@@ -3529,7 +3856,7 @@ export default function App() {
 
     {/* Urgent: items needing inspection */}
     {(dash.pending_inspections || 0) > 0 && <div style={{ background: "linear-gradient(135deg,rgba(14,173,105,.1),rgba(14,173,105,.05))", border: "1.5px solid rgba(14,173,105,.35)", borderRadius: 12, padding: "12px 14px", marginBottom: 12, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={function(){ if(activeP) { fetchProj(activeP.id); setPage("tracking"); } }}>
-      <div style={{ width: 36, height: 36, borderRadius: 9, background: C.gGreen, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>🔍</div>
+      <div style={{ width: 36, height: 36, borderRadius: 9, background: C.gGreen, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Search size={16} color="#fff" /></div>
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 12, fontWeight: 800, color: C.green }}>{dash.pending_inspections} {t.pendingInspection}</div>
         <div style={{ fontSize: 10, color: C.t2, marginTop: 1 }}>{t.contractorDelivered}</div>
@@ -3538,10 +3865,10 @@ export default function App() {
     </div>}
 
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
-      <StatCard v={dash.pending_inspections || 0} l={t.itemsNeedInspection} ic="🔍" cl={C.green} />
-      <StatCard v={dash.active_projects || 0} l={t.activeProjects} ic="🏗️" cl={C.ocean} />
-      <StatCard v={dash.rejected_items || 0} l={t.rejectedItems} ic="❌" cl={C.red} />
-      <StatCard v={openProjects.length} l={t.projectsNeedInspector} ic="📝" cl={C.gold} />
+      <StatCard v={dash.pending_inspections || 0} l={t.itemsNeedInspection} ic={<Search size={18} />} cl={C.green} />
+      <StatCard v={dash.active_projects || 0} l={t.activeProjects} ic={<Construction size={18} />} cl={C.ocean} />
+      <StatCard v={dash.rejected_items || 0} l={t.rejectedItems} ic={<XCircle size={18} />} cl={C.red} />
+      <StatCard v={openProjects.length} l={t.projectsNeedInspector} ic={<FileText size={18} />} cl={C.gold} />
     </div>
 
     {/* ══════ ACTIVE PROJECT INFO ══════ */}
@@ -3578,7 +3905,7 @@ export default function App() {
 
     {/* ══════ STAGE PROGRESS — تقدم فحص المراحل ══════ */}
     {sp.length > 0 && <div style={{ marginBottom: 14 }}>
-      <SectionTitle ic="📊">تقدم فحص المراحل</SectionTitle>
+      <SectionTitle ic={<BarChart3 size={16} color={C.ocean} />}>تقدم فحص المراحل</SectionTitle>
       {sp.map(function(stage) {
         var stIc = stage.status === "completed" ? "✅" : stage.status === "active" ? "🔵" : "🔒";
         var needsInspection = stage.status === "active" && stage.contractorDone > stage.inspectorDone;
@@ -3609,7 +3936,7 @@ export default function App() {
     </Card>}
 
     {openProjects.length > 0 && <div>
-      <SectionTitle ic="📝" mt={4}>{t.projectsSearchInspector}</SectionTitle>
+      <SectionTitle ic={<FileText size={16} color={C.ocean} />} mt={4}>{t.projectsSearchInspector}</SectionTitle>
       {openProjects.map(function (p) {
         return <Card key={p.id}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
@@ -3626,7 +3953,7 @@ export default function App() {
     </div>}
 
     {projects.filter(function(p){ return p.inspector_id === user.id; }).length > 0 && <div>
-      <SectionTitle ic="📋" mt={4}>مشاريعي</SectionTitle>
+      <SectionTitle ic={<ClipboardList size={16} color={C.ocean} />} mt={4}>مشاريعي</SectionTitle>
       {projects.filter(function(p){ return p.inspector_id === user.id; }).map(function (p) {
         return <Card key={p.id} onClick={function () { fetchProj(p.id); setPage("tracking"); }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -3689,7 +4016,7 @@ export default function App() {
         <div style={{ fontSize: 52, marginBottom: 10 }}>📭</div>
         <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 14, fontWeight: 700 }}>{t.noProjectsNeedOffersMsg}</div>
         <div style={{ fontSize: 11, marginTop: 4, marginBottom: 18 }}>{t.createNewProjectForOffers}</div>
-        <Btn v="primary" onClick={function () { setModal("newProject"); }}>➕ {t.newProject}</Btn>
+        <Btn v="primary" onClick={function () { setModal("aiUpload"); }}>🤖 {t.newProject}</Btn>
       </div>}
 
       {/* ── Projects awaiting offers ── */}
@@ -3778,7 +4105,7 @@ export default function App() {
 
       {/* ── Hint for new project ── */}
       {pendingProjects.length > 0 && <div style={{ textAlign: "center", marginTop: 8, paddingTop: 12, borderTop: "1px dashed " + C.brd }}>
-        <Btn v="outline" sm onClick={function () { setModal("newProject"); }}>{t.addNewProject}</Btn>
+        <Btn v="outline" sm onClick={function () { setModal("aiUpload"); }}>🤖 {t.addNewProject}</Btn>
       </div>}
     </div>;
   }
@@ -3874,7 +4201,7 @@ export default function App() {
 
       {/* My contracted projects */}
       {isContractor && projects.filter(function(p){ return p.contractor_id === user.id; }).length > 0 && <div style={{ marginTop: 8 }}>
-        <SectionTitle ic="📋" mt={4}>{t.myContractedProjects}</SectionTitle>
+        <SectionTitle ic={<ClipboardList size={16} color={C.ocean} />} mt={4}>{t.myContractedProjects}</SectionTitle>
         {projects.filter(function(p){ return p.contractor_id === user.id; }).map(function(p) {
           return <Card key={p.id} onClick={function() { fetchProj(p.id); setPage("tracking"); }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -3890,7 +4217,7 @@ export default function App() {
 
       {/* My inspector projects */}
       {!isContractor && projects.filter(function(p){ return p.inspector_id === user.id; }).length > 0 && <div style={{ marginTop: 8 }}>
-        <SectionTitle ic="🔍" mt={4}>مشاريعي كمفتش</SectionTitle>
+        <SectionTitle ic={<Search size={16} color={C.green} />} mt={4}>مشاريعي كمفتش</SectionTitle>
         {projects.filter(function(p){ return p.inspector_id === user.id; }).map(function(p) {
           return <Card key={p.id} onClick={function() { fetchProj(p.id); setPage("tracking"); }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -4327,7 +4654,7 @@ export default function App() {
         {projFiles.map(function (f, i) {
           var fileUrl = f.file_path || f.url || "";
           var canOpen = !!fileUrl;
-          return <div key={i} onClick={function(){ if (canOpen) window.open(fileUrl.startsWith("http") ? fileUrl : API.replace("/api","") + "/" + fileUrl, "_blank"); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 8px", marginBottom: 3, background: canOpen ? "rgba(21,101,192,.04)" : "transparent", borderRadius: 8, cursor: canOpen ? "pointer" : "default", border: canOpen ? "1px solid rgba(21,101,192,.1)" : "none" }}>
+          return <div key={i} onClick={function(){ if (canOpen) window.open(fileUrl.startsWith("http") ? fileUrl : ASSET_BASE + "/" + fileUrl, "_blank"); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 8px", marginBottom: 3, background: canOpen ? "rgba(21,101,192,.04)" : "transparent", borderRadius: 8, cursor: canOpen ? "pointer" : "default", border: canOpen ? "1px solid rgba(21,101,192,.1)" : "none" }}>
             <span style={{ fontSize: 14 }}>{f.file_type === "image" ? "🖼️" : f.file_type === "video" ? "🎥" : "📄"}</span>
             <span style={{ flex: 1, fontSize: 10, color: C.t2 }}>{f.file_name}</span>
             {canOpen && <span style={{ fontSize: 12, color: C.ocean }}>📂</span>}
@@ -4338,7 +4665,7 @@ export default function App() {
 
       {/* Quotations section (for owner on open projects) - hidden when contract pending */}
       {(!contract || contract.status === "active") && !showContractView && role === "owner" && quotations.length > 0 && <div>
-        <SectionTitle ic="💰">{t.quotationsTitle} ({quotations.length})</SectionTitle>
+        <SectionTitle ic={<Coins size={16} color={C.gold} />}>{t.quotationsTitle} ({quotations.length})</SectionTitle>
         {quotations.map(function (q) {
           var boq = []; try { boq = JSON.parse(q.boq_data || "[]"); } catch(e){}
           return <Card key={q.id} bc={q.status === "accepted" ? C.green : q.status === "rejected" ? C.red : C.gold}>
@@ -4353,7 +4680,16 @@ export default function App() {
                 <div style={{ fontSize: 9, color: C.t3 }}>{q.duration_months} {t.monthStr} | {t.warranty} {q.warranty_months} {t.monthStr}</div>
               </div>
             </div>
-            {q.notes && <div style={{ fontSize: 10, color: C.t2, marginTop: 6, padding: "6px 8px", background: "#F4F7FB", borderRadius: 6 }}>{q.notes}</div>}
+            {q.notes && <div style={{ fontSize: 11, color: C.steel, marginTop: 6, padding: "6px 8px", background: "#F4F7FB", borderRadius: 6 }}>{q.notes}</div>}
+            {/* BOQ Excel file download — visible only when contractor attached one (server-enforced ACL) */}
+            {q.has_boq_file && <button type="button" onClick={function(){ downloadBoq(q.id, q.boq_file_name); }} aria-label={"تحميل ملف BOQ: " + (q.boq_file_name || "BOQ.xlsx")} style={{ all: "unset", boxSizing: "border-box", marginTop: 8, padding: "10px 12px", minHeight: 44, width: "100%", background: "linear-gradient(135deg,rgba(16,185,129,.08),rgba(16,185,129,.04))", border: "1px solid rgba(16,185,129,.25)", borderRadius: 8, display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+              <span aria-hidden="true" style={{ fontSize: 18 }}>📗</span>
+              <span style={{ flex: 1, textAlign: "start" }}>
+                <span style={{ display: "block", fontSize: 12, fontWeight: 700, color: C.green }}>ملف BOQ — Excel</span>
+                <span style={{ display: "block", fontSize: 11, color: C.t2 }}>{q.boq_file_name || "BOQ.xlsx"}{q.boq_file_size ? " • " + (q.boq_file_size / 1024).toFixed(1) + " KB" : ""}</span>
+              </span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}><span aria-hidden="true">📥 </span>تحميل</span>
+            </button>}
             {/* BOQ Details */}
             {boq.length > 0 && <div style={{ marginTop: 8 }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: C.t2, marginBottom: 4 }}>{t.boqTable} — {boq.length} {t.boqItems}</div>
@@ -4380,7 +4716,7 @@ export default function App() {
 
       {/* Inspector applications - hidden when contract pending */}
       {(!contract || contract.status === "active") && !showContractView && role === "owner" && inspApps.length > 0 && <div>
-        <SectionTitle ic="🔍">{t.inspectorAppsTitle} ({inspApps.length})</SectionTitle>
+        <SectionTitle ic={<Search size={16} color={C.green} />}>{t.inspectorAppsTitle} ({inspApps.length})</SectionTitle>
         {inspApps.map(function (ia) {
           return <Card key={ia.id} bc={ia.status === "accepted" ? C.green : C.brd}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -4481,9 +4817,9 @@ export default function App() {
 
       {/* Stats row — for contractor/inspector */}
       {(role === "contractor" || role === "inspector") && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
-        <StatCard v={projects.filter(function(p){ return role==="contractor"?p.contractor_id===user.id:p.inspector_id===user.id; }).length} l={t.projectsLabel} ic="🏗️" cl={profColor} />
-        <StatCard v={projects.filter(function(p){ return (role==="contractor"?p.contractor_id===user.id:p.inspector_id===user.id) && p.status==="active"; }).length} l={t.profileActive} ic="⚡" cl={C.amber} />
-        <StatCard v={user.rating || "—"} l={t.yourRating} ic="⭐" cl={C.gold} />
+        <StatCard v={projects.filter(function(p){ return role==="contractor"?p.contractor_id===user.id:p.inspector_id===user.id; }).length} l={t.projectsLabel} ic={<Construction size={18} />} cl={profColor} />
+        <StatCard v={projects.filter(function(p){ return (role==="contractor"?p.contractor_id===user.id:p.inspector_id===user.id) && p.status==="active"; }).length} l={t.profileActive} ic={<Zap size={18} />} cl={C.amber} />
+        <StatCard v={user.rating || "—"} l={t.yourRating} ic={<Star size={18} />} cl={C.gold} />
       </div>}
 
       {/* Admin panel quick access */}
@@ -4494,7 +4830,7 @@ export default function App() {
 
       {/* Notifications */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-        <SectionTitle ic="🔔">{t.notifications} {unreadCount > 0 && <span style={{ background: C.red, color: "#fff", fontSize: 9, padding: "1px 6px", borderRadius: 8, marginRight: 4 }}>{unreadCount}</span>}</SectionTitle>
+        <SectionTitle ic={<Bell size={16} color={C.amber} />}>{t.notifications} {unreadCount > 0 && <span style={{ background: C.red, color: "#fff", fontSize: 9, padding: "1px 6px", borderRadius: 8, marginRight: 4 }}>{unreadCount}</span>}</SectionTitle>
         {notifs.length > 0 && <Btn v="outline" sm onClick={function () { call("/notifications/read-all", "POST", {}, tk).then(function () { loadData(); }); }}>{t.readAll}</Btn>}
       </div>
       {notifs.length === 0 && <div style={{ textAlign: "center", padding: 24, color: C.t3 }}>
@@ -4886,56 +5222,50 @@ export default function App() {
   // ═══════ NAVIGATION ═══════
   var nav = role === "owner"
     ? [
-        { id: "home", ic: "🏠", lb: t.navHome },
-        { id: "offers", ic: "📨", lb: t.navOffers, badge: dash.pending_quotations > 0 ? dash.pending_quotations : null },
-        { id: "wallet", ic: "👛", lb: t.navWallet, soon: true },
-        { id: "tracking", ic: "📋", lb: t.navProject },
-        { id: "profile", ic: "👤", lb: t.navProfile }
+        { id: "home", ic: <Home size={20} />, lb: t.navHome },
+        { id: "offers", ic: <Inbox size={20} />, lb: t.navOffers, badge: dash.pending_quotations > 0 ? dash.pending_quotations : null },
+        { id: "wallet", ic: <Wallet size={20} />, lb: t.navWallet, soon: true },
+        { id: "tracking", ic: <ClipboardList size={20} />, lb: t.navProject },
+        { id: "profile", ic: <User size={20} />, lb: t.navProfile }
       ]
     : role === "contractor"
     ? [
-        { id: "home", ic: "🏠", lb: t.navHome },
-        { id: "tenders", ic: "💰", lb: t.navTenders, badge: dash.awaiting_pricing > 0 ? dash.awaiting_pricing : null },
-        { id: "achievements", ic: "🏆", lb: t.navGallery, soon: true },
-        { id: "tracking", ic: "📋", lb: t.navProject },
-        { id: "profile", ic: "👷", lb: t.navProfile }
+        { id: "home", ic: <Home size={20} />, lb: t.navHome },
+        { id: "tenders", ic: <CircleDollarSign size={20} />, lb: t.navTenders, badge: dash.awaiting_pricing > 0 ? dash.awaiting_pricing : null },
+        { id: "achievements", ic: <Trophy size={20} />, lb: t.navGallery, soon: true },
+        { id: "tracking", ic: <ClipboardList size={20} />, lb: t.navProject },
+        { id: "profile", ic: <HardHat size={20} />, lb: t.navProfile }
       ]
     : role === "developer"
     ? [
-        { id: "home", ic: "🏠", lb: t.navHome },
-        { id: "compounds", ic: "🏘️", lb: isEn ? "Compounds" : "المجمعات" },
-        { id: "wallet", ic: "👛", lb: t.navWallet, soon: true },
-        { id: "achievements", ic: "🏆", lb: t.navGallery, soon: true },
-        { id: "profile", ic: "🏗️", lb: t.navProfile }
+        { id: "home", ic: <Home size={20} />, lb: t.navHome },
+        { id: "compounds", ic: <Building2 size={20} />, lb: isEn ? "Compounds" : "المجمعات" },
+        { id: "wallet", ic: <Wallet size={20} />, lb: t.navWallet, soon: true },
+        { id: "achievements", ic: <Trophy size={20} />, lb: t.navGallery, soon: true },
+        { id: "profile", ic: <Construction size={20} />, lb: t.navProfile }
       ]
     : [
-        { id: "home", ic: "🏠", lb: t.navHome },
-        { id: "tenders", ic: "📝", lb: isEn ? "Projects" : "المشاريع", badge: openProjects.length > 0 ? openProjects.length : null },
-        { id: "achievements", ic: "🏆", lb: t.navGallery, soon: true },
-        { id: "tracking", ic: "📋", lb: t.navProject },
-        { id: "profile", ic: "🔍", lb: t.navProfile }
+        { id: "home", ic: <Home size={20} />, lb: t.navHome },
+        { id: "tenders", ic: <FileText size={20} />, lb: isEn ? "Projects" : "المشاريع", badge: openProjects.length > 0 ? openProjects.length : null },
+        { id: "achievements", ic: <Trophy size={20} />, lb: t.navGallery, soon: true },
+        { id: "tracking", ic: <ClipboardList size={20} />, lb: t.navProject },
+        { id: "profile", ic: <Search size={20} />, lb: t.navProfile }
       ];
 
   // ═══════ MODALS ═══════
   var modalUI = null;
-  function ModalWrap(p) {
-    return <div onClick={function () { setModal(null); }} style={{ position: "fixed", inset: 0, background: "rgba(11,29,51,.5)", zIndex: 300, display: "flex", alignItems: "flex-end" }}>
-      <div onClick={function (e) { e.stopPropagation(); }} style={{ background: C.card, borderRadius: "18px 18px 0 0", width: "100%", padding: "18px 18px 28px", maxHeight: "85vh", overflowY: "auto" }}>
-        <div style={{ width: 36, height: 4, background: "#DDE2EB", borderRadius: 2, margin: "0 auto 14px" }} />
-        {p.children}
-      </div>
-    </div>;
-  }
+  // Stable callback so the module-scope ModalWrap memoizes cleanly across renders.
+  var closeModal = useCallback(function () { setModal(null); }, []);
 
   // ── Deposit Modal — isolated component ──
   if (modal === "deposit") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <DepositForm onSubmit={function (data) { doDeposit(data.amount, data.bank); }} />
     </ModalWrap>;
   }
   // ── AI Smart Upload Modal ──
   else if (modal === "aiUpload") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <AIProjectUpload
         token={tk}
         onClose={function () { setModal(null); }}
@@ -4948,52 +5278,39 @@ export default function App() {
     </ModalWrap>;
   }
 
-  // ── New Project Modal — isolated form component prevents re-render lag ──
-  else if (modal === "newProject") {
-    modalUI = <ModalWrap>
-      <NewProjectForm
-        onClose={function () { setModal(null); }}
-        onSubmit={function (data) {
-          call("/projects", "POST", data, tk).then(function (d) {
-            if (d.success) {
-              show("✅ تم رفع الطلب — سيتم إشعار المقاولين والمشرفين فوراً");
-              setModal(null);
-              loadData();
-            } else {
-              show("❌ " + (d.error || "خطأ"));
-            }
-          });
-        }}
-      />
-    </ModalWrap>;
-  }
-  // ── BOQ Quotation Modal (contractor) — isolated component ──
+  // ── Manual "newProject" modal REMOVED — projects must be created via AI upload flow only ──
+  // ── BOQ Quotation Modal (contractor) — Excel upload ──
   else if (modal && modal.type === "quotation") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <BOQQuotationForm
         modal={modal}
         onClose={function () { setModal(null); }}
         onSubmit={function (data) {
-          if (data.items.length === 0 || data.total === 0) { show("❌ أضف بنود التسعير"); return; }
-          call("/projects/" + modal.pid + "/quotation", "POST", {
-            price: data.total,
-            durationMonths: data.dur,
-            warrantyMonths: data.warranty,
-            notes: data.notes,
-            boqItems: data.items
-          }, tk).then(function (d) {
-            if (d.success) {
-              show("✅ تم تقديم العرض — سيتم إشعار المالك فوراً");
-              setModal(null); loadData();
-            } else show("❌ " + (d.error || "خطأ"));
-          });
+          if (!data.file) { show("❌ الرجاء رفع ملف BOQ"); return; }
+          if (!data.items || data.items.length === 0 || data.total === 0) { show("❌ لم يتم التعرف على بنود في الملف"); return; }
+          var fd = new FormData();
+          fd.append("boqFile", data.file);
+          fd.append("price", String(data.total));
+          fd.append("durationMonths", String(data.dur));
+          fd.append("warrantyMonths", String(data.warranty));
+          fd.append("notes", data.notes || "");
+          var h = { "Authorization": "Bearer " + tk };
+          fetch(BASE + "/projects/" + modal.pid + "/quotation-excel", { method: "POST", headers: h, body: fd })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              if (d.success) {
+                show("✅ تم تقديم العرض — سيتم إشعار المالك فوراً");
+                setModal(null); loadData();
+              } else show("❌ " + (d.error || "خطأ في رفع الملف"));
+            })
+            .catch(function (e) { console.error("BOQ upload", e); show("❌ خطأ في الاتصال"); });
         }}
       />
     </ModalWrap>;
   }
   // ── Inspector Apply Modal — isolated component ──
   else if (modal && modal.type === "inspectorApply") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <InspectorApplyForm
         modal={modal}
         onSubmit={function (data) {
@@ -5007,7 +5324,7 @@ export default function App() {
   }
   // ── Contractor Submit Modal — isolated component ──
   else if (modal && modal.type === "contractorSubmit") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <ContractorSubmitForm
         modal={modal}
         onSubmit={function (data) {
@@ -5021,7 +5338,7 @@ export default function App() {
   }
   // ── Inspector Review Modal — isolated component ──
   else if (modal && modal.type === "inspectorReview") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <InspectorReviewForm
         modal={modal}
         onApprove={function (data) {
@@ -5041,7 +5358,7 @@ export default function App() {
   }
   // ── Owner Decision Modal — isolated component ──
   else if (modal && modal.type === "ownerDecision") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <OwnerDecisionForm
         modal={modal}
         onApprove={function (data) {
@@ -5064,7 +5381,7 @@ export default function App() {
     var lowestQ = offersQuotations.length > 0
       ? offersQuotations.reduce(function(mn, q) { return (q.total_price || q.price || 0) < (mn.total_price || mn.price || 0) ? q : mn; }, offersQuotations[0])
       : null;
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       {/* Modal header */}
       <div style={{ background: C.gNavy, borderRadius: 12, padding: "12px 14px", marginBottom: 14, color: "#fff" }}>
         <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 15, fontWeight: 900 }}>{t.compareOffers}</div>
@@ -5092,6 +5409,16 @@ export default function App() {
             var isLowest = lowestQ && q.id === lowestQ.id && offersQuotations.length > 1;
             var isPending = q.status === "pending";
             var isAccepted = q.status === "accepted";
+            var boqExpKey = "boq_" + q.id;
+            var boqExpanded = exp[boqExpKey];
+            // Group BOQ by stage
+            var boqStages = {};
+            boq.forEach(function(b) {
+              var stg = b.stage || (isEn ? "Other" : "أخرى");
+              if (!boqStages[stg]) boqStages[stg] = [];
+              boqStages[stg].push(b);
+            });
+            var stageKeys = Object.keys(boqStages);
             return <div key={q.id} style={{ border: "2px solid " + (isAccepted ? C.green : isLowest && isPending ? C.ocean : C.brd), borderRadius: 14, marginBottom: 12, overflow: "hidden", background: isAccepted ? "rgba(14,173,105,.03)" : "#fff", boxShadow: isLowest && isPending ? "0 4px 14px rgba(21,101,192,.12)" : "0 2px 8px rgba(13,27,42,.06)" }}>
               {/* Contractor header */}
               <div style={{ background: isAccepted ? C.gGreen : isLowest && isPending ? C.gBlue : "linear-gradient(135deg,rgba(13,27,42,.04),rgba(13,27,42,.01))", padding: "12px 14px" }}>
@@ -5103,7 +5430,8 @@ export default function App() {
                       {isLowest && isPending && <span style={{ fontSize: 9, background: "rgba(21,101,192,.15)", color: C.ocean, padding: "2px 6px", borderRadius: 6, fontWeight: 700 }}>{t.lowestPrice}</span>}
                     </div>
                     <div style={{ fontSize: 10, color: isAccepted ? "rgba(255,255,255,.6)" : C.t3 }}>
-                      {q.company_name_ar && q.company_name_ar + " "}
+                      {q.company_name_ar && <span>{q.company_name_ar} </span>}
+                      {q.cr_number && <span style={{ opacity: 0.7 }}>({isEn ? "CR" : "س.ت"}: {q.cr_number}) </span>}
                       {q.rating > 0 && <span>⭐ {q.rating}/5</span>}
                     </div>
                   </div>
@@ -5130,13 +5458,31 @@ export default function App() {
                   })}
                 </div>
 
-                {q.notes && <div style={{ fontSize: 10, color: C.t2, padding: "7px 10px", background: "#F4F7FB", borderRadius: 8, marginBottom: 10, lineHeight: 1.5 }}>💬 {q.notes}</div>}
+                {/* Submission date */}
+                {q.createdAt && <div style={{ fontSize: 9, color: C.t3, marginBottom: 8, display: "flex", alignItems: "center", gap: 4 }}>
+                  <span>📅</span> {isEn ? "Submitted" : "تاريخ التقديم"}: {new Date(q.createdAt).toLocaleDateString("ar-BH", { year: "numeric", month: "long", day: "numeric" })}
+                </div>}
 
-                {/* BOQ items */}
+                {q.notes && <div style={{ fontSize: 11, color: C.steel, padding: "7px 10px", background: "#F4F7FB", borderRadius: 8, marginBottom: 10, lineHeight: 1.5 }}><span aria-hidden="true">💬 </span>{q.notes}</div>}
+
+                {/* BOQ Excel file — visible to owner + submitting contractor only (server-enforced ACL) */}
+                {q.has_boq_file && <button type="button" onClick={function(){ downloadBoq(q.id, q.boq_file_name); }} aria-label={"تحميل ملف BOQ: " + (q.boq_file_name || "BOQ.xlsx")} style={{ all: "unset", boxSizing: "border-box", marginBottom: 10, padding: "10px 12px", minHeight: 44, width: "100%", background: "linear-gradient(135deg,rgba(16,185,129,.08),rgba(16,185,129,.04))", border: "1px solid rgba(16,185,129,.25)", borderRadius: 10, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+                  <span aria-hidden="true" style={{ fontSize: 22 }}>📗</span>
+                  <span style={{ flex: 1, textAlign: "start" }}>
+                    <span style={{ display: "block", fontSize: 12, fontWeight: 800, color: C.green }}>ملف BOQ — Excel</span>
+                    <span style={{ display: "block", fontSize: 11, color: C.t2 }}>{q.boq_file_name || "BOQ.xlsx"}{q.boq_file_size ? " • " + (q.boq_file_size / 1024).toFixed(1) + " KB" : ""}</span>
+                  </span>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: C.green, background: "rgba(16,185,129,.12)", padding: "4px 10px", borderRadius: 8 }}><span aria-hidden="true">📥 </span>تحميل</span>
+                </button>}
+
+                {/* BOQ items — expandable with stage grouping */}
                 {boq.length > 0 && <div style={{ marginBottom: 10 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: C.t2, marginBottom: 5 }}>{t.boqItemsLabel} ({boq.length} {t.itemLabel})</div>
+                  <div onClick={function() { setExp(function(prev) { var n = {}; n[boqExpKey] = !prev[boqExpKey]; return Object.assign({}, prev, n); }); }} style={{ fontSize: 10, fontWeight: 700, color: C.t2, marginBottom: 5, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                    <span>{boqExpanded ? "▼" : "▶"}</span> {t.boqItemsLabel} ({boq.length} {t.itemLabel})
+                    <span style={{ fontSize: 9, color: C.ocean, marginRight: 4 }}>{boqExpanded ? (isEn ? "collapse" : "طي") : (isEn ? "expand all" : "عرض الكل")}</span>
+                  </div>
                   <div style={{ border: "1px solid " + C.brd, borderRadius: 8, overflow: "hidden" }}>
-                    {boq.slice(0, 4).map(function (b, i) {
+                    {!boqExpanded && boq.slice(0, 4).map(function (b, i) {
                       var itemTotal = (b.quantity || 1) * (b.unit_price || b.unitPrice || 0);
                       return <div key={i} style={{ display: "flex", alignItems: "center", padding: "5px 10px", fontSize: 9, borderBottom: i < Math.min(boq.length, 4) - 1 ? "1px solid #EDF1F7" : "none", background: i % 2 === 0 ? "#fff" : "#FAFBFD" }}>
                         <span style={{ flex: 1, color: C.t2 }}>{b.description || b.desc}</span>
@@ -5144,7 +5490,32 @@ export default function App() {
                         <span style={{ color: C.amber, fontWeight: 700, marginRight: 0, minWidth: 64, textAlign: "left" }}>{Number(itemTotal).toLocaleString()} {t.bhd}</span>
                       </div>;
                     })}
-                    {boq.length > 4 && <div style={{ padding: "5px 10px", fontSize: 9, color: C.t3, textAlign: "center", background: "#F8FAFC" }}>... {isEn ? (boq.length - 4) + " " + t.andMore : "و" + (boq.length - 4) + " " + t.andMore}</div>}
+                    {!boqExpanded && boq.length > 4 && <div onClick={function() { setExp(function(prev) { var n = {}; n[boqExpKey] = true; return Object.assign({}, prev, n); }); }} style={{ padding: "5px 10px", fontSize: 9, color: C.ocean, textAlign: "center", background: "#F8FAFC", cursor: "pointer", fontWeight: 600 }}>📋 {isEn ? "Show all " + boq.length + " items" : "عرض جميع البنود (" + boq.length + " بند)"}</div>}
+                    {boqExpanded && stageKeys.map(function(stg, si) {
+                      var stageItems = boqStages[stg];
+                      var stageTotal = stageItems.reduce(function(sum, b) { return sum + ((b.quantity || 1) * (b.unit_price || b.unitPrice || 0)); }, 0);
+                      return <div key={si}>
+                        <div style={{ background: "#EDF2FA", padding: "5px 10px", fontSize: 9, fontWeight: 800, color: C.navy, display: "flex", justifyContent: "space-between", borderBottom: "1px solid " + C.brd }}>
+                          <span>{stg}</span>
+                          <span style={{ color: C.amber }}>{stageTotal.toLocaleString()} {t.bhd}</span>
+                        </div>
+                        {stageItems.map(function(b, i) {
+                          var itemTotal = (b.quantity || 1) * (b.unit_price || b.unitPrice || 0);
+                          return <div key={i} style={{ display: "flex", alignItems: "center", padding: "4px 10px", fontSize: 9, borderBottom: "1px solid #EDF1F7", background: i % 2 === 0 ? "#fff" : "#FAFBFD" }}>
+                            <span style={{ flex: 1, color: C.t2 }}>{b.description || b.desc}</span>
+                            {b.brand && <span style={{ fontSize: 8, color: C.ocean, background: "rgba(21,101,192,.08)", padding: "1px 5px", borderRadius: 4, marginLeft: 4 }}>{b.brand}</span>}
+                            <span style={{ color: C.t3, marginLeft: 6, minWidth: 28, textAlign: "center", fontSize: 8 }}>{b.unit || ""}</span>
+                            <span style={{ color: C.t3, marginLeft: 4, fontSize: 8 }}>×{b.quantity || 1}</span>
+                            <span style={{ color: C.t3, marginLeft: 4, fontSize: 8 }}>@{Number(b.unit_price || b.unitPrice || 0).toLocaleString()}</span>
+                            <span style={{ color: C.amber, fontWeight: 700, minWidth: 56, textAlign: "left", marginLeft: 6 }}>{Number(itemTotal).toLocaleString()}</span>
+                          </div>;
+                        })}
+                      </div>;
+                    })}
+                    {boqExpanded && <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 10px", background: C.navy, color: "#fff", fontSize: 10, fontWeight: 800 }}>
+                      <span>{isEn ? "Grand Total" : "الإجمالي الكلي"}</span>
+                      <span>{price.toLocaleString()} {t.bhd}</span>
+                    </div>}
                   </div>
                 </div>}
 
@@ -5222,7 +5593,7 @@ export default function App() {
 
   // ── Rating Modal — isolated component ──
   else if (modal && modal.type === "rate") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <RatingForm
         modal={modal}
         onSubmit={function (data) {
@@ -5242,7 +5613,7 @@ export default function App() {
   // ── Company Profile Modal (from achievements gallery) ──
   else if (modal && modal.type === "projectFiles") {
     var pf = modal.data;
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <div style={{ fontFamily: "Cairo, sans-serif", fontSize: 16, fontWeight: 900, marginBottom: 4 }}>📂 جميع ملفات المشروع</div>
       <div style={{ fontSize: 11, color: C.t3, marginBottom: 14 }}>{pf.project_name} — {pf.total_files} ملف</div>
 
@@ -5300,7 +5671,7 @@ export default function App() {
     var coAvgRating = co.ratings.length > 0
       ? (co.ratings.reduce(function(s, r) { return s + r; }, 0) / co.ratings.length).toFixed(1)
       : "—";
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       {/* Company header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, paddingBottom: 14, borderBottom: "1px solid " + C.brd }}>
         <div style={{ width: 54, height: 54, borderRadius: 14, background: C.gNavy, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, flexShrink: 0 }}>🏢</div>
@@ -5383,7 +5754,7 @@ export default function App() {
 
   // ── Edit Profile Modal ──
   else if (modal === "editProfile") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <EditProfileForm
         user={user}
         onSubmit={function(data) {
@@ -5406,7 +5777,7 @@ export default function App() {
 
   // ── Change Password Modal ──
   else if (modal === "changePassword") {
-    modalUI = <ModalWrap>
+    modalUI = <ModalWrap onClose={closeModal}>
       <ChangePasswordForm
         onSubmit={function(data) {
           call("/auth/change-password", "POST", data, tk).then(function(d) {
@@ -5421,7 +5792,7 @@ export default function App() {
 
   // ═══════ MAIN LAYOUT ═══════
   return (
-    <div style={{ fontFamily: "Tajawal, sans-serif", background: "linear-gradient(180deg,#D6E4F7 0%,#E8EFF8 30%,#EEF3FA 100%)", minHeight: "100vh", direction: isEn ? "ltr" : "rtl", paddingBottom: 0, WebkitOverflowScrolling: "touch" }}>
+    <div style={{ fontFamily: "Tajawal, sans-serif", background: "linear-gradient(180deg,#0A1628 0%,#0F1D32 30%,#131F33 60%,#0F172A 100%)", minHeight: "100vh", direction: isEn ? "ltr" : "rtl", paddingBottom: 0, WebkitOverflowScrolling: "touch", color: "#E2E8F0" }}>
       {/* Header */}
       <div style={{
         background: C.gNavy,
@@ -5433,7 +5804,7 @@ export default function App() {
       }}>
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-          <div style={{ width: 34, height: 34, background: "linear-gradient(135deg,#1565C0,#42A5F5)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, boxShadow: "0 2px 8px rgba(21,101,192,.5)" }}>🐋</div>
+          <div style={{ width: 34, height: 34, background: "linear-gradient(135deg,#1565C0,#42A5F5)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(21,101,192,.5)" }}><WhaleLogo size={28} /></div>
           <div>
             <span style={{ fontFamily: "Cairo, sans-serif", fontWeight: 900, fontSize: 14, color: "#fff", letterSpacing: 1 }}>FIRST </span>
             <span style={{ fontFamily: "Cairo, sans-serif", fontWeight: 900, fontSize: 14, color: C.amber, letterSpacing: 1 }}>TOUCH</span>
@@ -5445,8 +5816,10 @@ export default function App() {
             <div style={{ background: C.red, color: "#fff", fontSize: 9, fontWeight: 800, padding: "2px 7px", borderRadius: 10, boxShadow: "0 2px 6px rgba(229,57,53,.5)" }}>
               🔔 {notifs.filter(function(n){return !n.is_read;}).length}
             </div>}
-          <div style={{ background: "rgba(255,255,255,.12)", border: "1px solid rgba(255,255,255,.2)", padding: "4px 10px", borderRadius: 10 }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: role === "owner" ? C.sky : role === "contractor" ? C.amber : C.green }}>{ri} {rt}</span>
+          <div onClick={function(){ setShowRoleSwitcher(!showRoleSwitcher); }} style={{ background: roleOverride ? "rgba(245,158,11,.15)" : "rgba(255,255,255,.12)", border: roleOverride ? "1px solid rgba(245,158,11,.4)" : "1px solid rgba(255,255,255,.2)", padding: "4px 10px", borderRadius: 10, display: "flex", alignItems: "center", gap: 4, cursor: "pointer", position: "relative" }}>
+            {roleOverride && <Eye size={10} color={C.amber} />}
+            <span style={{ fontSize: 10, fontWeight: 700, color: role === "owner" ? C.sky : role === "contractor" ? C.amber : role === "developer" ? "#A855F7" : C.green, display: "flex", alignItems: "center", gap: 3 }}>{ri} {rt}</span>
+            <Repeat2 size={10} color={roleOverride ? C.amber : C.t3} />
           </div>
         </div>
       </div>
@@ -5454,42 +5827,138 @@ export default function App() {
       {/* Content */}
       <div style={{ padding: 14, paddingBottom: 100, maxWidth: 600, margin: "0 auto" }}>{pg}</div>
 
-      {/* Bottom navigation — frosted dark bar */}
-      <div style={{
+      {/* Bottom navigation — frosted glass bar */}
+      <motion.div initial={{ y: 80 }} animate={{ y: 0 }} transition={{ type: "spring", stiffness: 260, damping: 25 }} style={{
         position: "fixed", bottom: 0, left: 0, right: 0,
-        background: "linear-gradient(180deg,rgba(13,27,42,.96),rgba(13,27,42,1))",
-        borderTop: "1px solid rgba(255,255,255,.08)",
+        background: "rgba(10,22,40,.92)",
+        backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
+        borderTop: "1px solid rgba(255,255,255,.06)",
         display: "flex", justifyContent: "space-around",
-        padding: "6px 0 calc(14px + env(safe-area-inset-bottom, 0px))", zIndex: 50,
-        boxShadow: "0 -4px 20px rgba(13,27,42,.3)"
+        padding: "8px 0 calc(14px + env(safe-area-inset-bottom, 0px))", zIndex: 50,
+        boxShadow: "0 -8px 32px rgba(0,0,0,.25)"
       }}>
         {nav.map(function (n) {
           var isActive = page === n.id;
           var activeColor = role === "owner" ? C.sky : role === "contractor" ? C.amber : C.green;
-          return <div key={n.id} onClick={function () { if (n.soon) { show(t.comingSoonToast); return; } setPage(n.id); if (n.id === "home") loadData(); if (n.id === "achievements") fetchAchievements(); if (n.id === "tenders") loadData(); if (n.id === "offers") loadData(); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, cursor: n.soon ? "default" : "pointer", position: "relative", minWidth: 50, opacity: n.soon ? 0.4 : 1 }}>
-            <div style={{
-              fontSize: 19, width: 38, height: 30,
+          return <motion.div key={n.id} whileTap={n.soon ? {} : { scale: 0.88 }} onClick={function () { if (n.soon) { show(t.comingSoonToast); return; } setPage(n.id); if (n.id === "home") loadData(); if (n.id === "achievements") fetchAchievements(); if (n.id === "tenders") loadData(); if (n.id === "offers") loadData(); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, cursor: n.soon ? "default" : "pointer", position: "relative", minWidth: 50, opacity: n.soon ? 0.35 : 1 }}>
+            <motion.div animate={isActive && !n.soon ? { scale: 1.1 } : { scale: 1 }} transition={{ type: "spring", stiffness: 400, damping: 15 }} style={{
+              fontSize: 19, width: 40, height: 32,
               display: "flex", alignItems: "center", justifyContent: "center",
-              borderRadius: 10,
-              background: isActive && !n.soon ? activeColor + "28" : "transparent",
-              position: "relative",
-              transition: "all 0.2s"
+              borderRadius: 12,
+              background: isActive && !n.soon ? activeColor + "22" : "transparent",
+              position: "relative"
             }}>
               {n.ic}
-              {n.badge && <span style={{ position: "absolute", top: -3, right: -3, background: C.red, color: "#fff", fontSize: 8, fontWeight: 800, padding: "1px 4px", borderRadius: 6, minWidth: 14, textAlign: "center", boxShadow: "0 1px 4px rgba(229,57,53,.5)" }}>{n.badge}</span>}
+              {n.badge && <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} style={{ position: "absolute", top: -3, right: -3, background: C.red, color: "#fff", fontSize: 8, fontWeight: 800, padding: "1px 4px", borderRadius: 6, minWidth: 14, textAlign: "center", boxShadow: "0 2px 6px rgba(239,68,68,.5)" }}>{n.badge}</motion.span>}
               {n.soon && <span style={{ position: "absolute", top: -6, right: -10, background: C.gold, color: "#fff", fontSize: 7, fontWeight: 800, padding: "1px 4px", borderRadius: 4 }}>{t.comingSoon}</span>}
-            </div>
-            <span style={{ fontSize: 9, fontWeight: isActive && !n.soon ? 800 : 400, color: isActive && !n.soon ? activeColor : "rgba(255,255,255,.45)" }}>{n.lb}</span>
-            {isActive && !n.soon && <div style={{ position: "absolute", top: -1, width: 20, height: 2, background: activeColor, borderRadius: 2 }} />}
-          </div>;
+            </motion.div>
+            <span style={{ fontSize: 9, fontWeight: isActive && !n.soon ? 800 : 500, color: isActive && !n.soon ? activeColor : "rgba(255,255,255,.4)", transition: "all .2s" }}>{n.lb}</span>
+            {isActive && !n.soon && <motion.div layoutId="navIndicator" style={{ position: "absolute", top: -1, width: 22, height: 2.5, background: activeColor, borderRadius: 2 }} />}
+          </motion.div>;
         })}
-      </div>
+      </motion.div>
+
+      {/* ═══════ ROLE SWITCHER — Dropdown from Header ═══════ */}
+      <AnimatePresence>
+        {showRoleSwitcher && user && <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={function(){ setShowRoleSwitcher(false); }}
+            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.4)", zIndex: 100 }}
+          />
+          {/* Panel */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ type: "spring", stiffness: 400, damping: 28 }}
+            style={{
+              position: "fixed", top: 58, left: 14, right: 14,
+              background: "rgba(15,23,42,.97)",
+              backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
+              border: "1px solid rgba(96,165,250,.2)",
+              borderRadius: 16, padding: 14, zIndex: 101,
+              boxShadow: "0 12px 40px rgba(0,0,0,.5)",
+              maxWidth: 400, margin: isEn ? "0 0 0 auto" : "0 auto 0 0"
+            }}
+          >
+            <div style={{ fontSize: 11, fontWeight: 700, color: C.t3, marginBottom: 10, textAlign: "center", letterSpacing: 1 }}>
+              {isEn ? "Switch Role — Preview Mode" : "تبديل الدور — وضع المعاينة"}
+            </div>
+
+            {[
+              { id: "owner", label: "مالك المشروع", labelEn: "Owner", icon: <User size={18} />, color: C.ocean },
+              { id: "contractor", label: "مقاول", labelEn: "Contractor", icon: <HardHat size={18} />, color: C.amber },
+              { id: "inspector", label: "مفتش", labelEn: "Inspector", icon: <Search size={18} />, color: C.green },
+              { id: "developer", label: "مطور عقاري", labelEn: "Developer", icon: <Building2 size={18} />, color: "#7B1FA2" }
+            ].map(function(r) {
+              var isActive = role === r.id;
+              var isReal = realRole === r.id;
+              return <motion.div
+                key={r.id}
+                whileTap={{ scale: 0.96 }}
+                onClick={function(){
+                  if (isReal) { setRoleOverride(null); }
+                  else { setRoleOverride(r.id); }
+                  setPage("home");
+                  setShowRoleSwitcher(false);
+                  loadData(tk, r.id);
+                }}
+                style={{
+                  display: "flex", alignItems: "center", gap: 12,
+                  padding: "12px 14px", borderRadius: 12, marginBottom: 6,
+                  cursor: "pointer",
+                  background: isActive ? r.color + "22" : "rgba(255,255,255,.03)",
+                  border: isActive ? "1.5px solid " + r.color + "55" : "1.5px solid transparent",
+                  transition: "all .2s"
+                }}
+              >
+                <div style={{
+                  width: 36, height: 36, borderRadius: 10,
+                  background: isActive ? r.color : "rgba(255,255,255,.06)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: isActive ? "#fff" : C.t3,
+                  transition: "all .2s"
+                }}>
+                  {r.icon}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: isActive ? 800 : 500, color: isActive ? r.color : C.t1, transition: "all .2s" }}>
+                    {isEn ? r.labelEn : r.label}
+                  </div>
+                  {isReal && <div style={{ fontSize: 9, color: C.t3, fontWeight: 600 }}>{isEn ? "Your account" : "حسابك الأصلي"}</div>}
+                </div>
+                {isActive && <div style={{ width: 10, height: 10, borderRadius: "50%", background: r.color, boxShadow: "0 0 10px " + r.color }} />}
+              </motion.div>;
+            })}
+
+            {roleOverride && <motion.div
+              whileTap={{ scale: 0.96 }}
+              onClick={function(){ setRoleOverride(null); setPage("home"); setShowRoleSwitcher(false); loadData(tk, realRole); }}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                padding: "10px 14px", borderRadius: 12, marginTop: 6,
+                cursor: "pointer",
+                background: "rgba(239,68,68,.12)",
+                border: "1.5px solid rgba(239,68,68,.3)",
+                color: "#EF4444", fontSize: 12, fontWeight: 700
+              }}
+            >
+              <X size={14} />
+              {isEn ? "Back to my role" : "العودة لدوري"}
+            </motion.div>}
+          </motion.div>
+        </>}
+      </AnimatePresence>
 
       {/* Modals */}
       {modalUI}
 
-      {/* Toast */}
-      {toast !== null && <div style={{ position: "fixed", bottom: 75, left: "50%", transform: "translateX(-50%)", background: toast.indexOf("❌") >= 0 ? C.red : C.green, color: "#fff", padding: "10px 20px", borderRadius: 10, fontWeight: 700, fontSize: 12, zIndex: 400, boxShadow: "0 8px 20px rgba(0,0,0,.15)", maxWidth: "90vw", textAlign: "center" }}>{toast}</div>}
+      {/* Toast — animated */}
+      <AnimatePresence>
+        {toast !== null && <motion.div initial={{ opacity: 0, y: 20, x: "-50%" }} animate={{ opacity: 1, y: 0, x: "-50%" }} exit={{ opacity: 0, y: 20, x: "-50%" }} transition={{ type: "spring", stiffness: 400, damping: 25 }} style={{ position: "fixed", bottom: 80, left: "50%", background: toast.indexOf("❌") >= 0 ? "linear-gradient(135deg,#DC2626,#EF4444)" : "linear-gradient(135deg,#059669,#10B981)", color: "#fff", padding: "12px 22px", borderRadius: 14, fontWeight: 700, fontSize: 12, zIndex: 400, boxShadow: "0 8px 30px rgba(0,0,0,.2)", maxWidth: "90vw", textAlign: "center", backdropFilter: "blur(8px)" }}>{toast}</motion.div>}
+      </AnimatePresence>
     </div>
   );
 }

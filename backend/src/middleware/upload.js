@@ -94,10 +94,13 @@ async function processUploadedFiles(req, res, next) {
       const result = await uploadToCloudinary(file.buffer, {
         folder: "firsttouch/" + (req.uploadFolder || "uploads"),
         resourceType: resourceType,
+        type: req.uploadPrivate ? "authenticated" : "upload",
       });
 
       file.cloudinaryUrl = result.url;
       file.cloudinaryPublicId = result.publicId;
+      file.cloudinaryType = result.type || (req.uploadPrivate ? "authenticated" : "upload");
+      file.cloudinaryResourceType = result.resourceType || resourceType;
       file.fileUrl = result.url;
       file.fileSize = result.size;
     }

@@ -55,7 +55,7 @@ async function main() {
   });
   console.log("✅ Owner:", owner.nameAr);
 
-  // Contractor — from quotation header
+  // Contractor — from quotation header (Dr Quality Constructions company)
   const contractor = await prisma.user.upsert({
     where: { email: "contractor@firsttouch.bh" },
     update: {},
@@ -74,6 +74,27 @@ async function main() {
     }
   });
   console.log("✅ Contractor:", contractor.nameAr, "— Dr Quality Constructions");
+
+  // Inspector — Hassan Issa, also from Dr Quality Constructions (team lead / QA)
+  const inspector = await prisma.user.upsert({
+    where: { email: "inspector@firsttouch.bh" },
+    update: {},
+    create: {
+      nameAr: "حسن عيسى",
+      nameEn: "Hassan Issa",
+      email: "inspector@firsttouch.bh",
+      passwordHash: hash,
+      role: "inspector",
+      roles: "inspector",
+      companyNameAr: "Dr Quality Constructions",
+      crNumber: "117102-02",            // same company as contractor
+      specialty: "فحص وضبط جودة البناء للمنشآت الطبية",
+      phone: "+97333509960",
+      bioAr: "مفتش وضابط جودة — Dr Quality Constructions",
+      rating: 4.8
+    }
+  });
+  console.log("✅ Inspector:", inspector.nameAr, "— Dr Quality Constructions");
 
   // Admin user — platform admin
   const admin = await prisma.user.upsert({
@@ -101,6 +122,11 @@ async function main() {
     where: { userId: contractor.id },
     update: {},
     create: { userId: contractor.id, balance: 0, reserved: 0, totalPaid: 0 }
+  });
+  await prisma.wallet.upsert({
+    where: { userId: inspector.id },
+    update: {},
+    create: { userId: inspector.id, balance: 0, reserved: 0, totalPaid: 0 }
   });
   console.log("✅ Wallets created (empty — no deposits yet)");
 
@@ -276,13 +302,28 @@ async function main() {
   });
   console.log("✅ Quotation submitted — BHD", TOTAL_BUDGET.toLocaleString(), "(" + breakdown.length + " items) [pending]");
 
+  // ═══════ INSPECTOR APPLICATION — Hassan Issa applies to supervise project ═══════
+  await prisma.inspectorApplication.create({
+    data: {
+      projectId: project.id,
+      inspectorId: inspector.id,
+      fee: 3500,                      // BHD proposal for inspection duration
+      notes: "أتقدم للإشراف على جودة التنفيذ لمشروع المركز الطبي — خبرة 8 سنوات في فحص المنشآت الطبية بمعايير NHRA.",
+      status: "pending"                // owner needs to review and accept
+    }
+  });
+  console.log("✅ Inspector application submitted — BHD 3,500 [pending owner acceptance]");
+
   // ═══════ NOTIFICATIONS — only real events ═══════
   await prisma.notification.createMany({
     data: [
       { userId: owner.id, type: "success", titleAr: "مرحباً في FIRST TOUCH", messageAr: "تم إنشاء حسابك بنجاح — مرحباً د. نجيب أبو بكر" },
       { userId: owner.id, type: "info", titleAr: "عرض سعر جديد", messageAr: "تم استلام عرض سعر من Dr Quality Constructions بمبلغ 97,360 د.ب لمشروع المركز الطبي — بانتظار مراجعتك" },
+      { userId: owner.id, type: "info", titleAr: "ترشيح مفتش جديد", messageAr: "تقدّم حسن عيسى من Dr Quality Constructions للإشراف على جودة المشروع — بانتظار مراجعتك" },
       { userId: contractor.id, type: "success", titleAr: "مرحباً في FIRST TOUCH", messageAr: "تم إنشاء حسابك بنجاح — مرحباً حسن ناصر" },
       { userId: contractor.id, type: "info", titleAr: "تم تقديم عرض السعر", messageAr: "تم تقديم عرضك لمشروع مركز د. نجيب أبو بكر الطبي — BHD 97,360 — بانتظار موافقة العميل" },
+      { userId: inspector.id, type: "success", titleAr: "مرحباً في FIRST TOUCH", messageAr: "تم إنشاء حسابك بنجاح — مرحباً حسن عيسى" },
+      { userId: inspector.id, type: "info", titleAr: "تم تقديم ترشيحك", messageAr: "تم تقديم ترشيحك كمفتش لمشروع مركز د. نجيب أبو بكر الطبي — بانتظار موافقة المالك" },
     ]
   });
   console.log("✅ Notifications created");
@@ -292,11 +333,13 @@ async function main() {
   console.log("🎉 Database seeded successfully!");
   console.log("═".repeat(50));
   console.log("\n📋 Accounts (password: 123456):");
-  console.log("   👤 Owner:      owner@firsttouch.bh      (د. نجيب أبو بكر)");
+  console.log("   👤 Owner:      owner@firsttouch.bh      (د. نجيب أبو بكر — Project Supervisor)");
   console.log("   👷 Contractor: contractor@firsttouch.bh  (حسن ناصر — Dr Quality)");
+  console.log("   🔍 Inspector:  inspector@firsttouch.bh   (حسن عيسى — Dr Quality QA)");
   console.log("   ⚙️  Admin:      admin@firsttouch.bh");
   console.log("\n📊 Medical Center: 13 stages, 45 zones, " + totalItemsCreated + " BOQ items");
-  console.log("💰 Quotation: BHD 97,360 [pending acceptance]");
+  console.log("💰 Quotation: BHD 97,360 [pending owner acceptance]");
+  console.log("🔎 Inspector fee: BHD 3,500 [pending owner acceptance]");
   console.log("📍 Location: Al Seef, Kingdom of Bahrain");
 }
 
